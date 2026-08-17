@@ -47,7 +47,7 @@ jobs:
 
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/finra-py  # REPLACE: <package-name>
+      url: https://test.pypi.org/p/finra-py
 
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
@@ -67,7 +67,7 @@ jobs:
   pypi:
     name: Publish to PyPI
     
-	if: false  # Disable the job for testing testpypi
+	if: ${{ false }}  # Disable the job for testing testpypi
 	
     runs-on: ubuntu-latest
 
@@ -77,7 +77,7 @@ jobs:
 
     environment:
       name: pypi
-      url: https://pypi.org/p/finra-py  # REPLACE: <package-name>
+      url: https://pypi.org/p/finra-py
 
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
