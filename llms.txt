@@ -1,0 +1,80 @@
+# github.com/hawkberry/finra-py
+
+> An unofficial, open-source Python client library for the FINRA API Platform. `finra-py` simplifies integration with FINRA APIs for accessing public market datasets and regulatory services.
+
+## Project Overview
+
+The library provides:
+- Authentication support for the FINRA API Platform
+- Client interfaces for FINRA API endpoints
+- Support for public market datasets and regulatory APIs
+- Support for Mock datasets and the QA Test Environment API
+- Support for all credential types
+- Support for asynchronous requests (server-side)
+- Support for `asyncio` (client-side)
+
+## Documentation
+
+- [Documentation](https://finra.hawkberry.com/en/latest/): Project documentation.
+- [Getting Started](https://finra.hawkberry.com/en/latest/getting-started.html): Install and configure your first client.
+- [Authentication](https://finra.hawkberry.com/en/latest/auth.html): Client creation and authentication.
+- [HTTP Client](https://finra.hawkberry.com/en/latest/client.html): HTTP client features.
+- [Query API](https://finra.hawkberry.com/en/latest/query-api.html): Query API tutorial.
+- [Notification API](https://finra.hawkberry.com/en/latest/notification-api.html): Notification API tutorial.
+- [Submission API](https://finra.hawkberry.com/en/latest/submission-api.html): Submission API tutorial.
+- [Getting Help](https://finra.hawkberry.com/en/latest/help.html): Getting help, troubleshooting, and bug reporting.
+- [Reference](https://finra.hawkberry.com/en/latest/reference.html): API reference.
+
+## Project Links
+
+- [Repository](https://github.com/hawkberry/finra-py): GitHub Repository
+- [PyPI](https://pypi.org/project/finra-py/): PyPI package
+- [Issues](https://github.com/hawkberry/finra-py/issues): Bug reporting and feature requests.
+- [Changelog](https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md): Versioning changes.
+
+## Intended Users
+
+`finra-py` is intended for:
+- Software developers integrating with FINRA APIs
+- Financial technology developers
+- Data engineers building financial data applications
+- Researchers using market and regulatory datasets
+- FINRA member firms and organizations
+- Compliance professionals
+
+## Installation
+
+Install from PyPI:
+
+```bash
+pip install finra-py
+```
+
+## Requirements
+
+- Python >= 3.11
+
+## Important Notes
+
+- `finra-py` is an unofficial client library and is not affiliated with or endorsed by FINRA.
+- Users must obtain appropriate FINRA API credentials.
+- Market datasets are available to the public.
+- Regulatory datasets require firm or organization credentials.
+- API access permissions and data availability are determined by FINRA.
+
+## Scope
+
+`finra-py` provides a Python interface to the FINRA API Platform. It does not provide financial advice, investment recommendations, trading strategies, or financial analysis.
+
+## Consulting
+
+- [Consulting](https://finra.hawkberry.com/en/latest/consulting.html): Consulting services for FINRA API integration and production systems.
+
+## Support
+
+- [Support](https://support.hawkberry.com/): Open source project support and sponsorship.
+
+## License
+
+- [MIT](https://github.com/hawkberry/finra-py/blob/main/LICENSE): MIT License.
+

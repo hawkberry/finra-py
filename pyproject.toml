@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools>=68.1.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finra-py"
+version = "1.0.0"
+authors = [
+	{name = "Hawk Berry", email = "finra@hawkberry.com"},
+	]
+description = "An Unofficial, Open-Source Python Client Library for the FINRA API Platform"
+readme = "README.rst"
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Typing :: Typed",
+	]
+license = {file = "LICENSE"}
+keywords = [
+	"finra", "finra-api", "api-client", "rest-api", "market-data", "compliance", "regulatory", "regtech", "broker-dealer", "trading", "fixed-income", "short-interest", "trace",
+	]
+dependencies = [
+    "authlib",
+    "httpx",
+    "jsonschema",
+	]
+
+[project.optional-dependencies]
+docs = [
+	"sphinx",
+	"sphinx-autodoc-typehints",
+	"pydata-sphinx-theme==0.19.0",
+	]
+lint = [
+	"ruff",
+	]
+stats = [
+	"pycodestats",
+	]
+test = [
+    "colorama",
+    "coverage",
+	"tox",
+	]
+types = [
+	"mypy",
+	"types-Authlib",
+	"types-colorama",
+	"types-jsonschema",
+	]
+dev = [
+	"finra[docs,lint,stats,test,types]",
+	]
+
+[project.urls]
+Homepage = "https://finra.hawkberry.com/en/latest/"
+Documentation = "https://finra.hawkberry.com/en/latest/"
+Repository = "https://github.com/hawkberry/finra-py"
+Changelog = "https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md"
+Issues = "https://github.com/hawkberry/finra-py/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = [
+	"finra",
+	"finra.filings",
+	]
+
+[[tool.mypy.overrides]]
+module = "referencing"
+ignore_errors = true
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+	"pragma: no cover",
+	"raise NotImplementedError",
+	]
+

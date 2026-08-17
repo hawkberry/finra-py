@@ -1,0 +1,226 @@
+[
+    {
+        "registrations": [
+            {
+                "regulatorCode": "WV"
+            },
+            {
+                "regulatorCode": "NQX"
+            },
+            {
+                "regulatorCode": "LTSE"
+            },
+            {
+                "regulatorCode": "SD"
+            },
+            {
+                "regulatorCode": "VSE"
+            },
+            {
+                "regulatorCode": "SRR"
+            },
+            {
+                "regulatorCode": "TOSE"
+            },
+            {
+                "regulatorCode": "LSX"
+            },
+            {
+                "regulatorCode": "NQX"
+            },
+            {
+                "regulatorCode": "CFTC"
+            },
+            {
+                "regulatorCode": "PFS"
+            },
+            {
+                "regulatorCode": "NYSE"
+            },
+            {
+                "regulatorCode": "FTC"
+            },
+            {
+                "regulatorCode": "WA"
+            },
+            {
+                "regulatorCode": "TN"
+            },
+            {
+                "regulatorCode": "CA"
+            },
+            {
+                "regulatorCode": "CCFE"
+            },
+            {
+                "regulatorCode": "ID"
+            },
+            {
+                "regulatorCode": "CBOT"
+            },
+            {
+                "regulatorCode": "CBOE"
+            },
+            {
+                "regulatorCode": "CO"
+            },
+            {
+                "regulatorCode": "CC"
+            },
+            {
+                "regulatorCode": "BX"
+            },
+            {
+                "regulatorCode": "NFX"
+            },
+            {
+                "regulatorCode": "ISE MRX"
+            },
+            {
+                "regulatorCode": "NADF"
+            },
+            {
+                "regulatorCode": "USPS"
+            }
+        ],
+        "firmCrdNumber": 3000005,
+        "disclosures": [
+            {
+                "disclosureType": "CRIMINAL",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 1064547,
+                "eventDate": "1976-06-11",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "ARBTN",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 2559338,
+                "eventDate": "1973-09-19",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "ARBTN",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 1228140,
+                "eventDate": "1977-11-17",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "CUSTCOMP",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 4726649,
+                "eventDate": "2007-07-31",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "ARBTN",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 5185014,
+                "eventDate": "1974-12-22",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "BOND",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 6750812,
+                "eventDate": "1989-11-02",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "BANKRUPT",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 2694209,
+                "eventDate": "1977-10-31",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "CRIMINAL",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 1327993,
+                "eventDate": "1978-05-20",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "INTRNRVW",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 3082430,
+                "eventDate": "1993-11-29",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "BANKRUPT",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 9242702,
+                "eventDate": "1970-07-04",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "CUSTCOMP",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 7073869,
+                "eventDate": "2004-11-28",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "CUSTCOMP",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 21597,
+                "eventDate": "1991-09-22",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "INVSTGTN",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 1516197,
+                "eventDate": "1972-09-25",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "CUSTCOMP",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 1818524,
+                "eventDate": "2003-01-08",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "JUDGEMNT",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 3616978,
+                "eventDate": "1991-02-19",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "ARBTN",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 2529525,
+                "eventDate": "1977-03-11",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            },
+            {
+                "disclosureType": "ARBTN",
+                "reportableFlag": "NO",
+                "occurrenceNumber": 9003604,
+                "eventDate": "2005-09-03",
+                "disclosableFlag": "NO",
+                "archivedFlag": "NO"
+            }
+        ]
+    }
+]

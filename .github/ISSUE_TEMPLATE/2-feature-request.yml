@@ -1,0 +1,37 @@
+name: Feature Request
+description: Suggest an idea for this project
+title: ""
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Limitation
+      description: |
+        Please describe the problem or limitation that this feature would address.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the Solution
+      description: |
+        Describe the functionality or behavior you would like to see implemented.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: |
+        Describe any alternative solutions, workarounds, or approaches you have considered.
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: |
+        Add any other relevant context, examples, or screenshots about the feature request here.

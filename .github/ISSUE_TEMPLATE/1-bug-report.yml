@@ -1,0 +1,64 @@
+name: Bug Report
+description: Report a bug
+title: ""
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please read the [Bug Reporting guidelines](https://finra.hawkberry.com/en/latest/help.html) before submitting a bug.
+
+        Please follow the guidelines above, or your bug report may be closed if it cannot be investigated effectively.
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Describe Your Environment
+      placeholder: |
+        Python version:
+        Operating system:
+        finra-py version:
+        Other relevant details:
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce the Bug
+      placeholder: Describe the steps needed to reproduce the issue.
+    validations:
+      required: true
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Code to Reproduce the Bug
+      description: |
+        Please provide a minimal example that reproduces the bug. If possible, isolate the issue to a small, self-contained script that uses only finra-py.
+
+        IMPORTANT: Sanitize your code before sharing it. NEVER share API credentials or the contents of your token file. Replace all sensitive values with placeholders.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Describe the Expected Behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Describe the Actual Behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: error-log
+    attributes:
+      label: Error/Exception Log
+      description: |
+        See the [Bug Reporting facility](https://finra.hawkberry.com/en/latest/help.html)
