@@ -23,7 +23,7 @@ def _enable_bug_report_logging(
     filename: Optional[str | Path]=None,
     stream: Optional[TextIO]=sys.stderr,
     loggers: Optional[Iterable[logging.Logger]]=None
-    ) -> None:
+    ) -> tuple[Optional[RedactFileHandler], Optional[RedactStreamHandler]]:
     formatter = logging.Formatter(
         "[%(levelname)s:%(filename)s:%(lineno)s:%(funcName)s] %(message)s"
         )
@@ -50,23 +50,7 @@ def _enable_bug_report_logging(
             logger.addHandler(fh)
         if sh is not None:
             logger.addHandler(sh)
-    
-    # Cleanup: flush and close the handlers
-    def cleanup(handler): # pragma: no cover
-        try:
-            handler.flush()
-            handler.close()
-        except Exception: # ignore cleanup failures
-            pass
-    
-    if fh is not None:
-        atexit.register(lambda: cleanup(fh))
-    if sh is not None: # note: this does not close the underlying stream
-        atexit.register(lambda: cleanup(sh))
-    
-    get_logger().debug(
-        "FINRA API Client version %s", metadata.version("finra-py")
-        )
+    return fh, sh
 
 
 def enable_bug_report_logging(
@@ -98,5 +82,22 @@ def enable_bug_report_logging(
             "Must set filename or stream to enable bug report logging"
             )
     
-    _enable_bug_report_logging(filename, stream)
+    fh, sh = _enable_bug_report_logging(filename, stream)
+    
+    # Cleanup: flush and close the handlers
+    def cleanup(handler): # pragma: no cover
+        try:
+            handler.flush()
+            handler.close()
+        except Exception: # ignore cleanup failures
+            pass
+    
+    if fh is not None:
+        atexit.register(lambda: cleanup(fh))
+    if sh is not None: # note: this does not close the underlying stream
+        atexit.register(lambda: cleanup(sh))
+    
+    get_logger().debug(
+        "FINRA API Client version %s", metadata.version("finra-py")
+        )
 

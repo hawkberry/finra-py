@@ -295,11 +295,14 @@ class TestRegisterRedactionsFile(_TestRegisterRedactions, unittest.TestCase):
                 return path.read_text()
         
         self.file = ReadFile()
-        debug._enable_bug_report_logging(
+        self.fh, self.sh = debug._enable_bug_report_logging(
             filename=path, stream=None, loggers=[self.logger]
             )
         
     def tearDown(self):
+        self.logger.removeHandler(self.fh)
+        self.fh.flush()
+        self.fh.close()
         self.tmpdir.cleanup()
         super().tearDown()
 
