@@ -1,6 +1,7 @@
 import json
 import unittest
 from datetime import date, datetime, timezone
+from pathlib import Path
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
@@ -773,7 +774,8 @@ class TestRelabelJSON(unittest.TestCase):
         
     @no_duplicates
     def test_relabel_from_response(self):
-        with open('tests/testdata/firm_disclosures_response.json', 'r') as f:
+        test_data = Path('tests','testdata', 'firm_disclosures_response.json')
+        with open(test_data, 'r') as f:
             response_json = json.load(f)
         
         relabeler = utils.RelabelJSON(self.enum)
@@ -782,7 +784,8 @@ class TestRelabelJSON(unittest.TestCase):
         
     @no_duplicates
     def test_relabel_from_json(self):
-        with open('tests/testdata/firm_disclosures_response.json', 'r') as f:
+        test_data = Path('tests','testdata', 'firm_disclosures_response.json')
+        with open(test_data, 'r') as f:
             response_json = json.load(f)
         
         relabeler = utils.RelabelJSON(self.enum)
@@ -791,7 +794,8 @@ class TestRelabelJSON(unittest.TestCase):
         
     @no_duplicates
     def test_relabel_with_missing_labels(self):
-        with open('tests/testdata/firm_disclosures_response.json', 'r') as f:
+        test_data = Path('tests','testdata', 'firm_disclosures_response.json')
+        with open(test_data, 'r') as f:
             response_json = json.load(f)
         
         labels = {
@@ -805,7 +809,8 @@ class TestRelabelJSON(unittest.TestCase):
         
     @no_duplicates
     def test_relabel_with_missing_fields(self):
-        with open('tests/testdata/firm_disclosures_response.json', 'r') as f:
+        test_data = Path('tests','testdata', 'firm_disclosures_response.json')
+        with open(test_data, 'r') as f:
             response_json = json.load(f)
         
         for r in response_json:
@@ -817,7 +822,8 @@ class TestRelabelJSON(unittest.TestCase):
     @no_duplicates
     @patch('finra.utils._order_labels')
     def test_relabel_from_response_keep_label_order_false(self, order_labels):
-        with open('tests/testdata/firm_disclosures_response.json', 'r') as f:
+        test_data = Path('tests','testdata', 'firm_disclosures_response.json')
+        with open(test_data, 'r') as f:
             response_json = json.load(f)
         
         relabeler = utils.RelabelJSON(self.enum, keep_label_order=False)
@@ -826,7 +832,8 @@ class TestRelabelJSON(unittest.TestCase):
         
     @no_duplicates
     def test_relabel_from_response_with_obj_labels(self):
-        with open('tests/testdata/firm_disclosures_response.json', 'r') as f:
+        test_data = Path('tests','testdata', 'firm_disclosures_response.json')
+        with open(test_data, 'r') as f:
             response_json = json.load(f)
         
         obj_labels = {
@@ -846,7 +853,8 @@ class TestRelabelJSON(unittest.TestCase):
         
     @no_duplicates
     def test_wrong_response_data_type(self):
-        with open('tests/testdata/firm_disclosures_response.json', 'r') as f:
+        test_data = Path('tests','testdata', 'firm_disclosures_response.json')
+        with open(test_data, 'r') as f:
             response_json = json.load(f)
         response_json[0]['disclosures'] = \
             tuple(response_json[0]['disclosures']) # type not allowed
