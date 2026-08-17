@@ -28,6 +28,7 @@ dependencies = [
     "authlib",
     "httpx",
     "jsonschema",
+    "tzdata",
 	]
 
 [project.optional-dependencies]
