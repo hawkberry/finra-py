@@ -40,9 +40,9 @@ Notable functionality includes:
  - Support for all credential types
  - Support for asynchronous requests (server-side)
  - Support for ``asyncio`` (client-side)
-
-Python requirement: **3.11 or later**
  
+Python requirement: **3.11 or later**
+
 ++++++++++++++++++++++++++
 How do I use ``finra-py``?
 ++++++++++++++++++++++++++
