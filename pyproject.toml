@@ -78,6 +78,13 @@ include = [
 module = "referencing"
 ignore_errors = true
 
+[tool.coverage.paths]
+source = [
+    "finra",
+    "*/finra",
+    "*\\finra",
+	]
+
 [tool.coverage.run]
 branch = true
 
