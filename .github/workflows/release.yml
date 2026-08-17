@@ -66,9 +66,9 @@ jobs:
 
   pypi:
     name: Publish to PyPI
-    
-    if: ${{ false }}
-	
+
+    if: false
+
     runs-on: ubuntu-latest
 
     needs:
