@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Any, Iterable, Optional, Self, TypeAlias
 
 from .._utils import build_json_object
-from ..enum_converter import E, EnumStr, EnumConverter
+from ..enum_converter import E, EnumConverter, EnumStr
 from ..exceptions import _type_error
 
 

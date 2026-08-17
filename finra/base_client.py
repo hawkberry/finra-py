@@ -16,7 +16,7 @@ from . import _enums
 from ._utils import (
     date_isoformat, datetime_isoformat_ms, datetime_naive, LazyLog,
     )
-from .enum_converter import _add_require_enums_docs, E, EnumStr, EnumConverter
+from .enum_converter import _add_require_enums_docs, E, EnumConverter, EnumStr
 from .exceptions import MockException, QATestEnvException, _type_error
 from .filters import Filter, FiltersDictType
 from .filings.base_filing import BaseFiling, BaseFilingOps, FilingDictType

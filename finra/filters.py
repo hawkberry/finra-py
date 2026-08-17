@@ -4,7 +4,7 @@ from typing import Any, Iterable, Optional, Self, TypeAlias
 from zoneinfo import ZoneInfo
 
 from ._utils import build_json_object, datetime_isoformat_ms
-from .enum_converter import _add_require_enums_docs, E, EnumStr, EnumConverter
+from .enum_converter import _add_require_enums_docs, E, EnumConverter, EnumStr
 from .exceptions import _type_error
 
 
