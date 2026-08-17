@@ -6,7 +6,7 @@ import logging
 import unittest
 from enum import EnumType
 from typing import Optional
-from unittest.mock import patch, AsyncMock, MagicMock, Mock, ANY
+from unittest.mock import ANY, AsyncMock, MagicMock, Mock, patch
 
 import httpx
 from authlib.integrations.httpx_client import AsyncOAuth2Client, OAuth2Client
@@ -1242,7 +1242,7 @@ def _test_post_data_enums_not_required_no_partition(
 
 
 def _test_data_wrong_fields_type(method, enum, test_case):
-    f = list(enum)[0]
+    f = next(iter(enum))
     with test_case.assertRaisesRegex(
         TypeError, f"finra.base_client.BaseClient.{enum.__qualname__}.{f.name}"
         ):
@@ -1252,7 +1252,7 @@ def _test_data_wrong_fields_type(method, enum, test_case):
 def _test_data_wrong_sort_fields_type(
     method, enum, partition_fields, test_case
     ):
-    f = list(enum)[0]
+    f = next(iter(enum))
     filters = Filter(enum)
     for i, p in enumerate(partition_fields):
         filters.add_compare(enum[p], f"value {i}")
@@ -2156,7 +2156,7 @@ class _TestAPI:
         
         result = self.client.get_branch_delta(end_datetime=DATETIME)
         
-        params = params={
+        params = {
             "startDateTime": DATETIME_MIDNIGHT_MINUS_30_DAYS_ISO,
             "endDateTime": DATETIME_ISO_MS_TZ,
             }
@@ -2565,7 +2565,7 @@ class _TestAPI:
         
         result = self.client.get_individual_delta(end_datetime=DATETIME)
         
-        params = params={
+        params = {
             "startDateTime": DATETIME_MIDNIGHT_MINUS_31_DAYS_ISO,
             "endDateTime": DATETIME_ISO_MS_TZ
             }

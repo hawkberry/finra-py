@@ -21,11 +21,11 @@ from .token_manager import TokenManager
 
 
 __all__ = [
-    "build_client",
     "build_async_client",
+    "build_client",
+    "client_from_new_token",
     "client_from_storage_functions",
     "client_from_token_file",
-    "client_from_new_token",
     "get_client",
     ]
 

@@ -5,12 +5,12 @@ import logging
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch, Mock, ANY
+from unittest.mock import ANY, Mock, patch
 
 from finra import auth
 from finra.token_manager import TokenManager
 
-from .common import no_duplicates, MockOAuth2Client, MockAsyncOAuth2Client
+from .common import MockAsyncOAuth2Client, MockOAuth2Client, no_duplicates
 
 
 API_KEY = 'APIKEY'

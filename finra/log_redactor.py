@@ -4,14 +4,14 @@ from collections import defaultdict
 from logging import LogRecord, FileHandler, StreamHandler
 from typing import Any, Callable, Optional
 
-from httpx import codes, Response
+from httpx import Response, codes
 
 
 __all__ = [
-    "register_redactions",
-    "register_redactions_from_response",
     "RedactFileHandler",
     "RedactStreamHandler",
+    "register_redactions",
+    "register_redactions_from_response",
     ]
 
 
@@ -211,6 +211,7 @@ def register_redactions_from_response(response: Response) -> None:
 def _emit(handler: FileHandler | StreamHandler, record: LogRecord):
     if handler.stream is None: # pragma: no cover
         raise ValueError("Logging handler stream is None")
+    
     try:
         msg = _LOG_REDACTOR.redact(handler.format(record))
         handler.acquire()
@@ -219,7 +220,7 @@ def _emit(handler: FileHandler | StreamHandler, record: LogRecord):
             handler.flush()
         finally:
             handler.release()
-    except Exception:
+    except (BrokenPipeError, OSError, ValueError, TypeError):
         handler.handleError(record)
 
 

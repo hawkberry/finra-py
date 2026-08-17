@@ -3,12 +3,12 @@ from enum import Enum
 from typing import Any, Iterable, Optional, Self, TypeAlias
 from zoneinfo import ZoneInfo
 
+from ._utils import build_json_object, datetime_isoformat_ms
 from .enum_converter import _add_require_enums_docs, E, EnumStr, EnumConverter
 from .exceptions import _type_error
-from ._utils import build_json_object, datetime_isoformat_ms
 
 
-__all__ = ["FiltersDictType", "Filter"]
+__all__ = ["Filter", "FiltersDictType"]
 
 
 #: Type of object returned by :py:meth:`Filter.build`

@@ -4,8 +4,8 @@ from finra.filings.form_u5 import FormU5
 
 from ..common import has_diff, no_duplicates
 from .test_base_filing import (
-    _TestBaseFilingOps, _TestU4U5,
     DATE_OF_BIRTH, DATE_OF_BIRTH_ISO, INDIVIDUAL_CRD_NUMBER,
+    _TestBaseFilingOps, _TestU4U5,
     )
 
 

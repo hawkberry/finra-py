@@ -7,8 +7,7 @@ from zoneinfo import ZoneInfo
 
 import httpx
 
-from finra import utils
-from finra import _enums
+from finra import _enums, utils
 from finra import _utils as time_utils
 
 from .common import no_duplicates

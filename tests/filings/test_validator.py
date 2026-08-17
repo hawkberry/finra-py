@@ -7,7 +7,7 @@ import referencing
 from finra.filings import validator
 from finra.filings.base_filing import BaseFiling
 
-from ..common import no_duplicates, MockOAuth2Client, MockResponse
+from ..common import MockOAuth2Client, MockResponse, no_duplicates
 
 
 class TestValidator(unittest.TestCase):

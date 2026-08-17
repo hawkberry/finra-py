@@ -295,14 +295,15 @@ class TestRegisterRedactionsFile(_TestRegisterRedactions, unittest.TestCase):
                 return path.read_text()
         
         self.file = ReadFile()
-        self.fh, self.sh = debug._enable_bug_report_logging(
+        debug._enable_bug_report_logging(
             filename=path, stream=None, loggers=[self.logger]
             )
         
     def tearDown(self):
-        self.logger.removeHandler(self.fh)
-        self.fh.flush()
-        self.fh.close()
+        for h in self.logger.handlers:
+            self.logger.removeHandler(h)
+            h.flush()
+            h.close()
         self.tmpdir.cleanup()
         super().tearDown()
 
@@ -312,7 +313,7 @@ class TestEmit(unittest.TestCase):
     @no_duplicates
     def test_emit_handler_exception(self):
         handler = Mock()
-        handler.format.side_effect = Exception()
+        handler.format.side_effect = ValueError()
         
         record = logging.LogRecord(10, 'path', 123, 'msg', None, None, None)
         log_redactor._emit(handler, record)
@@ -325,10 +326,12 @@ class TestEmit(unittest.TestCase):
 
 class TestEnableBugReportLogging(unittest.TestCase):
     
+    @no_duplicates
     @patch('logging.Logger.addHandler')
     def test_enable_bug_report_logging_success(self, _):
         debug.enable_bug_report_logging()
         
+    @no_duplicates
     def test_enable_no_filename_and_no_stream_value_error(self):
         with self.assertRaisesRegex(
             ValueError,

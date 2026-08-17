@@ -1,11 +1,11 @@
 import difflib
 import inspect
 import json
-from colorama import Fore
 from functools import partial, wraps
 from unittest.mock import MagicMock
 
 import httpx
+from colorama import Fore
 
 
 # Decorator to prevent duplicate test names
