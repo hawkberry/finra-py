@@ -97,6 +97,7 @@ Project Links
 +++++++++++++
 
 * `Documentation <https://finra.hawkberry.com/en/latest/>`__
+* `Repository <https://github.com/hawkberry/finra-py>`__
 * `PyPI <https://pypi.org/project/finra-py/>`__
 * `Changelog <https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md>`__
 * `Consulting <https://finra.hawkberry.com/en/latest/consulting.html>`__
