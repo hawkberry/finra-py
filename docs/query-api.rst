@@ -152,7 +152,7 @@ Some datasets do not support :py:attr:`Endpoint.PARTITIONS <finra.base_client.Ba
 Datasets
 --------
 
-Almost all datasets support the :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` endpoint. It can be used to retrieve information about the capabilities and features supported by each dataset, including API request methods, data format, versioning, and whether or not it is currently active. To request information about a specific dataset use the dataset's query method.
+Almost all datasets support the :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` endpoint. It can be used to retrieve information about the capabilities and features supported by a dataset, including API request methods, data format, versioning, and whether or not it is currently active. To request information about a specific dataset use the dataset's query method.
 
 .. code-block:: python
 
@@ -162,7 +162,7 @@ Almost all datasets support the :py:attr:`Endpoint.DATASETS <finra.base_client.B
   
   datasets = r.json()  # supported API request methods, data formats, etc.
 
-This information can be retrieved as a comprehensive list of Query API datasets using the :py:meth:`Client.get_datasets() <finra.base_client.BaseClient.get_datasets>` method. If no arguments are provided, this method will return information for all datasets available using the client's credentials, including undocumented and unsupported datasets. If a member of :py:class:`Group <finra.base_client.BaseClient.Group>` is provided, information is returned for only datasets in that group.
+A comprehensive list of Query API datasets can be retrieved containing this information using the :py:meth:`Client.get_datasets() <finra.base_client.BaseClient.get_datasets>` method. If no arguments are provided, this method will return information for all datasets available using the client's credentials, including undocumented and unsupported datasets. If a member of :py:class:`Group <finra.base_client.BaseClient.Group>` is provided, information is returned only for datasets in that group.
 
 .. code-block:: python
 

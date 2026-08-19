@@ -34,8 +34,8 @@ class Endpoint(Enum):
 class Group(Enum):
     """Dataset API groups returned by :py:meth:`BaseClient.get_datasets`"""
     
-    #: String: Equity API group. These datasets provide access to
-    #: Over-the-Counter (OTC) trade and equity data.
+    #: String: OTC Market API group (also known as the Equity group). These
+    #: datasets provide access to Over-the-Counter (OTC) trade and equity data.
     EQUITY = "otcMarket"
     
     #: String: Fixed Income API group. These datasets provide access to

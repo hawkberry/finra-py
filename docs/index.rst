@@ -12,7 +12,7 @@
 
 .. image:: _static/python-logo.png
    :width: 40
-   :target: https://pypi.org/project/finra-py
+   :target: https://pypi.org/project/finra-py/
 
 .. image:: _static/hawkberry-logo.png
    :width: 40
@@ -23,7 +23,7 @@ Project Links
 +++++++++++++
 
 * `Repository <https://github.com/hawkberry/finra-py>`__
-* `PyPI <https://pypi.org/project/finra-py>`__
+* `PyPI <https://pypi.org/project/finra-py/>`__
 * `Changelog <https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md>`__
 * `Consulting <https://finra.hawkberry.com/en/latest/consulting.html>`__
 * `Support <https://support.hawkberry.com/>`__

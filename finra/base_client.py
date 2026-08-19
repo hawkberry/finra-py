@@ -913,15 +913,15 @@ class BaseClient(EnumConverter, ABC):
     
     def get_datasets(self, group: Optional[EnumStr[_enums.Group]]=None):
         """
-        Retrieve a comprehensive list of Query API datasets. This method
-        returns information about the capabilities and features supported by
-        each dataset, including query methods, data format, versioning, and
-        whether or not it is currently active.
+        Retrieve a comprehensive list of Query API datasets with information
+        about the capabilities and features supported by each dataset,
+        including API request methods, data format, versioning, and whether or
+        not it is currently active.
         
         If no arguments are provided, this method will return information for
         all datasets available using the client's credentials, including
         undocumented and unsupported datasets. If a member of :py:class:`Group`
-        is provided, information is returned for only datasets in that group.
+        is provided, information is returned only for datasets in that group.
         
         For information about a specific dataset use the dataset's query method
         with the ``endpoint`` keyword. For more information and examples see

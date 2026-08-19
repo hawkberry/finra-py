@@ -15,7 +15,7 @@
   :target: https://badge.fury.io/py/finra-py
 
 .. image:: https://img.shields.io/pypi/pyversions/finra-py.svg
-   :target: https://pypi.org/project/finra-py
+   :target: https://pypi.org/project/finra-py/
 
 .. image:: https://img.shields.io/pypi/l/finra-py.svg
    :target: https://github.com/hawkberry/finra-py/blob/main/LICENSE
@@ -98,7 +98,7 @@ Project Links
 
 * `Documentation <https://finra.hawkberry.com/>`__
 * `Repository <https://github.com/hawkberry/finra-py>`__
-* `PyPI <https://pypi.org/project/finra-py>`__
+* `PyPI <https://pypi.org/project/finra-py/>`__
 * `Changelog <https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md>`__
 * `Consulting <https://finra.hawkberry.com/en/latest/consulting.html>`__
 * `Support <https://support.hawkberry.com/>`__
