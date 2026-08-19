@@ -1,0 +1,1835 @@
+# finra-py
+
+> `finra-py` — An Unofficial, Open-Source Python Client Library for the FINRA API Platform. `finra-py` simplifies integration with FINRA APIs for accessing public market datasets and regulatory services..
+
+- [Documentation](https://finra.hawkberry.com/): Project documentation.
+- [Repository](https://github.com/hawkberry/finra-py): GitHub Repository.
+- [PyPI](https://pypi.org/project/finra-py): PyPI package.
+- [Changelog](https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md): Versioning changes.
+- [Issues](https://github.com/hawkberry/finra-py/issues): Bug reporting and feature requests.
+- [Consulting](https://finra.hawkberry.com/en/latest/consulting.html): Consulting services for FINRA API integration and production systems.
+- [Support](https://support.hawkberry.com/): Open source project support and sponsorship.
+- [License](https://github.com/hawkberry/finra-py/blob/main/LICENSE): MIT License.
+
+# finra-py An Unofficial FINRA API Client
+
+Source: https://finra.hawkberry.com/
+
+## finra-py An Unofficial FINRA API Client
+
+finra-py is an unofficial, open-source Python client library for the FINRA API Platform.
+
+## Project Links
+
+- Repository
+
+- PyPI
+
+- Changelog
+
+- Consulting
+
+- Support
+
+- Issues
+
+## Table of Contents
+
+Disclaimer: finra-py is an unofficial, open-source client library for the FINRA API Platform. It is not endorsed by, affiliated with, or sponsored by FINRA or any associated organization. ``finra-py`` does not provide financial advice, investment recommendations, trading strategies, or financial analysis. Users are responsible for reviewing and complying with the terms of service and usage requirements of the underlying FINRA API. This software is provided under the terms of the LICENSE without warranty of any kind.
+
+
+# Getting Started
+
+Source: https://finra.hawkberry.com/en/latest/getting-started.html
+
+## Getting Started
+
+Welcome to finra-py, an unofficial, open-source Python client library for the FINRA API Platform.
+
+This page describes how to install and configure your first finra-py client, and it provides some basic examples you can build on for your application.
+
+finra-py is designed for software developers, researchers, media companies, the general public, and FINRA member firms and organizations. To support this diverse set of user groups, the client implements all documented endpoints for the query, the notification, and the submission.
+
+You can read the official FINRA API documentation here.
+
+finra-py is open source and may be used, modified, and distributed according to the terms of the LICENSE. Organizations are welcome to use the library in their own applications and workflows.
+
+For assistance implementing the FINRA API, migrating from Web EFT, or building reliable applications using FINRA data, see FINRA API Consulting.
+
+## FINRA API Access
+
+Before using finra-py, you’ll need to create a developer account with FINRA and provision a set of credentials. There are different types of credentials based on what type of user you are: Individual, Firm, Organization, etc. Individual user accounts are free, and all other account types are available with a subscription. See the FINRA Developer Center and FINRA API Console in the official documentation for detailed instructions on how to gain access for your user type. You can create an account via the FINRA Gateway.
+
+You must have the correct credentials for datasets, or you will receive a 401 Unauthorized or 403 Forbidden response from the API. The required credentials for each dataset are detailed in the documentation for its query method on the client, as well as in the server’s documentation.
+
+To ensure the integrity of the API platform, please use this client responsibly and adhere to usage limits. To avoid being throttled or blocked, make sure you familiarize yourself with the API’s Platform Usage Limits, as well as FINRA’s Terms of Service.
+
+## Installing finra-py
+
+finra-py requires Python 3.11 or later.
+
+Install the package using pip:
+
+```
+python -m pip install finra-py
+```
+
+Import the package in Python:
+
+```
+import finra
+```
+
+## Basic Usage
+
+The easiest way to create a client is with the get_client() function. Replace the values below with your api_key and api_secret, and choose an appropriate, secure token_path to store your API token. It is your responsibility to ensure your credentials and tokens are stored and accessed securely.
+
+```
+from finra.auth import get_client
+
+c = get_client(
+    api_key="API_KEY",                  # replace with your API key
+    api_secret="API_SECRET",            # replace with your API secret
+    token_path="/tmp/finra/token.json"  # replace with your secure location
+    )
+```
+
+For more information about creating clients, see auth. For details on basic client functionality, see client. For a thorough description of options for requesting datasets, see query.
+
+## Basic Query Pattern
+
+Internally, finra-py uses Authlib’s HTTPX integration to implement the OAuth 2.0 standard and perform requests securely. Every API request returns an httpx.Response object, which is passed directly to the caller. It is up to the caller to handle the response object. This design choice gives the caller the most control possible over their requests.
+
+This is the most basic query pattern to fetch a dataset, and handle the httpx.Response object.
+
+```
+r = c.get_consolidated_short_interest()  # returns httpx.Response object
+
+r.raise_for_status()  # raise exception if request was unsuccessful
+
+data = r.json()       # extract json content from response object
+```
+
+Calling r.raise_for_status() raises httpx.HTTPStatusError if a status code is received indicating the request was unsuccessful (300 or higher). If the status code is less than 300, then the request was successful and the line does nothing. The status code can be accessed directly via the response object’s attribute r.status_code.
+
+For query datasets, the response content type can be set to either application/json (the client’s default) or text/plain. If the response content type is application/json, the data can be extracted using the httpx.Response.json() method. For notification and submission datasets, the response content type is always application/json. For more details see content_types.
+
+See more information about handling HTTPX response content here.
+
+## Specific Fields
+
+For most datasets this client uses enums from Python’s enum module to simplify access to specific dataset fields. With few exceptions, each dataset has a unique enum containing all of its available field names. This enum is typically documented on the client just above the dataset’s query method.
+
+The example below requests a subset of fields from the ConsolidatedShortInterest dataset: the symbol, the settlement date, and the current short position. To specify fields for this dataset, use the ConsolidatedShortInterest enum.
+
+```
+e = c.ConsolidatedShortInterest  # enum for this dataset
+
+r = c.get_consolidated_short_interest(
+    fields=[e.SYMBOL, e.SETTLEMENT_DATE, e.CURRENT_SHORT_POSITION]
+    )
+
+r.raise_for_status()
+
+data = r.json()
+```
+
+## Specific Values
+
+This example shows how to request records for a specific set of symbols. In this case you can use a Filter object to create a domain filter, which allows you to specify one or more values for a field that each record must match.
+
+```
+from finra.filters import Filter
+
+symbols = ["AAPL", "MSFT"]  # only return records for these values
+
+e = c.ConsolidatedShortInterest
+
+r = c.get_consolidated_short_interest(
+    filters=Filter(e).add_domain(e.SYMBOL, symbols)  # filter on values
+    )
+
+r.raise_for_status()
+
+data = r.json()
+```
+
+Due to server-side constraints, this code will only fetch the first 1,000 records matching the filter conditions. If you need to query a larger number of records, or require a more advanced query pattern, see the large_datasets.
+
+## Close the Client
+
+When you’re done with the client, connections should be closed properly to free up resources. The recommended way to use a Client is as a context manager.
+
+```
+with get_client(...) as c:  # context management
+    ...
+```
+
+Alternatively, you can explicitly close the connection pool by calling Client.close().
+
+```
+c = get_client(...)
+try:
+    ...
+finally:
+    c.close()               # close manually
+```
+
+For the asynchronous client use await AsyncClient.close(). See async.
+
+```
+async with get_client(..., is_asyncio=True) as c:  # async context
+    ...
+```
+
+```
+c = get_client(..., is_asyncio=True)
+try:
+    ...
+finally:
+    await c.close()         # close manually
+```
+
+Any requests made after closing a client will raise a RuntimeError. To make additional requests, create a new client.
+
+## Getting Help
+
+For information on how to report a bug see debug.
+
+If you are looking for additional support, please see FINRA API Consulting.
+
+
+# Authentication and Client Creation
+
+Source: https://finra.hawkberry.com/en/latest/auth.html
+
+## Authentication and Client Creation
+
+The FINRA API Platform authentication and authorization scheme is based on OAuth 2.0.  OAuth 2.0 enhances security by replacing the use of long-lasting credentials with limited life span tokens, reducing the potential of exposing an API Credential.
+
+Internally, this client uses Authlib’s HTTPX integration to perform requests and implement the OAuth 2.0 standard. This OAuth2 session securely manages the credentials and token path you provide, which are never stored directly on the finra-py client.
+
+finra-py is designed to handle credentials and authentication tokens securely. However, you are ultimately responsible for securing your credentials, authentication tokens, and any data written to disk. This software is provided “as is.”
+
+Read the official FINRA API Documentation to learn more about the API’s authentication process. Make sure to take any additional steps necessary to secure your data. This client will save authentication tokens to any file path you provide (assuming you have appropriate file permissions).  It is your responsibility to ensure that this location is secure and appropriate for your environment. Consult your system administrator or security team as appropriate.
+
+IMPORTANT! Only use one client at a time. The behavior is undefined if you try to use multiple clients with the same credentials at the same time, and may cause problems with the underlying OAuth2 session management.
+
+See the auth module for complete reference documentation.
+
+## Get a Client
+
+The easiest way to create a configured instance of Client is to use the get_client() function.
+
+```
+from finra.auth import get_client
+
+c = get_client(
+    api_key="API_KEY",
+    api_secret="API_SECRET",
+    token_path="/tmp/finra/token.json"
+    )
+```
+
+To create an asynchronous client instead, set is_asyncio=True in get_client(). See async for more information.
+
+If a valid token exists at the given path it will be used, otherwise a new token will be fetched from the FINRA Identity Platform and saved to the provided path.
+
+## Mock Endpoints
+
+Many datasets provide mock endpoints for development and demonstration purposes. To use mock endpoints, a unique api_key and api_secret pair must be created through the FINRA API Console. Because mock endpoints require separate credentials, you will not be able to query production API endpoints when this feature is enabled, including notification and submission endpoints.
+
+IMPORTANT! Make sure you use mock credentials, and set a different token_path to store your mock API token. Otherwise, you may overwrite your production token, or inadvertently load the wrong token and have your requests rejected by the API server. If this happens, create a new client using client_from_new_token() or delete your tokens manually.
+
+Set mock=True when creating a client to use this feature.
+
+```
+from finra.auth import get_client
+
+c = get_client(
+    api_key="MOCK_API_KEY",
+    api_secret="MOCK_API_SECRET",
+    token_path="/tmp/finra/mock_token.json",  # different file name
+    mock=True
+    )
+```
+
+Not all datasets have mock endpoints. If a dataset is queried that does not have a mock endpoint, a finra.exceptions.MockException will be raised.
+
+Mock endpoints are intended for demonstration purposes, not for comprehensive integration testing, and may lack some functionality documented for production endpoints. Additionally, some mock datasets are sparsely populated, and some endpoints contain no data at all, so it may be necessary to walk the partitions to locate available records (see the large_datasets). For comprehensive integration testing, use the QA Test Environment.
+
+## QA Test Environment
+
+More extensive testing features are available through the QA Test Environment endpoints, which are only available for firms with paid FINRA API subscriptions (see FINRA Developer Center). To use QA Test Environment endpoints, a unique api_key and api_secret pair must be created through the FINRA API Console.
+
+IMPORTANT! Make sure you use QA Test Environment credentials, and set a different token_path to store your QA Test Environment API token. Otherwise, you may overwrite your production token, or inadvertently load the wrong token and have your requests rejected by the API server. If this happens, create a new client using client_from_new_token() or delete your tokens manually.
+
+Set test_environment=True when creating a client to use this feature.
+
+```
+from finra.auth import get_client
+
+c = get_client(
+    api_key="QA_TEST_API_KEY",
+    api_secret="QA_TEST_API_SECRET",
+    token_path="/tmp/finra/qa_test_token.json",  # different file name
+    test_environment=True
+    )
+```
+
+If a dataset is queried that requires QA Test Environment credentials and the client is not configured for it, a finra.exceptions.QATestEnvException will be raised.
+
+Mock datasets can also be used in the QA Test Environment by setting mock=True when creating a client. This will not disable notification and submission endpoints within the QA Test Environment.
+
+## Advanced Creation
+
+Aside from get_client() there are additional routines for creating a client with specific behavior.
+
+## Load an Existing Token
+
+To load an existing token and create a client with it, use client_from_token_file(). This function does not check whether the token is expired or not, and can result in a 401 Unauthorized response code when making a request if the token is already expired. It will not fetch a new token.
+
+## Fetch a New Token
+
+To force a new token to be fetched and create a client with it, use client_from_new_token(). This will write the token to the token path, and will overwrite any file that already exists at that path.
+
+## Customized Storage Functions
+
+Most users will not need this functionality. However, for use cases involving specialized credential storage, client_from_storage_functions() allows custom callback functions to read and write the token files. This is useful when credentials are managed outside the local filesystem, for example in cloud-hosted or enterprise environments. You are responsible for ensuring these callbacks function securely and behave as expected.
+
+## Build Client
+
+The build_client function provides the most fine-grained control over client creation, but requires additional setup to configure the client correctly. All of the above client creation functions ultimately call build_client.
+
+Keyword arguments for this function can be passed through any of the above client creation functions, including custom constructors that return an instance of Client or a subclass thereof. Calling this function directly requires a correctly configured instance of TokenManager or a subclass.
+
+Similarly, build_async_client can be used to create an AsyncClient with asyncio support.
+
+
+# HTTP Client
+
+Source: https://finra.hawkberry.com/en/latest/client.html
+
+## HTTP Client
+
+For details on client creation and authentication see auth.
+
+See finra.base_client module for complete reference documentation.
+
+## Calling Conventions
+
+Each dataset has its own method for requesting data. Many of these methods have the same signature, however there are some datasets that require different arguments, especially those in the Firm and Registration groups.
+
+The API recognizes an extensive number of special values, for example the field names for each dataset. Rather than requiring users to manually enter these values, this library represents them using enums from Python’s enum module. The reason for this design choice is that the API rejects requests with unrecognized values, which would be a common source of error and frustration for users. Using enums to manage these values avoids these common errors and simplifies access to the datasets. A dataset’s enum is typically displayed in the reference documentation just above its associated query method. With a few exceptions, each dataset has its own enum containing all of its available field names.
+
+If a value is passed other than a member of the expected enum, a TypeError will be raised. This functionality can be disabled on the client by setting require_enums=False during creation, or via its set_require_enums() method. Several other classes in this library have the same functionality, including the Filter class (see filters), and the filing classes used by submission methods. In general, disabling this constraint should not be necessary, however it may be useful if you notice the API accepts a value that is not yet supported by this library. If you do find a value that is not supported here, please open an issue on the finra-py Issues Page on GitHub and describe your findings.
+
+Additionally, all query datasets support multiple endpoints for accessing information about them. When querying the Endpoint.DATA endpoint, required parameters can be passed as positional or keyword arguments. Optional parameters are always passed as keyword arguments. Any deviation from this convention is described in the reference documentation.
+
+This client also supports the API’s server-side asynchronous request flow. This is different than the client-side asyncio support detailed below. For information about asynchronous requests for Query API datasets see here, or for Submission API filings see here.
+
+## Asyncio Support
+
+In addition to the standard synchronous client, this library provides an asynchronous client for improved throughput with I/O-bound applications. To learn about asynchronous I/O, see Python’s asyncio module. To create a configured instance of AsyncClient, set is_asyncio=True in get_client().
+
+```
+from finra.auth import get_client
+
+c = get_client(
+    api_key="API_KEY",
+    api_secret="API_SECRET",
+    token_path="/tmp/finra/token.json",
+    is_asyncio=True
+    )
+```
+
+The AsyncClient uses an asynchronous OAuth2 session to make requests, and returns awaitable coroutines. A coroutine must be awaited to execute an API request and receive an httpx.Response object. While waiting for the API server to respond, other coroutines and tasks can be executed concurrently and will not be blocked.
+
+```
+r = await c.get_consolidated_short_interest()  # await async coroutine
+
+r.raise_for_status()  # raise exception if request was unsuccessful
+
+data = r.json()  # extract data from response object
+```
+
+## Session Management
+
+There are several settings for managing how the client interacts with the API server.
+
+## Request Timeout
+
+To set the session timeout for all HTTP requests made by the client, use the Client.set_timeout() method. To get the current session timeout, call Client.get_timeout(). The default value is 30 seconds.
+
+```
+c.set_timeout(60)  # now all requests will timeout after 60 seconds
+```
+
+## Token Expiration
+
+Access tokens have a limited lifetime. If an API request returns a 401 Unauthorized response and the dataset credentials are valid, the stored access token has likely expired.
+
+To get a new token for an existing client call the Client.refresh_token method (awaitable for asynchronous client). This will fetch a new token from the FINRA Identity Platform and store it at the token_path, or using the token_write_func if it was set during client creation.
+
+The client offers several read-only attributes that can be used to anticipate token expiration:
+
+- token_expires_in : the number of seconds until expiration
+
+- token_expires_at : the expiration timestamp in UTC
+
+- token_age : the number of seconds since token creation
+
+These attributes describe a token’s lifecycle, and can indicate when to proactively fetch a new token before it expires. Additionally, the get_client function has a min_expires_in keyword that can be used to set minimum time to expiration (in seconds) when creating a client from a stored token, and will force a new token to be fetched if the stored token expires sooner.
+
+## Data Versioning
+
+Some datasets support multiple versions. This is usually the case only when a dataset’s structure or its access patterns have been upgraded, with the older version(s) typically having a limited support window and a retirement date.
+
+To request a specific data version use the version keyword in a dataset’s query method. If the value is set to None, the data version of the response will be the server’s default for that dataset. Even though most datasets only support a single data version, the version keyword is included as a calling convention for all datasets to support potential future updates.
+
+See Data Versioning in the official API documentation, and see the documentation for a specific dataset for information about the versioning options it supports.
+
+
+# Query API
+
+Source: https://finra.hawkberry.com/en/latest/query-api.html
+
+## Query API
+
+If you haven’t read getting_started, auth and client, please start by reading those sections.
+
+The Query API datasets belong to one of five groups. Each dataset has its own method for requesting data. Some datasets have access restrictions requiring specific credential types. See each dataset’s query method for exact requirements.
+
+The EquityGroup:
+
+- Client.get_ats_block_summary()
+
+- Client.get_otc_block_summary()
+
+- Client.get_consolidated_short_interest()
+
+- Client.get_daily_short_sale_volume()
+
+- Client.get_threshold_list()
+
+- Client.get_weekly_summary()
+
+- Client.get_weekly_summary_historic()
+
+- Client.get_monthly_summary()
+
+- Client.get_otc_daily_list()
+
+The FixedIncomeGroup:
+
+- Client.get_agency_tba_pricing()
+
+- Client.get_agency_cmo_pricing()
+
+- Client.get_agency_debt_market_breadth()
+
+- Client.get_agency_debt_market_sentiment()
+
+- Client.get_agency_mbs_trading_activity()
+
+- Client.get_agency_mbs_arm_hybrid_pricing()
+
+- Client.get_agency_mbs_pricing()
+
+- Client.get_collateralized_obligations_pricing()
+
+- Client.get_corporate_144a_debt_market_breadth()
+
+- Client.get_corporate_144a_debt_market_sentiment()
+
+- Client.get_corporate_and_agency_capped_volume()
+
+- Client.get_corporate_debt_market_breadth()
+
+- Client.get_corporate_debt_market_sentiment()
+
+- Client.get_daily_cmbs_pricing()
+
+- Client.get_non_agency_cmo_abs_pricing()
+
+- Client.get_non_agency_cmo_pricing()
+
+- Client.get_securitized_products_capped_volume()
+
+- Client.get_securitized_products_errata()
+
+- Client.get_securitized_products_trading_activity()
+
+- Client.get_treasury_daily_aggregates()
+
+- Client.get_treasury_monthly_aggregates()
+
+- Client.get_weekly_cmbs_pricing()
+
+The FINRAGroup:
+
+- Client.get_finra_rulebook()
+
+- Client.get_firm_registration_types()
+
+The FirmGroup:
+
+- Client.get_firm_customer_complaints()
+
+- Client.get_firm_disclosures()
+
+- Client.get_firm_profile()
+
+- Client.get_firm_registration_status_history()
+
+- Client.get_firm_registrations()
+
+The RegistrationGroup:
+
+- Client.get_accounting()
+
+- Client.get_altered_ssn_and_dob()
+
+- Client.get_branch_delta()
+
+- Client.get_branch_list()
+
+- Client.get_broker_dealer_firm_list()
+
+- Client.get_composite_branch()
+
+- Client.get_composite_individual()
+
+- Client.get_composite_individual_seed()
+
+- Client.get_individual_delta()
+
+- Client.get_individual_fingerprint()
+
+- Client.get_individual_pre_registration_search()
+
+- Client.get_individual_pre_registration_search_v2()
+
+- Client.get_individual_registration_validation()
+
+- Client.get_individual_registration_validation_details()
+
+- Client.get_registered_individual_search()
+
+- Client.get_u4_form_prefill()
+
+The ReportCardGroup:
+
+- Client.get_trace_agency_debt_details()
+
+- Client.get_trace_agency_debt_summary()
+
+- Client.get_trace_treasuries_details()
+
+- Client.get_trace_treasuries_summary()
+
+- Client.get_trace_corporate_bonds_details()
+
+- Client.get_trace_corporate_bonds_summary()
+
+- Client.get_trace_securitized_products_details()
+
+- Client.get_trace_securitized_products_summary()
+
+## Endpoints
+
+Datasets that support multiple endpoints have an endpoint keyword in their query method. In general, there are four resource endpoints that can be queried for a dataset: Endpoint.DATA, Endpoint.METADATA, Endpoint.PARTITIONS and Endpoint.DATASETS. Read more about Resource Endpoints in the official API documentation.
+
+## Data
+
+All datasets support the Endpoint.DATA endpoint, which returns the data for the dataset. This is the default endpoint when calling a dataset’s query method on the client.
+
+```
+r = c.get_ats_block_summary(endpoint=c.Endpoint.DATA)  # kwarg default
+
+r.raise_for_status()
+
+data = r.json()  # the actual data for this dataset
+```
+
+If a response has no content, it will return a 204 No Content response code, which will not raise an exception when calling r.raise_for_status(). However, calling r.json() with no content will raise json.JSONDecodeError.
+
+All other query method keywords only apply to the Endpoint.DATA endpoint.
+
+## Metadata
+
+Most datasets support the Endpoint.METADATA endpoint, which provides information about each of the fields in a dataset. These datasets are represented on the client using enums, and the Endpoint.METADATA response for a dataset should contain the same information that is documented on its enum.
+
+```
+r = c.get_ats_block_summary(endpoint=c.Endpoint.METADATA)
+
+r.raise_for_status()
+
+metadata = r.json()  # field names, types & descriptions
+```
+
+Some datasets do not support Endpoint.METADATA, and consequently do not have an enum on the client. Any endpoint restrictions are detailed in the documentation for a dataset’s query method on the client.
+
+## Partitions
+
+Many datasets have partition fields, which are typically used by a database program to distribute a large table across multiple machines. The partition fields for a dataset can be determined from the Endpoint.METADATA or Endpoint.PARTITIONS responses. They are also labeled on the dataset’s enum in the reference documentation.
+
+```
+r = c.get_ats_block_summary(endpoint=c.Endpoint.PARTITIONS)
+
+r.raise_for_status()
+
+partitions = r.json()  # available values for partition fields
+```
+
+Some datasets do not support Endpoint.PARTITIONS. Any endpoint restrictions are detailed in the documentation for a dataset’s query method on the client.
+
+## Datasets
+
+All datasets support the Endpoint.DATASETS endpoint. It can be used to retrieve information about the capabilities and features supported by each dataset, including API request methods, data format, versioning, and whether or not it is currently active.
+
+```
+r = c.get_ats_block_summary(endpoint=c.Endpoint.DATASETS)
+
+r.raise_for_status()
+
+datasets = r.json()  # supported API request methods, data formats, etc.
+```
+
+This information can also be retrieved for multiple datasets in a single call with the Client.get_datasets() method. Information can be requested for all datasets if no keywords are provided, or for a dataset group by specifying a member of Groups.
+
+```
+r = c.get_datasets(group=c.Groups.EQUITY)
+
+r.raise_for_status()
+
+datasets = r.json()  # information for all EQUITY datasets
+```
+
+This method can also be used to request information for a single dataset by passing a member of one of the group enums: EquityGroup, FixedIncomeGroup, FINRAGroup, FirmGroup, RegistrationGroup, or ReportCardGroup. The response is identical to the one received from a dataset’s query method when using the Endpoint.DATASETS endpoint.
+
+```
+r = c.get_datasets(name=c.EquityGroup.ATS_BLOCK_SUMMARY)
+
+r.raise_for_status()
+
+datasets = r.json()  # same as querying via the dataset's query method
+```
+
+## Fields
+
+Most datasets support requesting only a subset of fields. These datasets have a fields keyword in their query method, which accepts one or more fields specified as members of a dataset’s enum. To request multiple fields, provide them as an iterable. The order of the fields does not affect the response data.
+
+In this example, the query returns only three fields for each record.
+
+```
+e = c.ConsolidatedShortInterest  # enum for this dataset
+
+r = c.get_consolidated_short_interest(
+    fields=[e.SYMBOL, e.CURRENT_SHORT_POSITION, e.SETTLEMENT_DATE]
+    )
+
+r.raise_for_status()
+
+data = r.json()
+```
+
+## Filters
+
+Filters can be used to narrow the scope of the returned data. These are useful when selecting a subset of data from a large dataset. Datasets that support filtering have a filters keyword in their query method that accepts either a Filter object, or a dict representing the JSON object to pass directly to the API. However, if the JSON object is incorrectly formatted, the request will be rejected by the API.
+
+To simplify this process, the Filter class implements each of the available API filters. Methods that add a filter also return the Filter object, allowing calls to be chained together so that a complex filter can be built in a single line.
+
+See the finra.filters module for complete reference documentation.
+
+## Compare Filter
+
+A compare filter can be used to create a condition for comparing specific field values using the Filter.add_compare() method. The comparison operation is determined by the value of the CompareType enum passed as the third argument. If no compare type is provided, the value defaults to CompareType.EQUAL. Compare filters are required for datasets with partitions when requesting sorted records (see sorting below).
+
+```
+from datetime import date
+
+from finra.filters import Filter
+
+e = c.WeeklySummary                   # enum for this dataset
+
+f = (
+    Filter(e)
+        .add_compare(
+            e.WEEK_START_DATE,        # a partition field for this dataset
+            date(2025, 1, 6),         # partition value (Monday)
+            Filter.CompareType.EQUAL  # not necessary, this is the default
+            )
+        .add_compare(                 # chain another filter in-line
+            e.TOTAL_TRADES,
+            10_000,
+            Filter.CompareType.GREATER
+            )                  # only records with more than 10,000 trades
+    )
+```
+
+If a value other than a member of CompareType is passed for the compare type, a TypeError will be raised. This functionality can be disabled by setting require_enums=False during instantiation, or via the set_require_enums() method.
+
+## Date Range Filter
+
+Date range filters can be added on date- and datetime-typed columns using the Filter.add_date_range() method. The method accepts datetime.date and datetime.datetime objects to specify start and end dates for the range, and will raise a TypeError for any other types. Start and end dates are inclusive.
+
+```
+from datetime import date
+
+from finra.filters import Filter
+
+e = c.WeeklySummary            # enum for this dataset
+
+f = Filter(e).add_date_range(
+    e.LAST_REPORTED_DATE,
+    date(2025, 1, 1),          # start date (inclusive)
+    date(2026, 1, 1)           # end date (inclusive)
+    )
+```
+
+## Domain Filter
+
+To select records with a specific field value, or set of values, add a domain filter using the Filter.add_domain() method. For a single field value this is effectively the same as a compare filter with CompareType.EQUAL. However, a domain filter can be used to select records matching multiple field values.
+
+```
+from finra.filters import Filter
+
+e = c.WeeklySummary           # enum for this dataset
+
+f = Filter(e).add_domain(
+    e.SYMBOL,
+    ["AAPL", "MSFT", "NVDA"]  # only records for these symbols
+    )
+```
+
+## Sorting
+
+Datasets that support requesting data in sorted order have a sort_fields keyword in their query method, which accepts fields specified as members of a dataset’s enum. By default, records are returned in ascending order. To specify the sort direction, provide a 2-tuple of the form (direction, <member>), where direction is a number and <member> is an enum member. A negative direction sorts records in descending order. To sort by multiple fields, provide them as a list (or an iterable that is not a tuple).
+
+When requesting sorted records, a request must include a compare filter with CompareType.EQUAL on each of the partition fields for the dataset. If a dataset does not have partition fields (such as RegistrationGroup datasets), then a compare filter is not required.
+
+In this example, the query returns records sorted by symbol in ascending order. For this dataset, the partition field is the settlement date.
+
+```
+from datetime import date
+
+from finra.filters import Filter
+
+d = date(2025, 12, 31)           # settlement date for the query
+
+e = c.ConsolidatedShortInterest  # enum for this dataset
+
+r = c.get_consolidated_short_interest(
+    filters=Filter(e).add_compare(e.SETTLEMENT_DATE, d),  # EQUAL is default
+    sort_fields=e.SYMBOL         # sort by symbol in ascending order
+    )
+
+r.raise_for_status()
+
+data = r.json()
+```
+
+Similarly, this example sorts by multiple fields: first by change percent in descending order, and then by symbol in ascending order.
+
+```
+r = c.get_consolidated_short_interest(
+    filters=Filter(e).add_compare(e.SETTLEMENT_DATE, d),  # EQUAL is default
+    sort_fields=[(-1, e.CHANGE_PERCENT), e.SYMBOL]        # multi-field sort
+    )
+```
+
+Sorting is not supported on historical datasets, for example, when calling Client.get_weekly_summary_historic.
+
+Read more about Sorting Restrictions in the official API documentation.
+
+## Asynchronous Requests
+
+Asynchronous requests are useful when accessing a large number of records. They allow more records to be obtained per API request while reducing the load on the platform. Datasets that support the asynchronous request flow described below have an async_request keyword in their query method.
+
+Asynchronous requests involve making (at least) three separate requests to the API. The first leg of an asynchronous operation is to call the dataset’s query method with the keyword argument async_request=True. The response will include a status code, but it will not include the requested data in the response body. Instead, the response will include a Location header that contains the URL to use for the second leg of the operation to check the status of the request. To simplify handling the Location header, pass the httpx.Response object from the first leg to the extract_location() function as an argument, which will return the check status URL.
+
+```
+from finra import utils
+
+r = c.get_consolidated_short_interest(async_request=True)  # first leg
+
+r.raise_for_status()
+
+assert r.status_code == 202      # status code should be 202
+
+check_status_link = utils.extract_location(r)  # URL for second leg
+```
+
+For the second leg, pass the check status URL to Client.get_async_request_status() to request the status of the results. The result status can be extracted from the response using extract_status(). If the results are still being processed, the response will return with a status code of 202, and the result status will have a value of pending. When the response returns a status code of 200, the result status will have a value of complete, indicating that the result data is ready. The result URL can then be extracted from the response using the extract_result_link() function.
+
+```
+import time
+
+while True:                      # keep checking status until "complete"
+    r = c.get_async_request_status(check_status_link)   # second leg
+
+    r.raise_for_status()
+
+    if r.status_code == 200:     # result status is "complete"
+        # assert utils.extract_status(r) == "complete"  # expected status
+        break
+
+    assert r.status_code == 202  # result status is "pending"
+    # assert utils.extract_status(r) == "pending"       # expected status
+
+    time.sleep(60)  # FINRA recommends polling no more than once per minute
+
+result_link = utils.extract_result_link(r)  # URL for third leg
+```
+
+When the result status is complete, the response body will contain several other fields. A timezone-aware UTC datetime object representing the expiration of the result link can be extracted using the extract_expires() function. And the request_id field containing the FINRA UUID used to uniquely identify the request can be extracted using the extract_request_id() function.
+
+The third and final leg of the asynchronous request operation involves fetching the result by passing the result URL to Client.get_async_result(). The result URL is pre-signed, meaning the caller’s authentication token is not used to access the result data. Any caller with this URL can fetch the result, however it will expire 2 hours after a status code of 200 is received from the check status URL, or 24 hours after the result dataset is created, whichever is earlier.
+
+```
+r = c.get_async_result(result_link)  # third leg, get the data
+
+r.raise_for_status()
+
+data = r.json()                      # this is the requested dataset
+```
+
+Read more about Request Types in the official API documentation.
+
+## Natively Async Requests
+
+A few datasets do not follow the operation flow described above, and instead handle the second leg of the asynchronous request natively through their own API endpoint. For these datasets, extract the request_id from the response in the first leg, and pass it back to the same query method to check the status of the request. Notable examples that implement this pattern include Client.get_composite_individual_seed() and Client.get_firm_renewal() in the Registration group, as well as most of the submission endpoints. See the client’s reference documentation for details about specific datasets.
+
+## Working with Large Datasets
+
+When working with large datasets that contain more records than the maximum record limit (5,000 synchronous / 100,000 asynchronous) an application must be designed to access the data in tranches that honor the Platform Usage Limits.
+
+The examples in this section are intended to demonstrate specific API concepts, not as production routines. In almost all cases, you should write your own routine that suits your application’s needs.
+
+## Pagination
+
+To facilitate accessing data in tranches, many datasets support pagination. These datasets have limit and offset keywords in their query method:
+
+- limit : the number of records to request (default: 1,000)
+
+- offset : the record number to start with (non-inclusive)
+
+For example, if the offset is 0 and the limit is 20, then records 1 to 20 are returned for a total of 20 records. If the offset is 10 and the limit is 10, then records 11 to 20 are returned.
+
+The offset parameter has a maximum value of 500,000. The effect of this constraint is that a maximum of 505,000 records can be accessed synchronously, and a maximum of 600,000 records can be accessed asynchronously, without the use of additional filters. For example, the WeeklySummary dataset contains millions of records. Because of the 500,000 maximum offset, it is not possible to access all records simply by increasing the offset parameter until all data is accessed.
+
+Instead, filters must be used together with the limit and offset parameters to reduce the size of the result set. For example, the WeeklySummary dataset can be filtered by its partition fields, allowing each partition to be paginated independently without exceeding the API’s maximum offset value.
+
+## Iterate Partitions
+
+Many large datasets require the use of partition fields to access and sort tranches of data. To fetch data in sorted order, a request must include a compare filter on each of the partition fields for a dataset (see sorting). Most datasets only have a single partition field, however WeeklySummary is so large that it has two: WeeklySummary.WEEK_START_DATE and WeeklySummary.TIER_IDENTIFIER.
+
+The following example fetches data for all T1 securities with more than 10,000 weekly trades, with week start dates going back through 2026. It returns the data sorted first by number of trades in descending order, and then by symbol in ascending order.
+
+```
+from finra.filters import Filter
+
+r = c.get_weekly_summary(endpoint=c.Endpoint.PARTITIONS)
+r.raise_for_status()
+partitions = r.json()       # partitions for this dataset
+
+e = c.WeeklySummary         # enum for this dataset
+ct = Filter.CompareType
+
+data = {}  # output data {partition date: list of records}
+for p in partitions["availablePartitions"]:  # dates are in descending order
+    d, t = p["partitions"]  # date string yyyy-MM-dd, and tier identifier
+    if d < "2026-01-01":    # skip dates prior to 2026
+        continue
+    if t != "T1":           # only NMS tier one securities
+        continue
+
+    r = c.get_weekly_summary(
+        filters=(
+            Filter(e)
+                .add_compare(e.WEEK_START_DATE, d)  # primary partition
+                .add_compare(e.TIER_IDENTIFIER, t)  # secondary partition
+                .add_compare(e.TOTAL_TRADES, 10_000, ct.GREATER)
+            ),
+        sort_fields=[(-1, e.TOTAL_TRADES), e.SYMBOL]
+        )
+
+    r.raise_for_status()
+
+    data[d] = r.json()      # aggregate output data
+```
+
+Due to the API’s maximum record limit, this query will only fetch up to the maximum number of records for each partition. In general, selecting all of the requested records will require pagination (see the following examples).
+
+## Partitions and Pagination
+
+In this example, limit and offset are used to fetch records matching the filter conditions for all T1 securities with week start dates going back through 2026. It fetches symbols with more than 10,000 weekly trades, and sorts the data first by number of trades in descending order, and then by symbol in ascending order.
+
+```
+from collections import defaultdict
+
+from finra.filters import Filter
+
+r = c.get_weekly_summary(endpoint=c.Endpoint.PARTITIONS)
+r.raise_for_status()
+partitions = r.json()        # partitions for this dataset
+
+e = c.WeeklySummary          # enum for this dataset
+ct = Filter.CompareType
+
+limit = 1_000                # must be <= maximum record limit for query
+data = defaultdict(list)     # output data {partition date: list of records}
+for p in partitions["availablePartitions"]:  # dates are in descending order
+    d, t = p["partitions"]   # date string yyyy-MM-dd, and tier identifier
+    if d < "2026-01-01":     # skip dates prior to 2026
+        continue
+    if t != "T1":            # only NMS tier one securities
+        continue
+
+    offset = 0               # initial offset for partition
+    while True:              # pagination loop
+        r = c.get_weekly_summary(
+            filters=(
+                Filter(e)
+                    .add_compare(e.WEEK_START_DATE, d) # primary partition
+                    .add_compare(e.TIER_IDENTIFIER, t) # secondary partition
+                    .add_compare(e.TOTAL_TRADES, 10_000, ct.GREATER)
+                ),
+            sort_fields=[(-1, e.TOTAL_TRADES), e.SYMBOL],
+            limit=limit,
+            offset=offset
+            )
+
+        r.raise_for_status()
+
+        _data = r.json()
+        data[d].extend(_data)   # aggregate output data
+
+        if len(_data) < limit:  # exit loop if fewer records than limit
+            break               # may exit early if payload size constrained
+
+        offset += limit         # increment next page offset
+```
+
+However, this query pattern does not guarantee that all matching records will be fetched, even if the limit is less than the maximum record limit. This is because the API also has a maximum payload size constraint of 3MB, which limits the data returned in each request regardless of the value of limit. If the maximum payload size is the limiting constraint, this query pattern will exit early, and fail to fetch all of the requested records. To mitigate this issue, do one or more of the following:
+
+- adapt pagination variables using response headers (see the next example)
+
+- reduce the payload size by requesting fewer fields
+
+- reduce the payload size by requesting text/plain content
+
+- use asynchronous requests, which do not have a maximum payload size
+
+## Adaptive Pagination
+
+The response headers returned by the API contain important information that can be used to adapt pagination loops. In general, the number of records returned by a single synchronous query can be limited by either the maximum record limit, or by the maximum payload size of 3MB. This can lead to unexpected behavior unless the application monitors the response headers.
+
+The finra.utils module provides functions to simplify handling response headers, which can be used with httpx.Response objects. The following example uses extract_record_total(), which returns the total number of records found at the time of the request, to determine when all of the data has been retrieved. The extract_record_max_limit() function is used to reduce the initial limit to the maximum record limit, if it is greater. Additionally, several assert statements are included as commented lines to demonstrate other response header utilities and their expected values.
+
+```
+from finra import utils
+
+limit = 1_000         # initial limit
+offset = 0            # initial offset
+record_total = 0      # total records available for query
+data = []             # output data
+while True:           # pagination loop
+    r = c.get_weekly_summary(
+        limit=limit,
+        offset=offset
+        )
+
+    r.raise_for_status()
+
+    _data = r.json()            # new records
+    count = len(_data)          # count of new records
+    # assert count <= utils.extract_record_limit(r)            # expected
+    # assert offset == utils.extract_record_offset(r)          # expected
+
+    if count == 0:              # fail-safe, prevent infinite loop
+        raise Exception(
+            "Something went wrong. No records returned. Response:\n" + \
+            r.text
+            )
+
+    data.extend(_data)          # aggregate output data
+    offset += count             # increment offset ( == len(data) )
+
+    if record_total == 0:       # first iteration only
+        record_total = utils.extract_record_total(r)  # set record total
+        if record_total is None:
+            raise Exception("Record Total not found in headers!")
+
+        limit = min(limit, utils.extract_record_max_limit(r))  # adapt limit
+        # assert limit == utils.extract_record_limit(r)        # expected
+
+    if offset >= record_total:  # all records have been retrieved
+        break
+```
+
+Three additional response headers may also be useful: see extract_response_payload_max_size(), extract_total_records_on_page(), and extract_finra_api_request_id().
+
+## Content Types
+
+## Default Content Type
+
+Within this client, the response content type defaults to application/json. However, many datasets support text/plain response content when querying their Endpoint.DATA endpoint. All other endpoints return only application/json content.
+
+The default response content type can be changed to text/plain by passing False to Client.set_default_accept_json(). Pass True for application/json, or None for the API’s default. Data will only be returned as text/plain if the dataset being queried supports it. To get the current default content type, call Client.get_default_accept_json().
+
+When requesting text/plain content, the data can be accessed through the httpx.Response.text attribute.
+
+```
+c.set_default_accept_json(False)  # ALL responses text/plain, if supported
+
+r = c.get_consolidated_short_interest()  # comma-delimited, unquoted values
+
+r.raise_for_status()
+
+data = r.text                     # text data from response attribute
+```
+
+## Content Type for a Single Query
+
+For a single query, the response content type can be changed using the boolean-valued accept_json keyword, if it is supported by the dataset’s query method. When requesting text/plain content, two additional keywords can be used to configure the response data:
+
+- delimiter : a single-character that separates fields, which must be one of the following values: comma ,, pipe |, tab \\t or \\x09, or ctrl+A \\x01 (default: comma ,)
+
+- quote_values : a boolean specifying whether non-empty values should be quoted (default: False)
+
+In this example, the query requests text/plain content type, with a non-default field delimiter and quoted values.
+
+```
+from finra import utils
+
+r = c.get_consolidated_short_interest(
+    accept_json=False,     # text/plain for this request only
+    delimiter="|",         # fields are pipe-delimited
+    quote_values=True      # all non-empty values have quotes
+    )
+
+r.raise_for_status()
+
+assert utils.extract_content_type(r) == "text/plain"  # verify content type
+
+data = r.text              # text data from response attribute
+```
+
+The response content type can also be retrieved from the response headers using the extract_content_type() function.
+
+## Relabeling Response Data
+
+Response data is returned with the field names used by the API. This labeling scheme can be inconvenient if an application requires a different set of field names to process records downstream.
+
+To mitigate this issue, this library provides the RelabelJSON class that can be used to relabel both flat response data and nested JSON objects. It accepts a mapping as the first argument during instantiation, which can either be a dataset’s enum, or a dict that maps the API’s labels to the application’s canonical labels. To relabel response data, just call the RelabelJSON object with the httpx.Response returned by a query, or the JSON data returned by httpx.Response.json().
+
+The following example relabels flat response data with names from a dataset’s enum.
+
+```
+from finra.utils import RelabelJSON
+
+e = c.WeeklySummary            # enum for this dataset
+
+r = c.get_weekly_summary()
+
+r.raise_for_status()
+
+relabeler = RelabelJSON(e)     # set the relabel mapping using the enum
+
+relabeled_data = relabeler(r)  # relabel response data with enum names
+```
+
+Response data that has a nested JSON object structure can also be relabeled. Labels can be specified using a period-delimited (.) syntax, or using a nested mapping that contains only strings and dictionaries; relabel mappings are applied to all objects in an array. An optional secondary mapping can be set using the obj_labels argument to relabel the keys of nodes containing objects or arrays. The obj_labels mapping is a flat mapping that will relabel object node keys regardless of the depth of the node.
+
+The following example relabels nested response data based on the dataset’s enum. The enum for this dataset has values that follow a period-delimited (.) syntax, indicating the response data will be returned as a nested JSON object.
+
+```
+from finra.utils import RelabelJSON
+
+e = c.FirmProfile              # enum for this dataset
+
+r = c.get_firm_profile()
+
+r.raise_for_status()
+
+obj_labels = {
+    "firmAddress": "ADDRESS",
+    "registrations": "REGISTRATIONS",
+    }  # flat mapping for object node keys {API's label: canonical label}
+
+relabeler = RelabelJSON(e, obj_labels=obj_labels)     # relabel object nodes
+
+relabeled_data = relabeler(r)
+```
+
+The example below uses a relabel mapping for a JSON object with one leaf node and two object nodes. For demonstration purposes the relabel mapping uses the period-delimited (.) syntax for the “registrations” object, and a nested mapping for the “disclosures” object. Both of these nodes are populated by arrays of objects, so the relabel mapping is applied to all objects in the array.
+
+```
+from finra.utils import RelabelJSON
+
+relabel_mapping = {
+    "firmCrdNumber": "FIRM_CRD_NUMBER",
+    "disclosures": {                                  # nested mapping
+        "disclosureType": "DISCLOSURE_TYPE",
+        "occurrenceNumber": "OCCURRENCE_NUMBER",
+        "reportableFlag": "REPORTABLE_FLAG",
+        "disclosableFlag": "DISCLOSABLE_FLAG",
+        "archivedFlag": "ARCHIVED_FLAG",
+        "eventDate": "EVENT_DATE",
+        },
+    "registrations.regulatorCode": "REGULATOR_CODE",  # period-delimited
+    }
+
+r = c.get_firm_disclosures()
+
+r.raise_for_status()
+
+relabeler = RelabelJSON(relabel_mapping)  # set the relabel mapping
+
+relabeled_data = relabeler(r)  # relabel data with canonical labels
+```
+
+The default behavior is to re-order the response data so that it has the same order as the relabel mapping. However if the label order is unimportant, this can be disabled by setting keep_label_order=False when instantiating the relabeler object, which makes relabeling slightly faster. If keep_label_order=True, any fields that are not contained in the relabel mapping will still be returned with the API’s label, but sorted to the bottom of the record and in the order returned in the response.
+
+
+# Notification API
+
+Source: https://finra.hawkberry.com/en/latest/notification-api.html
+
+## Notification API
+
+If you haven’t read getting_started, auth and client, please start by reading those sections.
+
+Each Notification API dataset has its own query method. All datasets require Firm or Organization credentials. See each dataset’s query method for the exact requirements.
+
+- Client.get_finra_rulebook_notifications()
+
+- Client.get_draft_registration_filing_notifications()
+
+## Datetime Ranges
+
+All Notification API datasets use start_datetime and end_datetime to specify a range for the requested data. These values can be provided to a dataset’s query method as datetime.date or datetime.datetime objects, and will raise a TypeError for any other types. A datetime.datetime object will be automatically converted to the America/New_York timezone before a request is submitted. If a datetime.datetime object is not timezone-aware, it is assumed to be in the timezone of the application’s local environment.
+
+Response data follows these rules:
+
+- Notifications are only returned for the last 12 months.
+
+- If only the start_datetime is provided, notifications published at or after start_datetime are returned.
+
+- If only the end_datetime is provided, notifications published within the last 12 months up to the end_datetime are returned.
+
+- If neither datetimes are provided, only notifications published within the last month are returned.
+
+- If the date range is outside the last 12 months, the response will have a status code of 200, but no results.
+
+Notification API endpoints do not support asynchronous requests, and only return application/json data.
+
+## Examples
+
+The examples in this section are intended to demonstrate specific API concepts, not as production routines. In almost all cases, you should write your own routine that suits your application’s needs.
+
+## Chaining Datetime Ranges
+
+This example incrementally steps over one-day intervals to fetch all notifications in a date range. For additional considerations regarding pagination loops, see large_datasets.
+
+```
+from datetime import date, timedelta
+
+start = date(2025, 1, 1)          # initial date (inclusive)
+stop = date(2026, 1, 1)           # final date (non-inclusive)
+step = timedelta(days=1)          # step size
+
+start_date = start                # start of first query range
+limit = 1_000
+data = []                         # output data
+while start_date < stop:          # datetime loop
+    end_date = start_date + step  # end of query range
+
+    offset = 0
+    while True:                   # pagination loop
+        r = c.get_finra_rulebook_notifications(
+            start_datetime=start_date,
+            end_datetime=end_date,
+            limit=limit,
+            offset=offset
+            )
+
+        r.raise_for_status()
+
+        _data = r.json()
+        data.extend(_data)        # aggregate output data
+        if len(_data) < limit:    # exit loop if fewer records than limit
+            break
+
+        offset += limit           # increment next page offset
+
+    start_date = end_date         # increment start of next query range
+```
+
+
+# Submission API
+
+Source: https://finra.hawkberry.com/en/latest/submission-api.html
+
+## Submission API
+
+If you haven’t read getting_started, auth and client, please start by reading those sections.
+
+The Submission API allows third-party systems to automate compliance operations by submitting regulatory filings and other data directly to FINRA.
+
+Each filing has a single method for submitting, validating and retrieving filing data. All endpoints require Firm credentials.
+
+- Client.create_individual_submission()
+
+- Client.form_br_submission()
+
+- Client.form_u4_submission()
+
+- Client.form_u5_submission()
+
+- Client.non_registered_fingerprint_submission()
+
+Each of the following classes corresponds to a specific filing. They are useful for building metadata for submissions, and configuring partial update operations.
+
+- CreateIndividual
+
+- FormBR
+
+- FormU4
+
+- FormU5
+
+- NonRegisteredFingerprint
+
+## Request Flow
+
+Each time a submission request is created, the API generates a universally unique identifier (UUID) that is used to uniquely identify the submission request. This UUID is returned in the body of the httpx.Response and referred to as the request_id throughout the documentation. It can be used in subsequent requests to update, delete or retrieve the filing. The request_id can be extracted using extract_filing_request_id(). To retrieve the results for the request, pass the request_id back to the filing’s submission method as an argument.
+
+Submission requests are processed synchronously or asynchronously depending on the filing. Synchronous submissions are processed immediately, and will return the result status immediately provided there are no server-side validation errors. The only filing that currently supports synchronous submission requests is CreateIndividual. All other submission filings are asynchronous.
+
+For asynchronous submissions, the API will process the request in the background, as long as the submission passes the server-side validation check. The submission response will contain the request_id, but it does not include information on the processing itself, which must be retrieved in a subsequent request using the request_id. Background processing can take from 5 to 15 minutes when the filing_status is FilingStatus.SUBMITTED, and FINRA asks users to wait at least this long before requesting the result status.
+
+If a server-side validation failure does occur, the filing_status will be set to DRAFT, if the filing supports it. Information related to the validation error can be retrieved by calling the submission method with the request_id. The response will contain a result_status field with the value FAILED_VALIDATION, which can be extracted using extract_filing_result_status(). The result_status_description field will include any error and warning messages, which can be extracted using extract_filing_result_status_desc().
+
+Read more about the Overall Flow of Submission API requests in the official documentation.
+
+## Filing Status
+
+The request flow for a submission depends on the value of the FilingStatus, which specifies the state of a submission.
+
+There are three available values:
+
+- FilingStatus.DRAFT
+
+- FilingStatus.SUBMITTED
+
+- FilingStatus.VALIDATE
+
+The FilingStatus can be set on the filing object using the set_filing_status() method, if supported by the filing. The CreateIndividual and NonRegisteredFingerprint filings only support FilingStatus.SUBMITTED, and do not allow this value to be altered.
+
+## Submitted Filing Status
+
+The following example builds an initial submission using FilingStatus.SUBMITTED for a FormBR filing. The filing is submitted to the API, and the request_id is extracted from the response.
+
+```
+from finra.filings.form_br import FormBR
+from finra import utils
+
+f = FormBR()                                   # branch office registration
+(
+    f.set_filing_status(f.FilingStatus.SUBMITTED)  # finalize submission
+     .set_filing_type(f.FilingType.INITIAL)        # initial filing
+     .set_filing_data({...})                       # add some filing data
+)                                                  # methods chained in-line
+
+r = c.form_br_submission(filing=f)                 # submit the filing
+
+r.raise_for_status()
+
+request_id = utils.extract_filing_request_id(r)    # UUID for request
+```
+
+To check the status of the submission, call the same submission method again with the request_id as the first argument. The result_status will be PROCESSED when it is complete. A value of PROCESSING indicates the API server is still working, and to wait several minutes before re-checking the status. If the result_status is FAILED or FAILED_VALIDATION, it means an error or warning has occurred.
+
+```
+r = c.form_br_submission(request_id)  # check the status of the submission
+
+r.raise_for_status()
+
+result_status = utils.extract_filing_result_status(r)  # done if "PROCESSED"
+
+result_status_description = \
+    utils.extract_filing_result_status_desc(r)         # message / errors
+
+data = r.json()  # submission data, wrapped with response metadata
+```
+
+## Draft Filing Status
+
+The primary advantage of using draft submissions is that they can be updated and re-validated as many times as needed, without having to file amendments. The following example builds an initial draft submission using FilingStatus.DRAFT for a FormBR filing. It submits the draft, and extracts the request_id from the response.
+
+```
+from finra.filings.form_br import FormBR
+from finra import utils
+
+f = FormBR()                                   # branch office registration
+(
+    f.set_filing_status(f.FilingStatus.DRAFT)  # draft submission
+     .set_filing_type(f.FilingType.INITIAL)    # initial filing
+     .set_filing_data({...})                   # add some filing data
+)                                              # methods chained in-line
+
+r = c.form_br_submission(filing=f)             # submit the draft
+
+r.raise_for_status()
+
+request_id = utils.extract_filing_request_id(r)  # UUID for request
+```
+
+To retrieve the draft submission data, call the same submission method again with the request_id as the first argument.
+
+```
+r = c.form_br_submission(request_id)  # use the same method to get the draft
+
+r.raise_for_status()
+
+data = r.json()  # draft submission data, wrapped with response metadata
+```
+
+## Validate Filing Status
+
+A server-side completeness check can be triggered for submissions in DRAFT status, without changing the status to SUBMITTED. To trigger a completeness check, create a submission with FilingStatus.VALIDATE. If a draft submission does not already exist, one will be created.
+
+```
+from finra.filings.form_br import FormBR
+from finra import utils
+
+f = FormBR()                                    # branch office registration
+(
+    f.set_filing_status(f.FilingStatus.VALIDATE)  # validate submission
+     .set_filing_type(f.FilingType.INITIAL)       # initial filing
+     .set_filing_data({...})                      # add some filing data
+)                                                 # methods chained in-line
+
+r = c.form_br_submission(filing=f)                # validate the filing
+
+r.raise_for_status()
+
+request_id = utils.extract_filing_request_id(r)   # UUID for request
+```
+
+To retrieve the results of the completeness check, call the same submission method again with the request_id as the first argument. If the completeness check is unsuccessful, the result_status will have the value FAILED_VALIDATION, and the result_status_description will contain additional information about errors and warnings.
+
+```
+r = c.form_br_submission(request_id)  # check the status of the submission
+
+r.raise_for_status()
+
+result_status = utils.extract_filing_result_status(r) # pass or fail?
+
+result_status_description = \
+    utils.extract_filing_result_status_desc(r)        # message / errors
+
+data = r.json()  # draft submission data, wrapped with response metadata
+
+filing_status = utils.extract_filing_status(r)        # should be "DRAFT"
+```
+
+## Filing Type
+
+Filing types are specific to each filing, and identify a filing procedure such as an amendment or a withdrawal. They are required for all filings except CreateIndividual.
+
+Amendments and other filing types can be created using the full filing data, or using operations. In this example, an amendment is created and submitted using an operation.
+
+```
+from finra.filings.form_br import FormBR
+from finra import utils
+
+f = FormBR()                                    # branch office registration
+(
+    f.set_filing_status(f.FilingStatus.SUBMITTED)  # finalize submission
+     .set_filing_type(f.FilingType.AMENDMENT)      # amendment
+     .add_operation(...)                           # amendment operation
+)
+
+r = c.form_br_submission(filing=f)                 # submit the amendment
+
+r.raise_for_status()
+
+request_id = utils.extract_filing_request_id(r)    # UUID for request
+```
+
+The one exception to this pattern is NonRegisteredFingerprint, which does not support DRAFT status or operations. However, amendments can be submitted using the full filing data, or just the delta changes in the filing data.
+
+## Operations
+
+Operations are instructions for updating a filing using JSON operations. If both filing data and operations are provided in a single call, operations will be ignored.
+
+If a filing supports operations, they can be added using the filing object’s add_operation() method, which takes three arguments:
+
+- op is the action in a JSON operation specified as a member of the Op enum.
+
+- path specifies the location or traversal route within a JSON document. It is based on the RFC 6901 standard, except with arrays where an additional syntax is supported to uniquely identify an element within an array, instead of relying on array indexes.
+
+- value is placed at the path. For operations with Op.REMOVE, the value must be omitted or None.
+
+Consider the following example filing data:
+
+```
+{
+    "individualInformation": {
+        "personalInformation": {
+            "individualFilingName": {
+                "middleName": null,
+                "lastName": "lexicon"
+            }
+        },
+        "residentialHistory": [
+            {
+                "id": "5f2df182-f6d0-4504-9e18-38a8c7268b77",
+                "addressStartDate": "2022-01"
+            },
+            {
+                "id": "c970abd7-37d2-4c7e-b695-b8cb7a0b5817",
+                "addressStartDate": "2022-01"
+            }
+        ]
+    }
+}
+```
+
+A path can be specified directly as a string, or it can be specified as an iterable representing the traversal route. The following path selects an array element from the example data using the syntax [<key>:<value>], where the key is a label within each element, and the value uniquely identifies an element in the array:
+
+- “/individualInformation/residentialHistory/[id:5f2df182-f6d0-4504-9e18-38a8c7268b77]”
+
+Alternatively, the same path can also be specified as an iterable, and elements within an array can be identified uniquely using a (key, value) 2-tuple:
+
+- [“individualInformation”, “residentialHistory”, (“id”, “5f2df182-f6d0-4504-9e18-38a8c7268b77”)]
+
+The following code block uses operations to modify the example filing data:
+
+```
+from finra.filings.form_br import FormBR
+
+f = FormBR()                                   # branch office registration
+(
+    f.set_filing_status(f.FilingStatus.DRAFT)  # draft submission
+     .set_filing_type(f.FilingType.INITIAL)    # initial filing
+     .add_operation(
+         f.Op.ADD,                                          # add op
+         ["individualInformation", "personalInformation"],  # path
+         {"firstName": "John", "lastName": "Smith"}         # value
+         )
+     .add_operation(
+         f.Op.REMOVE,                                       # remove op
+         ["individualInformation", "residentialHistory",
+          ("id", "5f2df182-f6d0-4504-9e18-38a8c7268b77")]   # path
+         )                                                  # no value
+)
+```
+
+Read more about operations in Partial Updates in the official Submission API documentation.
+
+## Update Draft
+
+operations are particularly useful for submissions in DRAFT status, which can be updated as many times as needed. To update a draft submission, provide the request_id as the first argument in the filing’s submission method, along with the filing object containing the update operations.
+
+```
+from finra.filings.form_br import FormBR
+from finra import utils
+
+f = FormBR()                                   # branch office registration
+(
+    f.set_filing_status(f.FilingStatus.DRAFT)  # draft submission
+     .set_filing_type(f.FilingType.INITIAL)    # initial filing
+     .add_operation(...)                       # add operations
+)
+
+r = c.form_br_submission(request_id, filing=f)   # submit PATCH update
+
+r.raise_for_status()
+```
+
+The default behavior for an update is to use a PATCH request, which will merge the filing data with the update data, preserving fields that are not included in the update. To replace a data sub-structure instead of merging it, use a PUT request by setting put=True in the filing’s submission method. Read more about the difference between PATCH and PUT requests here.
+
+The filing_status can also be changed in a PATCH/PUT request without providing any filing data or operations. This can be used to finalize the submission and process it to FINRA by changing the value to FilingStatus.SUBMITTED, or to trigger a completeness check on the draft filing by changing the value to FilingStatus.VALIDATE.
+
+```
+from finra.filings.form_br import FormBR
+from finra import utils
+
+f = FormBR()                                    # branch office registration
+(
+    f.set_filing_status(f.FilingStatus.SUBMITTED) # finalize submission
+     .set_filing_type(f.FilingType.INITIAL)       # initial filing
+)                                                 # no data or operations
+
+r = c.form_br_submission(request_id, filing=f)    # submit PATCH update
+
+r.raise_for_status()
+```
+
+## Delete Draft
+
+Only submissions in DRAFT status can be deleted. To delete a submission, provide the request_id as the first argument in the filing’s submission method, and set delete=True.
+
+```
+r = c.form_br_submission(request_id, delete=True)     # delete the draft
+
+r.raise_for_status()
+```
+
+The status of the deletion can be tracked in a subsequent request using the request_id. Once the submission is deleted, the result_status in the response will be set to DELETED. Deletion is processed in the background, and may take several minutes.
+
+```
+r = c.form_br_submission(request_id)                  # track the deletion
+
+r.raise_for_status()
+
+result_status = utils.extract_filing_result_status(r) # should be "DELETED"
+
+result_status_description = \
+    utils.extract_filing_result_status_desc(r)        # message / errors
+```
+
+## Client-Side Validation
+
+Client-side validation is available through the Client class. This functionality DOES NOT currently support the AsyncClient class.
+
+Client-side validation uses the Validator class to validate filing data and metadata on the client-side before it is submitted to the API. Client-side validation is completely optional, and is not intended as a replacement for the API’s server-side validation process. However, it can be used as a supplemental tool to catch errors prior to submission.
+
+The Validator class validates a filing’s JSON object against its JSON Schema, which defines the expected structure and allowed values for the object. It is effectively a proxy for the jsonschema.Draft7Validator, which can validate JSON objects against schemas that follow the JSON Schema Draft 7 specification. See more information about the jsonschema validation process here.
+
+During client-side validation, the schemas are fetched directly from the API and stored in memory, and are accessible from the client’s schema_registry attribute. This significantly reduces validation time because each schema component only needs to be fetched once. To free up resources when all validation is complete, and the schemas are no longer needed, just clear the schema registry.
+
+To perform client-side validation within a client’s submission method, set validate=True. If the filing passes, it will then be submitted to the API. If it fails, a jsonschema.ValidationError will be raised.
+
+```
+from finra.filings.form_br import FormBR
+
+f = FormBR()
+
+# ...add some filing data or operations
+
+r = c.form_br_submission(
+    filing=f,              # submit the filing
+    validate=True          # validate client-side before submission
+    )
+
+c.schema_registry.clear()  # clear local store, free up memory
+```
+
+The Validator class can also be used outside the client. However, it still requires a client to fetch the schemas. This can be useful to validate the filing data without submitting it to the API. The schema registry can also be managed outside the validator, which enables it to be reused to prevent redundant network operations; many schema parts are shared across filings.
+
+```
+from finra.filings.form_br import FormBR
+from finra.filings.validator import Validator
+
+schema_registry = {}  # save to reuse schemas across multiple validators
+
+f = FormBR()
+
+# ...add some filing data or operations
+
+obj = f.build()       # filing data/metadata as a JSON object for submission
+
+v = Validator(                                # create validator object
+    c,                                        # client
+    f.schema_url,                             # top-level schema URL
+    schema_registry=schema_registry           # optional, reusable
+    )
+
+v.validate(obj)       # client-side validation without submission to the API
+
+schema_registry.clear()  # cleared schemas will need to be re-fetched
+```
+
+
+# Getting Help
+
+Source: https://finra.hawkberry.com/en/latest/help.html
+
+## Getting Help
+
+This page describes how to troubleshoot problems, report bugs, and get assistance with finra-py.
+
+## Bug Reporting
+
+If you are experiencing a problem with the client, first ensure you’re using the most recent version. You can see the version you’re using by running from importlib import metadata as md; print(md.version('finra-py')) from within Python. You can also make sure you have the most recent version by executing the command pip install --upgrade finra-py. If you are running the most recent version, and you are still experiencing problems, the next step is to enable logging and inspect the output.
+
+## Enable Logging
+
+This client library performs diagnostic logging of its activity using Python’s logging module. To enable logging, add a handler to the root logger. The default output stream for StreamHandler is sys.stderr.
+
+```
+import logging
+
+logging.getLogger('').addHandler(logging.StreamHandler())  # write to stderr
+```
+
+Sometimes, this additional logging is enough to help you debug your application. Before asking for help, carefully review the logs and determine whether you can identify and resolve the issue yourself. You may be the best person to investigate and fix it!
+
+## Bug Report Logging
+
+If you still can’t figure out what’s going wrong, this library provides a special utility for preparing bug reports that collects diagnostic logs. This utility redacts sensitive values and common secrets such as tokens, API keys, CRD numbers, SSNs, DOBs, etc. If you need to provide logs in a bug report, please use this utility to generate the logs you submit, and write them to a file (see the second example below). It is not necessary to separately enable logging (as in the previous example); the bug reporting utility configures the required logging automatically.
+
+IMPORTANT: Log redaction is only a best effort, and is not guaranteed to be perfect. Never share your logs without verifying that all secret information has been properly redacted. It is your responsibility to ensure that your information is secure.
+
+The bug report utility configures dedicated loggers for the finra-py client, authentication, and debug modules. The logging handlers created by this utility write diagnostic logs from finra-py to the configured stream or file. Users may provide their own stream or file destination, but any additional logging written to that destination by external code is outside the control of this library. When filing bug reports, provide this utility a dedicated log file location so that the file contains only finra-py logs.
+
+The bug report utility (and the DEBUG log-level in general) is not designed to be used in production code. All logged output is recorded, which creates a performance penalty. Be aware that a value collision can occasionally occur during redaction, which may result in unintended fields being redacted or inaccurate redaction labels.
+
+The recommended practice is to enable bug report logging at the beginning of your program so that the entire API interaction is recorded. To terminate bug report logging, exit the program.
+
+```
+from finra.debug import enable_bug_report_logging
+enable_bug_report_logging()  # enable at beginning, log to sys.stderr
+
+# ...get a client
+# ...do some requests
+# ...then exit the program
+```
+
+When submitting logs as part of a bug report, write the logs to a file by passing the filename as the first argument. Unless explicitly turned off, the default behavior is to also write logs to sys.stderr. To turn this functionality off explicitly set stream=None. You can also write to a custom stream by passing the file-like stream object as the stream keyword argument.
+
+```
+from finra.debug import enable_bug_report_logging
+
+filename = 'my_log_file.txt'  # some log file
+
+enable_bug_report_logging(filename=filename, stream=None) # only log to file
+
+# ...get a client
+# ...do some requests
+# ...then exit the program
+```
+
+## Submit Your Ticket
+
+You are now ready to write your bug report. Before submitting an issue, please ensure it includes the following information. Issues may be closed if they cannot be investigated effectively:
+
+- Include code: reproducing the reported behavior requires code demonstrating the failure.
+
+- Include logs: it is difficult to debug problems without logs.
+
+- Redact logs: issues may be closed or deleted if logs are not adequately redacted. This is for your own protection.
+
+- Attach log files: logs that are copy-pasted into the issue message field will not be accepted. Please write them to a file and attach it to your issue.
+
+- Follow the issue template: this is not strict, but you should at least include all the information it asks for.
+
+You can file an issue on the finra-py Issues Page on GitHub.
+
+## Known FINRA API Issues
+
+Before reporting bugs on GitHub, please make sure your issue is due to the client implementation, and not the FINRA API.
+
+The FINRA API has a number of known behaviors and inconsistencies that may appear to be client issues. These issues have been reported to FINRA, but some may remain unresolved for an extended period of time.
+
+The following is a list of known FINRA API issues and inconsistencies. This list is not exhaustive, and you may encounter issues that are not yet documented here. This section will be updated as known issues are resolved or new issues are discovered.
+
+## Submission API
+
+The Submission API has several discepancies between the FINRA API documentation and the values defined in the JSON Schemas. Many of the examples in the Submission API are also inconsistent with the JSON Schema definitions, but those are beyond the scope of this section.
+
+- The API documentation for Form BR lists WITHDRAW or CLOSUREWITHDRAW as valid filing types, however the Form BR JSON Schema definition does not allow these values (see the Metadata Schema). The Form BR JSON Schema definition shows that only AMENDMENT, CLOSURE and INTIAL filing types are accepted. For now, the client library will keep these filing types implemented on FormBR unless they are removed from the documentation.
+
+- The API documentation  for Form U5 lists ignoreWarnings as a valid metadata property, however the Form U5 JSON Schema definition does not list this as a required value and does not allow additional properties (see the Metadata Schema). For now, the client library will keep this feature implemented on FormU5 unless it is removed from the documentation.
+
+## Query Production API
+
+This section includes issues and inconsistencies for Query API production datasets.
+
+- The BaseClient.get_weekly_summary() production and mock datasets, and BaseClient.get_weekly_summary_historic() production dataset, contain undocumented values in the WeeklySummary.TIER_IDENTIFIER partition field: NA and NMS. They also contain undocumented WeeklySummary.TIER_DESCRIPTION values: Not Applicable and OTC (typo?). These values are present in both Endpoint.PARTITIONS and Endpoint.DATA, but are not in the FINRA API documentation.
+
+- The Endpoint.METADATA for the BaseClient.get_individual_registration_validation() production and mock datasets are missing the datasetGroup and datasetName properties.
+
+- For production and mock datasets, BaseClient.get_individual_registration_validation_details() returns erroneous Endpoint.METADATA that does not match the JSON Schemas for either versions of this dataset.
+
+- The following Fixed Income production and mock datasets do not support partitions, however they return inconsistent status codes when querying Endpoint.PARTITIONS; the response returns 200, but the statusCode field returns 500 Internal Server Error:
+
+BaseClient.get_agency_tba_pricing()
+
+BaseClient.get_agency_cmo_pricing()
+
+BaseClient.get_agency_mbs_trading_activity()
+
+BaseClient.get_agency_mbs_arm_hybrid_pricing()
+
+BaseClient.get_agency_mbs_pricing()
+
+BaseClient.get_collateralized_obligations_pricing()
+
+BaseClient.get_daily_cmbs_pricing()
+
+BaseClient.get_non_agency_cmo_abs_pricing()
+
+BaseClient.get_non_agency_cmo_pricing()
+
+BaseClient.get_securitized_products_errata()
+
+BaseClient.get_securitized_products_trading_activity()
+
+BaseClient.get_weekly_cmbs_pricing()
+
+## Query Mock API
+
+This section includes issues and inconsistencies for Query API mock datasets retrieved using mock credential types. It’s possible that some of these are also found in the production datasets, but have not been enumerated in the previous section. If you discover that is the case, please file an issue on the finra-py Issues Page on GitHub so this page can be updated.
+
+- Some mock datasets return empty for Endpoint.PARTITIONS and Endpoint.DATA, even when returning a 200 status code. Requests with no data should return a 204.
+
+- The BaseClient.get_weekly_summary() and BaseClient.get_monthly_summary() production datasets contain a WeeklySummary.TOTAL_NOTIONAL_SUM field in the Endpoint.METADATA and Endpoint.DATA that is not present in the mock datasets.
+
+- The BaseClient.get_otc_daily_list() mock dataset returns a 404 Not Found status code for all endpoints, and for asynchronous requests.
+
+- Async requests on the first leg for the following Fixed Income mock datasets return a 500 Internal Server Error status code:
+
+BaseClient.get_agency_tba_pricing()
+
+BaseClient.get_agency_cmo_pricing()
+
+BaseClient.get_agency_mbs_trading_activity()
+
+BaseClient.get_agency_mbs_arm_hybrid_pricing()
+
+BaseClient.get_agency_mbs_pricing()
+
+BaseClient.get_collateralized_obligations_pricing()
+
+BaseClient.get_daily_cmbs_pricing()
+
+BaseClient.get_non_agency_cmo_abs_pricing()
+
+BaseClient.get_non_agency_cmo_pricing()
+
+BaseClient.get_securitized_products_errata()
+
+BaseClient.get_securitized_products_trading_activity()
+
+BaseClient.get_weekly_cmbs_pricing()
+
+- Async requests on the first leg for the following Firm mock datasets return asynchronously (as expected) when queried without the firm_crd_number, but return synchronously when queried with the firm_crd_number (single-record query):
+
+BaseClient.get_firm_disclosures()
+
+BaseClient.get_firm_profile()
+
+BaseClient.get_firm_registration_status_history()
+
+BaseClient.get_firm_registrations()
+
+- Async requests on the first leg for the following Registration mock datasets return a 404 Not Found status code:
+
+BaseClient.get_individual_registration_validation()
+
+BaseClient.get_individual_registration_validation_details()
+
+- Async requests on the first leg for the following TRACE Report Card mock datasets return a 403 Forbidden status code:
+
+BaseClient.get_trace_agency_debt_summary()
+
+BaseClient.get_trace_treasuries_summary()
+
+BaseClient.get_trace_corporate_bonds_summary()
+
+BaseClient.get_trace_securitized_products_summary()
+
+- Async requests on the second leg for ALL Equity (OTCMarket) mock datasets return a 403 Forbidden status code.
+
+- Async requests on the second leg for the BaseClient.get_firm_registration_types() mock dataset returns a 403 Forbidden status code.
+
+- The Endpoint.DATA for the BaseClient.get_accounting() mock dataset does not filter dates correctly when start_date and end_date parameters are provided, and instead returns dates outside the queried range.
+
+- The Endpoint.DATA for the BaseClient.get_branch_delta() and BaseClient.get_individual_delta() mock datasets do not filter dates correctly when start_datetime and end_datetime parameters are provided, and instead returns dates outside the queried range.
+
+- The BaseClient.get_composite_branch() mock dataset does not filter based on provided BaseClient.CompositeBranchSections. Instead it returns all sections, regardless of the sections filter. This is in contrast to the BaseClient.get_composite_individual() mock dataset, which has similar section filtering functionality, and behaves as expected.
+
+- The BaseClient.get_individual_pre_registration_search() mock dataset returns field names that are inconsistent with the Endpoint.METADATA.
+
+- The BaseClient.get_individual_registration_validation() mock dataset returns a  404 Not Found status code.
+
+- The BaseClient.get_registered_individual_search() mock dataset returns a middleName field that is not in production or mock metadata. This field cannot be used as a fields or sort_fields query parameter.
+
+- The Endpoint.DATASETS for the BaseClient.get_broker_dealer_firm_list() mock dataset Version 2 shows supportedGetById as True, indicating that the dataset supports single record query. This is incorrect, since Version 2 of this dataset passes the Individual CRD Number as a query parameter, rather than accessing a URL subpath. This is also inconsistent with the value of supportedGetById shown for the production dataset.
+
+- The Endpoint.DATASETS for the BaseClient.get_broker_dealer_firm_list() mock dataset shows supportsRecordLimit and supportsRecordOffset as False, indicating that this dataset does not supports pagination. The Endpoint.DATA for the mock dataset also does not accept limit and offset keywords. However, this is inconsistent with the production dataset which show supportsRecordLimit and supportsRecordOffset as True. Therefore, pagination is implemented in the client’s query method.
+
+- The Endpoint.DATASETS for the BaseClient.get_u4_form_prefill() mock dataset shows supportsRecordLimit as True (even though supportsRecordOffset is False), indicating that this dataset supports pagination. However, this is inconsistent with the production dataset which show supportsRecordLimit as False. Therefore, pagination is not implemented in the client’s query method.
+
+- The following Registration and TRACE Report Card mock datasets do not support partitions, however they return inconsistent status codes when querying Endpoint.PARTITIONS, with the response returning a 200, but the statusCode field shows a 500 Internal Server Error:
+
+BaseClient.get_accounting()
+
+BaseClient.get_branch_delta()
+
+BaseClient.get_branch_list()
+
+BaseClient.get_broker_dealer_firm_list()
+
+BaseClient.get_composite_branch()
+
+BaseClient.get_composite_individual()
+
+BaseClient.get_individual_delta()
+
+BaseClient.get_individual_pre_registration_search_v2()
+
+BaseClient.get_u4_form_prefill()
+
+BaseClient.get_trace_agency_debt_summary()
+
+BaseClient.get_trace_treasuries_summary()
+
+BaseClient.get_trace_corporate_bonds_summary()
+
+BaseClient.get_trace_securitized_products_summary()
+
+
+# FINRA API Consulting
+
+Source: https://finra.hawkberry.com/en/latest/consulting.html
+
+## FINRA API Consulting
+
+My name is Hawk Berry. I am the author and maintainer of finra-py, an open-source Python client library for the FINRA API Platform.
+
+I help member firms and organizations design and implement reliable systems using the FINRA API, including API integrations, Web EFT migrations, regulatory filing workflows, and applications built on FINRA data.
+
+My primary focus is helping smaller firms that need FINRA API expertise but do not have dedicated engineering resources. I also work with financial technology companies, software developers, researchers, academic institutions, media companies, and traders who use FINRA data.
+
+The finra-py library provides a production-ready foundation for working with the FINRA API Platform. It is open source and available under the terms of the LICENSE. For firms and organizations that need assistance beyond the library itself, I provide consulting services tailored to their technical requirements.
+
+## How I Can Help
+
+Typical areas of assistance include:
+
+- FINRA API integration
+
+- Web EFT migration
+
+- Regulatory filing and compliance workflows
+
+- Data pipelines and database design
+
+- Reliable retrieval, processing, and storage of large datasets
+
+- Testing, troubleshooting, error handling, and performance tuning
+
+- Secure credential management and cloud-based authentication
+
+- Documentation and knowledge transfer
+
+## Typical Engagement
+
+A typical engagement begins with a short discovery discussion to understand your goals, requirements, and technology stack. From there, I can provide a proposal outlining the scope of work and either an hourly or fixed-price quote.
+
+## Contact
+
+If you are evaluating the FINRA API, planning a Web EFT migration, or building applications using FINRA regulatory or market data, I’d be happy to discuss your project and determine whether I can help.
+
+Please include a brief description of your project, your technology stack, and relevant timelines.
+
+Bug reports and feature requests should be submitted through the finra-py Issues Page on GitHub, rather than by email. Please see help for troubleshooting guidance.
+

@@ -38,7 +38,7 @@ Install the package using ``pip``:
 
 .. code-block:: shell
 
-  pip install finra-py
+  python -m pip install finra-py
 
 Import the package in Python:
 

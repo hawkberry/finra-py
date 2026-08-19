@@ -15,7 +15,7 @@
   :target: https://badge.fury.io/py/finra-py
 
 .. image:: https://img.shields.io/pypi/pyversions/finra-py.svg
-   :target: https://pypi.org/project/finra-py/
+   :target: https://pypi.org/project/finra-py
 
 .. image:: https://img.shields.io/pypi/l/finra-py.svg
    :target: https://github.com/hawkberry/finra-py/blob/main/LICENSE
@@ -47,7 +47,7 @@ Python requirement: **3.11 or later**
 How do I use ``finra-py``?
 ++++++++++++++++++++++++++
 
-You can find a full description of the ``finra-py`` library's functionality in the `documentation <https://finra.hawkberry.com/en/latest/>`__.
+You can find a full description of the ``finra-py`` library's functionality in the `documentation <https://finra.hawkberry.com/>`__.
 
 For detailed instructions on how to get started with ``finra-py``, see `Getting Started <https://finra.hawkberry.com/en/latest/getting-started.html>`__.
 
@@ -96,13 +96,13 @@ See the `consulting page <https://finra.hawkberry.com/en/latest/consulting.html>
 Project Links
 +++++++++++++
 
-* `Documentation <https://finra.hawkberry.com/en/latest/>`__
+* `Documentation <https://finra.hawkberry.com/>`__
 * `Repository <https://github.com/hawkberry/finra-py>`__
-* `PyPI <https://pypi.org/project/finra-py/>`__
+* `PyPI <https://pypi.org/project/finra-py>`__
 * `Changelog <https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md>`__
 * `Consulting <https://finra.hawkberry.com/en/latest/consulting.html>`__
 * `Support <https://support.hawkberry.com/>`__
 * `Issues <https://github.com/hawkberry/finra-py/issues>`__
 
-**Disclaimer:** ``finra-py`` *is an unofficial, open-source client library for the FINRA API. It is not endorsed by, affiliated with, or sponsored by FINRA or any associated organization. Users are responsible for reviewing and complying with the terms of service and usage requirements of the underlying FINRA API. This software is provided under the terms of the* `LICENSE <https://github.com/hawkberry/finra-py/blob/main/LICENSE>`__ *without warranty of any kind.*
+**Disclaimer:** ``finra-py`` *is an unofficial, open-source client library for the FINRA API Platform. It is not endorsed by, affiliated with, or sponsored by FINRA or any associated organization. ``finra-py`` does not provide financial advice, investment recommendations, trading strategies, or financial analysis. Users are responsible for reviewing and complying with the terms of service and usage requirements of the underlying FINRA API. This software is provided under the terms of the* `LICENSE <https://github.com/hawkberry/finra-py/blob/main/LICENSE>`__ *without warranty of any kind.*
 

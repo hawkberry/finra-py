@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import date, datetime
 from enum import Enum
 from typing import Any, Iterable, Optional, Self, TypeAlias

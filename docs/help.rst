@@ -83,21 +83,21 @@ You can file an issue on the ``finra-py`` `Issues Page <https://github.com/hawkb
 
 .. _known_bugs:
 
-++++++++++++++++++++
-Known FINRA API Bugs
-++++++++++++++++++++
+++++++++++++++++++++++
+Known FINRA API Issues
+++++++++++++++++++++++
 
 Before reporting bugs on GitHub, please make sure your issue is due to the client implementation, and not the FINRA API.
 
 The FINRA API has a number of known behaviors and inconsistencies that may appear to be client issues. These issues have been reported to FINRA, but some may remain unresolved for an extended period of time.
 
-The following is a list of known FINRA API bugs and inconsistencies. This list is not exhaustive, and you may encounter issues that are not yet documented here. This section will be updated as known issues are resolved or new issues are discovered.
+The following is a list of known FINRA API issues and inconsistencies. This list is not exhaustive, and you may encounter issues that are not yet documented here. This section will be updated as known issues are resolved or new issues are discovered.
 
 --------------
 Submission API
 --------------
 
-The Submission API has several critical discepancies between the FINRA API documentation and the values defined in the JSON Schemas. Many of the examples in the Submission API are also inconsistent with the JSON Schema definitions, but those are beyond the scope of this section.
+The Submission API has several discepancies between the FINRA API documentation and the values defined in the JSON Schemas. Many of the examples in the Submission API are also inconsistent with the JSON Schema definitions, but those are beyond the scope of this section.
 
 #. The API documentation for Form BR lists ``WITHDRAW`` or ``CLOSUREWITHDRAW`` as valid filing types, however the `Form BR JSON Schema <https://schemas.api.finra.org/FINRAApiPlatformBRFiling.json>`__ definition does not allow these values (see the `Metadata Schema <https://schemas.api.finra.org/FINRAApiPlatformBRFilingMetadata.json>`__). The Form BR JSON Schema definition shows that only ``AMENDMENT``, ``CLOSURE`` and ``INTIAL`` filing types are accepted. For now, the client library will keep these filing types implemented on :py:class:`FormBR <finra.filings.form_br.FormBR>` unless they are removed from the documentation.
    
@@ -107,7 +107,7 @@ The Submission API has several critical discepancies between the FINRA API docum
 Query Production API
 --------------------
 
-This section includes bugs and inconsistencies for Query API production datasets.
+This section includes issues and inconsistencies for Query API production datasets.
 
 #. The :py:class:`BaseClient.get_weekly_summary() <finra.base_client.BaseClient.get_weekly_summary>` production and mock datasets, and :py:class:`BaseClient.get_weekly_summary_historic() <finra.base_client.BaseClient.get_weekly_summary_historic>` production dataset, contain undocumented values in the :py:attr:`WeeklySummary.TIER_IDENTIFIER <finra.base_client.BaseClient.WeeklySummary.TIER_IDENTIFIER>` partition field: ``NA`` and ``NMS``. They also contain undocumented :py:attr:`WeeklySummary.TIER_DESCRIPTION <finra.base_client.BaseClient.WeeklySummary.TIER_DESCRIPTION>` values: ``Not Applicable`` and ``OTC`` (typo?). These values are present in both :py:attr:`Endpoint.PARTITIONS <finra.base_client.BaseClient.Endpoint.PARTITIONS>` and :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>`, but are not in the FINRA API documentation.
    
@@ -134,7 +134,7 @@ This section includes bugs and inconsistencies for Query API production datasets
 Query Mock API
 --------------
 
-This section includes bugs and inconsistencies for Query API mock datasets retrieved using mock credential types. It's possible that some of these bugs and inconsistencies are also found in the production datasets, but have not been enumerated in the previous section. If you discover that is the case, please file an issue on the ``finra-py`` `Issues Page <https://github.com/hawkberry/finra-py/issues>`__ on GitHub so this page can be updated.
+This section includes issues and inconsistencies for Query API mock datasets retrieved using mock credential types. It's possible that some of these are also found in the production datasets, but have not been enumerated in the previous section. If you discover that is the case, please file an issue on the ``finra-py`` `Issues Page <https://github.com/hawkberry/finra-py/issues>`__ on GitHub so this page can be updated.
 
 #. Some mock datasets return empty for :py:attr:`Endpoint.PARTITIONS <finra.base_client.BaseClient.Endpoint.PARTITIONS>` and :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>`, even when returning a ``200`` status code. Requests with no data should return a ``204``.
    

@@ -3,60 +3,25 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-
-##############################################################################
-#-- Get configuration from pyproject.toml ------------------------------------
-
-import configparser
 import json
-import re
+import sys
+import tomllib
+from enum import Enum
+from importlib import import_module
 from pathlib import Path
 
-
-def quote_dict_keys(s):
-    s = s.strip()
-    s = re.sub(r'([{\[,]\s*)([A-Za-z_][A-Za-z0-9_]*)(\s*=\s*)', r'\1"\2"\3', s)
-    s = s.replace('=', ':').replace(',]', ']')
-    try:
-        return json.loads(s)
-    except json.decoder.JSONDecodeError:
-        return s
+from sphinx import addnodes
 
 
-def remove_quotes(value):
-    if isinstance(value, str):
-        value = quote_dict_keys(value.replace('\n', ''))
-        
-    if isinstance(value, dict):
-        for k, v in value.items():
-            value[k] = remove_quotes(v)
-        return value
-    
-    if isinstance(value, list):
-        return list(map(remove_quotes, value))
-    
-    if isinstance(value, str):
-        if value.startswith(('"', "'")):
-            value = value[1:]
-        if value.endswith(('"', "'")):
-            value = value[:-1]
-    return value
-
-
-def get_pyproject_config():
-    config = configparser.ConfigParser()
-    config.read(Path(__file__).parent.parent.joinpath("pyproject.toml"))
-    config = json.dumps(config._sections)
-    config = json.loads(config)
-    return remove_quotes(config)
-
-
-config = get_pyproject_config()
+sys.path.insert(0, str(Path(__file__).parent.joinpath("_extensions")))
 
 
 ##############################################################################
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+
+with open(Path(__file__).parent.parent.joinpath("pyproject.toml"), "rb") as f:
+    config = tomllib.load(f)
 
 project = config["project"]["name"]
 
@@ -66,7 +31,81 @@ author = config["project"]["authors"][0]["name"]
 
 copyright = f"2026, {author}"
 
-html_title = f"{project.split('.')[0]} {release}"
+description = config["project"]["description"]
+
+project_description = f"{project} — {description}."
+
+docs_url = config["project"]["urls"]["Documentation"].rstrip("/") + "/"
+
+repository_url = config["project"]["urls"]["Repository"]
+
+changelog_url = config["project"]["urls"]["Changelog"]
+
+consulting_url = config["project"]["urls"]["Consulting"]
+
+support_url = config["project"]["urls"]["Support"]
+
+issues_url = config["project"]["urls"]["Issues"]
+
+license_url = config["tool"]["finra-py"]["license_url"]
+
+pypi_url = config["tool"]["finra-py"]["pypi_url"]
+
+html_title = f"{project} {release}"
+
+consulting_desc = (
+    "Consulting services for FINRA API integration and production systems."
+    )
+
+description_llms = (
+    "`finra-py` — An Unofficial, Open-Source Python Client Library for the "
+    "FINRA API Platform. `finra-py` simplifies integration with FINRA APIs "
+    "for accessing public market datasets and regulatory services."
+    )
+
+page_descriptions = {
+    "index": (
+        "finra-py is an unofficial, open-source Python client library for "
+        "the FINRA API Platform, providing authentication and access to "
+        "FINRA APIs."
+        ),
+    "getting-started": (
+        "Learn how to install and configure finra-py, a Python client for "
+        "the FINRA API Platform, and make your first FINRA API request."
+        ),
+    "auth": (
+        "Learn how to authenticate Python applications with the FINRA API "
+        "Platform using finra-py and supported FINRA API credentials."
+        ),
+    "client": (
+        "Learn how finra-py provides a Python HTTP client for making "
+        "authenticated requests to the FINRA API Platform."
+        ),
+    "query-api": (
+        "Learn how to query FINRA market datasets and regulatory data using "
+        "the FINRA Query API and the finra-py Python client."
+        ),
+    "notification-api": (
+        "Learn how to use the FINRA Notification API with finra-py, a Python "
+        "client for retrieving FINRA API notifications."
+        ),
+    "submission-api": (
+        "Learn how to use the FINRA Submission API with finra-py, a Python "
+        "client for FINRA regulatory data submission workflows."
+        ),
+    "help": (
+        "Find troubleshooting information, known FINRA API issues, "
+        "bug-reporting guidance, and support resources for finra-py."
+        ),
+    "consulting": (
+        "FINRA API integration and software development consulting for "
+        "production systems using finra-py and the FINRA API Platform."
+        ),
+    "reference": (
+        "Complete finra-py API reference for Python developers, including "
+        "the client, API methods, utilities, data types, and FINRA APIs."
+        ),
+    }
 
 
 ##############################################################################
@@ -79,6 +118,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx_autodoc_typehints",
     "sphinx.ext.napoleon",
+    "seo",
     ]
 
 templates_path = ["_templates"]
@@ -92,14 +132,7 @@ exclude_patterns = []
 
 toc_object_entries_show_parents = "hide"
 
-html_baseurl = "https://finra.hawkberry.com/en/latest/"
-
-html_context = {
-    "description": (
-        "Official documentation for finra-py, an unofficial, open-source "
-        "Python client library for the FINRA API Platform."
-        )
-    }
+html_css_files = ["custom.css"]
 
 html_favicon = "_static/favicon.ico"
 
@@ -157,12 +190,6 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
 
 ##############################################################################
 # Hide enum members from left sidebar, but display normally in docs pages
-
-from enum import Enum
-from importlib import import_module
-
-from sphinx import addnodes
-
 
 def _resolve_python_object(module_name, object_name):
     """Resolve a Python object by its module and qualified name."""
