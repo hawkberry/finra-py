@@ -9,10 +9,10 @@ Notification API
 If you haven't read :ref:`getting_started`, :ref:`auth` and :ref:`client`, please start by reading those sections.
 
 Each `Notification API <https://developer.finra.org/docs#notification_api>`__ dataset has its own query method. All datasets require Firm or Organization credentials. See each dataset's query method for the exact requirements.
- 
- - :py:meth:`Client.get_finra_rulebook_notifications() <finra.base_client.BaseClient.get_finra_rulebook_notifications>`
- - :py:meth:`Client.get_draft_registration_filing_notifications() <finra.base_client.BaseClient.get_draft_registration_filing_notifications>`
- 
+
+- :py:meth:`Client.get_finra_rulebook_notifications() <finra.base_client.BaseClient.get_finra_rulebook_notifications>`
+- :py:meth:`Client.get_draft_registration_filing_notifications() <finra.base_client.BaseClient.get_draft_registration_filing_notifications>`
+
 +++++++++++++++
 Datetime Ranges
 +++++++++++++++
@@ -20,13 +20,13 @@ Datetime Ranges
 All Notification API datasets use ``start_datetime`` and ``end_datetime`` to specify a range for the requested data. These values can be provided to a dataset's query method as ``datetime.date`` or ``datetime.datetime`` objects, and will raise a ``TypeError`` for any other types. A ``datetime.datetime`` object will be automatically converted to the ``America/New_York`` timezone before a request is submitted. If a ``datetime.datetime`` object is not timezone-aware, it is assumed to be in the timezone of the application's local environment.
 
 Response data follows these rules:
- 
- - Notifications are only returned for the last 12 months.
- - If only the ``start_datetime`` is provided, notifications published at or after ``start_datetime`` are returned.
- - If only the ``end_datetime`` is provided, notifications published within the last 12 months up to the ``end_datetime`` are returned.
- - If neither datetimes are provided, only notifications published within the last month are returned.
- - If the date range is outside the last 12 months, the response will have a status code of ``200``, but no results.
- 
+
+- Notifications are only returned for the last 12 months.
+- If only the ``start_datetime`` is provided, notifications published at or after ``start_datetime`` are returned.
+- If only the ``end_datetime`` is provided, notifications published within the last 12 months up to the ``end_datetime`` are returned.
+- If neither datetimes are provided, only notifications published within the last month are returned.
+- If the date range is outside the last 12 months, the response will have a status code of ``200``, but no results.
+
 Notification API endpoints do not support asynchronous requests, and only return ``application/json`` data.
 
 ++++++++

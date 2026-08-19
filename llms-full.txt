@@ -256,7 +256,7 @@ c = get_client(
 
 Not all datasets have mock endpoints. If a dataset is queried that does not have a mock endpoint, a finra.exceptions.MockException will be raised.
 
-Mock endpoints are intended for demonstration purposes, not for comprehensive integration testing, and may lack some functionality documented for production endpoints. Additionally, some mock datasets are sparsely populated, and some endpoints contain no data at all, so it may be necessary to walk the partitions to locate available records (see the large_datasets). For comprehensive integration testing, use the QA Test Environment.
+Mock endpoints are intended for demonstration purposes, not for comprehensive integration testing, and may lack some functionality documented for production endpoints. Additionally, some mock datasets are sparsely populated, and some endpoints contain no data at all (see known_bugs), so it may be necessary to walk the partitions to locate available records (see the large_datasets). For comprehensive integration testing, use the QA Test Environment.
 
 ## QA Test Environment
 
@@ -398,9 +398,9 @@ Source: https://finra.hawkberry.com/en/latest/query-api.html
 
 If you haven’t read getting_started, auth and client, please start by reading those sections.
 
-The Query API datasets belong to one of five groups. Each dataset has its own method for requesting data. Some datasets have access restrictions requiring specific credential types. See each dataset’s query method for exact requirements.
+The Query API datasets belong to one of several API groups. Each dataset has its own method for requesting data. Some datasets have access restrictions requiring specific credential types. See each dataset’s query method for exact requirements.
 
-The EquityGroup:
+The OTC Market group (also known as the Equity group) datasets that provide access to Over-the-Counter (OTC) trade and equity data:
 
 - Client.get_ats_block_summary()
 
@@ -420,7 +420,7 @@ The EquityGroup:
 
 - Client.get_otc_daily_list()
 
-The FixedIncomeGroup:
+The Fixed Income group datasets provide access to Over-the-Counter secondary market transaction data for fixed income securities as reported to TRACE:
 
 - Client.get_agency_tba_pricing()
 
@@ -466,13 +466,13 @@ The FixedIncomeGroup:
 
 - Client.get_weekly_cmbs_pricing()
 
-The FINRAGroup:
+The FINRA group datasets include data and content typically found on FINRA.org including the FINRA Rulebook:
 
 - Client.get_finra_rulebook()
 
 - Client.get_firm_registration_types()
 
-The FirmGroup:
+The Firm group datasets provide access to information that is specific to individual FINRA member firms, some of which are involved in registration operations and only accessible by the firm itself:
 
 - Client.get_firm_customer_complaints()
 
@@ -484,7 +484,7 @@ The FirmGroup:
 
 - Client.get_firm_registrations()
 
-The RegistrationGroup:
+The Registration group datasets provide member firms access to their registration records as stored in the Central Registration Depository (CRD):
 
 - Client.get_accounting()
 
@@ -518,7 +518,7 @@ The RegistrationGroup:
 
 - Client.get_u4_form_prefill()
 
-The ReportCardGroup:
+The TRACE Report Card group datasets provide access to firms to detect potential compliance issues early and cover a variety of topics and rule sets:
 
 - Client.get_trace_agency_debt_details()
 
@@ -558,7 +558,7 @@ All other query method keywords only apply to the Endpoint.DATA endpoint.
 
 ## Metadata
 
-Most datasets support the Endpoint.METADATA endpoint, which provides information about each of the fields in a dataset. These datasets are represented on the client using enums, and the Endpoint.METADATA response for a dataset should contain the same information that is documented on its enum.
+Many datasets support the Endpoint.METADATA endpoint, which provides information about each of the fields in a dataset. These datasets are represented on the client using enums, and the Endpoint.METADATA response for a dataset should contain the same information that is documented on its enum.
 
 ```
 r = c.get_ats_block_summary(endpoint=c.Endpoint.METADATA)
@@ -586,7 +586,7 @@ Some datasets do not support Endpoint.PARTITIONS. Any endpoint restrictions are 
 
 ## Datasets
 
-All datasets support the Endpoint.DATASETS endpoint. It can be used to retrieve information about the capabilities and features supported by each dataset, including API request methods, data format, versioning, and whether or not it is currently active.
+Almost all datasets support the Endpoint.DATASETS endpoint. It can be used to retrieve information about the capabilities and features supported by each dataset, including API request methods, data format, versioning, and whether or not it is currently active. To request information about a specific dataset use the dataset’s query method.
 
 ```
 r = c.get_ats_block_summary(endpoint=c.Endpoint.DATASETS)
@@ -596,24 +596,14 @@ r.raise_for_status()
 datasets = r.json()  # supported API request methods, data formats, etc.
 ```
 
-This information can also be retrieved for multiple datasets in a single call with the Client.get_datasets() method. Information can be requested for all datasets if no keywords are provided, or for a dataset group by specifying a member of Groups.
+This information can be retrieved as a comprehensive list of Query API datasets using the Client.get_datasets() method. If no arguments are provided, this method will return information for all datasets available using the client’s credentials, including undocumented and unsupported datasets. If a member of Group is provided, information is returned for only datasets in that group.
 
 ```
-r = c.get_datasets(group=c.Groups.EQUITY)
+r = c.get_datasets(group=c.Group.EQUITY)
 
 r.raise_for_status()
 
 datasets = r.json()  # information for all EQUITY datasets
-```
-
-This method can also be used to request information for a single dataset by passing a member of one of the group enums: EquityGroup, FixedIncomeGroup, FINRAGroup, FirmGroup, RegistrationGroup, or ReportCardGroup. The response is identical to the one received from a dataset’s query method when using the Endpoint.DATASETS endpoint.
-
-```
-r = c.get_datasets(name=c.EquityGroup.ATS_BLOCK_SUMMARY)
-
-r.raise_for_status()
-
-datasets = r.json()  # same as querying via the dataset's query method
 ```
 
 ## Fields
@@ -707,7 +697,7 @@ f = Filter(e).add_domain(
 
 Datasets that support requesting data in sorted order have a sort_fields keyword in their query method, which accepts fields specified as members of a dataset’s enum. By default, records are returned in ascending order. To specify the sort direction, provide a 2-tuple of the form (direction, <member>), where direction is a number and <member> is an enum member. A negative direction sorts records in descending order. To sort by multiple fields, provide them as a list (or an iterable that is not a tuple).
 
-When requesting sorted records, a request must include a compare filter with CompareType.EQUAL on each of the partition fields for the dataset. If a dataset does not have partition fields (such as RegistrationGroup datasets), then a compare filter is not required.
+When requesting sorted records, a request must include a compare filter with CompareType.EQUAL on each of the partition fields for the dataset. If a dataset does not have partition fields (such as Registration group datasets), then a compare filter is not required.
 
 In this example, the query returns records sorted by symbol in ascending order. For this dataset, the partition field is the settlement date.
 
@@ -1402,11 +1392,15 @@ Consider the following example filing data:
 
 A path can be specified directly as a string, or it can be specified as an iterable representing the traversal route. The following path selects an array element from the example data using the syntax [<key>:<value>], where the key is a label within each element, and the value uniquely identifies an element in the array:
 
-- “/individualInformation/residentialHistory/[id:5f2df182-f6d0-4504-9e18-38a8c7268b77]”
+```
+"/individualInformation/residentialHistory/[id:5f2df182-f6d0-4504-9e18-38a8c7268b77]"
+```
 
 Alternatively, the same path can also be specified as an iterable, and elements within an array can be identified uniquely using a (key, value) 2-tuple:
 
-- [“individualInformation”, “residentialHistory”, (“id”, “5f2df182-f6d0-4504-9e18-38a8c7268b77”)]
+```
+["individualInformation", "residentialHistory", ("id", "5f2df182-f6d0-4504-9e18-38a8c7268b77")]
+```
 
 The following code block uses operations to modify the example filing data:
 
@@ -1585,6 +1579,7 @@ The recommended practice is to enable bug report logging at the beginning of you
 
 ```
 from finra.debug import enable_bug_report_logging
+
 enable_bug_report_logging()  # enable at beginning, log to sys.stderr
 
 # ...get a client

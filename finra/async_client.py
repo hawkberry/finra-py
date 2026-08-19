@@ -34,6 +34,7 @@ class AsyncClient(BaseClient):
                 "expected a subclass of "
                 "authlib.integrations.httpx_client.AsyncOAuth2Client"
                 )
+        
         super().__init__(
             api_key,
             session,

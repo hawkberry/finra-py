@@ -30,17 +30,17 @@ What is ``finra-py``?
 ``finra-py`` is an unofficial, open-source Python client library for the `FINRA API Platform <https://developer.finra.org/products>`__. It is designed to be as thin and unopinionated as possible, offering an elegant programmatic interface to every endpoint and dataset.
 
 Notable functionality includes:
- 
- - Authentication and client creation
- - Equity, Fixed Income, FINRA, Firm, Registration and TRACE Report Card datasets via the `Query API <https://finra.hawkberry.com/en/latest/query-api.html>`__
- - Notification datasets via the `Notification API <https://finra.hawkberry.com/en/latest/notification-api.html>`__
- - Submission of regulatory filings and other data to FINRA via the `Submission API <https://finra.hawkberry.com/en/latest/submission-api.html>`__
- - Support for the Mock API
- - Support for the QA Test Environment API
- - Support for all credential types
- - Support for asynchronous requests (server-side)
- - Support for ``asyncio`` (client-side)
- 
+
+- Authentication and client creation
+- Equity, Fixed Income, FINRA, Firm, Registration and TRACE Report Card datasets via the `Query API <https://finra.hawkberry.com/en/latest/query-api.html>`__
+- Notification datasets via the `Notification API <https://finra.hawkberry.com/en/latest/notification-api.html>`__
+- Submission of regulatory filings and other data to FINRA via the `Submission API <https://finra.hawkberry.com/en/latest/submission-api.html>`__
+- Support for the Mock API
+- Support for the QA Test Environment API
+- Support for all credential types
+- Support for asynchronous requests (server-side)
+- Support for ``asyncio`` (client-side)
+
 Python requirement: **3.11 or later**
 
 ++++++++++++++++++++++++++
@@ -69,8 +69,8 @@ Limitations
 
 ``finra-py`` strives to provide comprehensive coverage of all documented datasets for the FINRA API. However, there are some datasets and services available through FINRA that may not be available through the FINRA API. See `FINRA Data <https://www.finra.org/finra-data>`__ for information about all available FINRA datasets.
 
- - ``finra-py`` does not currently support FINRA's fileX API
- 
+- ``finra-py`` does not currently support FINRA's fileX API
+
 ++++++++++++++++++++
 Help and Development
 ++++++++++++++++++++

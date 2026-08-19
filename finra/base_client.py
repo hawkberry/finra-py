@@ -909,65 +909,35 @@ class BaseClient(EnumConverter, ABC):
     ##########################################################################
     # DATASETS
     
-    Groups = _enums.Groups
-    EquityGroup = _enums.EquityGroup
-    FixedIncomeGroup = _enums.FixedIncomeGroup
-    FINRAGroup = _enums.FINRAGroup
-    FirmGroup = _enums.FirmGroup
-    RegistrationGroup = _enums.RegistrationGroup
-    ReportCardGroup = _enums.ReportCardGroup
+    Group = _enums.Group
     
-    def get_datasets(
-        self,
-        group: Optional[EnumStr[_enums.Groups]]=None,
-        name: Optional[
-            _enums.EquityGroup |
-            _enums.FixedIncomeGroup |
-            _enums.FINRAGroup |
-            _enums.FirmGroup |
-            _enums.RegistrationGroup |
-            _enums.ReportCardGroup | str
-            ]=None
-        ):
+    def get_datasets(self, group: Optional[EnumStr[_enums.Group]]=None):
         """
-        The datasets resource endpoint returns information about the
-        capabilities and features supported by each Query API dataset,
-        including query methods, data format, versioning, and whether or not it
-        is currently active.
+        Retrieve a comprehensive list of Query API datasets. This method
+        returns information about the capabilities and features supported by
+        each dataset, including query methods, data format, versioning, and
+        whether or not it is currently active.
         
-        Depending on the provided arguments, this endpoint will return
-        information for all datasets, all datasets in a group, or a specific
-        production dataset by name. If no arguments are provided, all datasets
-        available through this endpoint are returned, including undocumented
-        and unsupported datasets.
+        If no arguments are provided, this method will return information for
+        all datasets available using the client's credentials, including
+        undocumented and unsupported datasets. If a member of :py:class:`Group`
+        is provided, information is returned for only datasets in that group.
         
-        This information is also accessible via a dataset's query method using
-        the ``endpoint`` keyword. For more information and examples see
+        For information about a specific dataset use the dataset's query method
+        with the ``endpoint`` keyword. For more information and examples see
         :ref:`endpoints`.
         
         Most of the response fields from this endpoint are self-explanatory,
         however detailed descriptions can be found in the `Datasets schema
         <https://schemas.api.finra.org/FINRAApiPlatformDatasetsDetail.json>`__.
         
-        :param group: Return only datasets belonging to an API group by
-            providing a member of :py:class:`Groups`
-        :param name: Return a specific dataset by name by providing a member of
-            one of the expected group enums
+        :param group: Only return datasets belonging to an API group by
+            providing a member of :py:class:`Group`
         """
-        params = {}
-        if group is not None:
-            params["group"] = self._convert(group, self.Groups)
-        if name is not None:
-            params["name"] = self._convert_union(
-                name, (
-                    self.EquityGroup,
-                    self.FixedIncomeGroup,
-                    self.FINRAGroup,
-                    self.FirmGroup,
-                    self.RegistrationGroup,
-                    self.ReportCardGroup,
-                    )
-                )
+        if group is None:
+            params = {}
+        else:
+            params = {"group": self._convert(group, self.Group)}
         return self._get_request(
             self._base_url + "/datasets", params,
             self._prepare_headers(True, None)

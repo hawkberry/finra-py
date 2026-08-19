@@ -13,9 +13,4 @@ class TestEnumConverter(unittest.TestCase):
     def test_type_error_non_string_value(self):
         with self.assertRaisesRegex(TypeError, 'enum.Enum'):
             EnumConverter(False)._type_error(123, Enum)
-        
-    @no_duplicates
-    def test_type_error_union_non_string_value(self):
-        with self.assertRaisesRegex(TypeError, 'enum.Enum'):
-            EnumConverter(False)._type_error_union(123, (Enum, Enum))
 

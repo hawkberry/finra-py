@@ -8,88 +8,88 @@ Query API
 
 If you haven't read :ref:`getting_started`, :ref:`auth` and :ref:`client`, please start by reading those sections.
 
-The `Query API <https://developer.finra.org/docs#query_api>`__ datasets belong to one of five groups. Each dataset has its own method for requesting data. Some datasets have access restrictions requiring specific credential types. See each dataset's query method for exact requirements.
+The `Query API <https://developer.finra.org/docs#query_api>`__ datasets belong to one of several API groups. Each dataset has its own method for requesting data. Some datasets have access restrictions requiring specific credential types. See each dataset's query method for exact requirements.
 
-The :py:class:`EquityGroup <finra.base_client.BaseClient.EquityGroup>`:
- 
- - :py:meth:`Client.get_ats_block_summary() <finra.base_client.BaseClient.get_ats_block_summary>`
- - :py:meth:`Client.get_otc_block_summary() <finra.base_client.BaseClient.get_otc_block_summary>`
- - :py:meth:`Client.get_consolidated_short_interest() <finra.base_client.BaseClient.get_consolidated_short_interest>`
- - :py:meth:`Client.get_daily_short_sale_volume() <finra.base_client.BaseClient.get_daily_short_sale_volume>`
- - :py:meth:`Client.get_threshold_list() <finra.base_client.BaseClient.get_threshold_list>`
- - :py:meth:`Client.get_weekly_summary() <finra.base_client.BaseClient.get_weekly_summary>`
- - :py:meth:`Client.get_weekly_summary_historic() <finra.base_client.BaseClient.get_weekly_summary_historic>`
- - :py:meth:`Client.get_monthly_summary() <finra.base_client.BaseClient.get_monthly_summary>`
- - :py:meth:`Client.get_otc_daily_list() <finra.base_client.BaseClient.get_otc_daily_list>`
- 
-The :py:class:`FixedIncomeGroup <finra.base_client.BaseClient.FixedIncomeGroup>`:
- 
- - :py:meth:`Client.get_agency_tba_pricing() <finra.base_client.BaseClient.get_agency_tba_pricing>`
- - :py:meth:`Client.get_agency_cmo_pricing() <finra.base_client.BaseClient.get_agency_cmo_pricing>`
- - :py:meth:`Client.get_agency_debt_market_breadth() <finra.base_client.BaseClient.get_agency_debt_market_breadth>`
- - :py:meth:`Client.get_agency_debt_market_sentiment() <finra.base_client.BaseClient.get_agency_debt_market_sentiment>`
- - :py:meth:`Client.get_agency_mbs_trading_activity() <finra.base_client.BaseClient.get_agency_mbs_trading_activity>`
- - :py:meth:`Client.get_agency_mbs_arm_hybrid_pricing() <finra.base_client.BaseClient.get_agency_mbs_arm_hybrid_pricing>`
- - :py:meth:`Client.get_agency_mbs_pricing() <finra.base_client.BaseClient.get_agency_mbs_pricing>`
- - :py:meth:`Client.get_collateralized_obligations_pricing() <finra.base_client.BaseClient.get_collateralized_obligations_pricing>`
- - :py:meth:`Client.get_corporate_144a_debt_market_breadth() <finra.base_client.BaseClient.get_corporate_144a_debt_market_breadth>`
- - :py:meth:`Client.get_corporate_144a_debt_market_sentiment() <finra.base_client.BaseClient.get_corporate_144a_debt_market_sentiment>`
- - :py:meth:`Client.get_corporate_and_agency_capped_volume() <finra.base_client.BaseClient.get_corporate_and_agency_capped_volume>`
- - :py:meth:`Client.get_corporate_debt_market_breadth() <finra.base_client.BaseClient.get_corporate_debt_market_breadth>`
- - :py:meth:`Client.get_corporate_debt_market_sentiment() <finra.base_client.BaseClient.get_corporate_debt_market_sentiment>`
- - :py:meth:`Client.get_daily_cmbs_pricing() <finra.base_client.BaseClient.get_daily_cmbs_pricing>`
- - :py:meth:`Client.get_non_agency_cmo_abs_pricing() <finra.base_client.BaseClient.get_non_agency_cmo_abs_pricing>`
- - :py:meth:`Client.get_non_agency_cmo_pricing() <finra.base_client.BaseClient.get_non_agency_cmo_pricing>`
- - :py:meth:`Client.get_securitized_products_capped_volume() <finra.base_client.BaseClient.get_securitized_products_capped_volume>`
- - :py:meth:`Client.get_securitized_products_errata() <finra.base_client.BaseClient.get_securitized_products_errata>`
- - :py:meth:`Client.get_securitized_products_trading_activity() <finra.base_client.BaseClient.get_securitized_products_trading_activity>`
- - :py:meth:`Client.get_treasury_daily_aggregates() <finra.base_client.BaseClient.get_treasury_daily_aggregates>`
- - :py:meth:`Client.get_treasury_monthly_aggregates() <finra.base_client.BaseClient.get_treasury_monthly_aggregates>`
- - :py:meth:`Client.get_weekly_cmbs_pricing() <finra.base_client.BaseClient.get_weekly_cmbs_pricing>`
- 
-The :py:class:`FINRAGroup <finra.base_client.BaseClient.FINRAGroup>`:
- 
- - :py:meth:`Client.get_finra_rulebook() <finra.base_client.BaseClient.get_finra_rulebook>`
- - :py:meth:`Client.get_firm_registration_types() <finra.base_client.BaseClient.get_firm_registration_types>`
+The **OTC Market** group (also known as the **Equity** group) datasets that provide access to Over-the-Counter (OTC) trade and equity data:
 
-The :py:class:`FirmGroup <finra.base_client.BaseClient.FirmGroup>`:
+- :py:meth:`Client.get_ats_block_summary() <finra.base_client.BaseClient.get_ats_block_summary>`
+- :py:meth:`Client.get_otc_block_summary() <finra.base_client.BaseClient.get_otc_block_summary>`
+- :py:meth:`Client.get_consolidated_short_interest() <finra.base_client.BaseClient.get_consolidated_short_interest>`
+- :py:meth:`Client.get_daily_short_sale_volume() <finra.base_client.BaseClient.get_daily_short_sale_volume>`
+- :py:meth:`Client.get_threshold_list() <finra.base_client.BaseClient.get_threshold_list>`
+- :py:meth:`Client.get_weekly_summary() <finra.base_client.BaseClient.get_weekly_summary>`
+- :py:meth:`Client.get_weekly_summary_historic() <finra.base_client.BaseClient.get_weekly_summary_historic>`
+- :py:meth:`Client.get_monthly_summary() <finra.base_client.BaseClient.get_monthly_summary>`
+- :py:meth:`Client.get_otc_daily_list() <finra.base_client.BaseClient.get_otc_daily_list>`
 
- - :py:meth:`Client.get_firm_customer_complaints() <finra.base_client.BaseClient.get_firm_customer_complaints>`
- - :py:meth:`Client.get_firm_disclosures() <finra.base_client.BaseClient.get_firm_disclosures>`
- - :py:meth:`Client.get_firm_profile() <finra.base_client.BaseClient.get_firm_profile>`
- - :py:meth:`Client.get_firm_registration_status_history() <finra.base_client.BaseClient.get_firm_registration_status_history>`
- - :py:meth:`Client.get_firm_registrations() <finra.base_client.BaseClient.get_firm_registrations>`
- 
-The :py:class:`RegistrationGroup <finra.base_client.BaseClient.RegistrationGroup>`:
- 
- - :py:meth:`Client.get_accounting() <finra.base_client.BaseClient.get_accounting>`
- - :py:meth:`Client.get_altered_ssn_and_dob() <finra.base_client.BaseClient.get_altered_ssn_and_dob>`
- - :py:meth:`Client.get_branch_delta() <finra.base_client.BaseClient.get_branch_delta>`
- - :py:meth:`Client.get_branch_list() <finra.base_client.BaseClient.get_branch_list>`
- - :py:meth:`Client.get_broker_dealer_firm_list() <finra.base_client.BaseClient.get_broker_dealer_firm_list>`
- - :py:meth:`Client.get_composite_branch() <finra.base_client.BaseClient.get_composite_branch>`
- - :py:meth:`Client.get_composite_individual() <finra.base_client.BaseClient.get_composite_individual>`
- - :py:meth:`Client.get_composite_individual_seed() <finra.base_client.BaseClient.get_composite_individual_seed>`
- - :py:meth:`Client.get_individual_delta() <finra.base_client.BaseClient.get_individual_delta>`
- - :py:meth:`Client.get_individual_fingerprint() <finra.base_client.BaseClient.get_individual_fingerprint>`
- - :py:meth:`Client.get_individual_pre_registration_search() <finra.base_client.BaseClient.get_individual_pre_registration_search>`
- - :py:meth:`Client.get_individual_pre_registration_search_v2() <finra.base_client.BaseClient.get_individual_pre_registration_search_v2>`
- - :py:meth:`Client.get_individual_registration_validation() <finra.base_client.BaseClient.get_individual_registration_validation>`
- - :py:meth:`Client.get_individual_registration_validation_details() <finra.base_client.BaseClient.get_individual_registration_validation_details>`
- - :py:meth:`Client.get_registered_individual_search() <finra.base_client.BaseClient.get_registered_individual_search>`
- - :py:meth:`Client.get_u4_form_prefill() <finra.base_client.BaseClient.get_u4_form_prefill>`
- 
-The :py:class:`ReportCardGroup <finra.base_client.BaseClient.ReportCardGroup>`:
- 
- - :py:meth:`Client.get_trace_agency_debt_details() <finra.base_client.BaseClient.get_trace_agency_debt_details>`
- - :py:meth:`Client.get_trace_agency_debt_summary() <finra.base_client.BaseClient.get_trace_agency_debt_summary>`
- - :py:meth:`Client.get_trace_treasuries_details() <finra.base_client.BaseClient.get_trace_treasuries_details>`
- - :py:meth:`Client.get_trace_treasuries_summary() <finra.base_client.BaseClient.get_trace_treasuries_summary>`
- - :py:meth:`Client.get_trace_corporate_bonds_details() <finra.base_client.BaseClient.get_trace_corporate_bonds_details>`
- - :py:meth:`Client.get_trace_corporate_bonds_summary() <finra.base_client.BaseClient.get_trace_corporate_bonds_summary>`
- - :py:meth:`Client.get_trace_securitized_products_details() <finra.base_client.BaseClient.get_trace_securitized_products_details>`
- - :py:meth:`Client.get_trace_securitized_products_summary() <finra.base_client.BaseClient.get_trace_securitized_products_summary>`
- 
+The **Fixed Income** group datasets provide access to Over-the-Counter secondary market transaction data for fixed income securities as reported to TRACE:
+
+- :py:meth:`Client.get_agency_tba_pricing() <finra.base_client.BaseClient.get_agency_tba_pricing>`
+- :py:meth:`Client.get_agency_cmo_pricing() <finra.base_client.BaseClient.get_agency_cmo_pricing>`
+- :py:meth:`Client.get_agency_debt_market_breadth() <finra.base_client.BaseClient.get_agency_debt_market_breadth>`
+- :py:meth:`Client.get_agency_debt_market_sentiment() <finra.base_client.BaseClient.get_agency_debt_market_sentiment>`
+- :py:meth:`Client.get_agency_mbs_trading_activity() <finra.base_client.BaseClient.get_agency_mbs_trading_activity>`
+- :py:meth:`Client.get_agency_mbs_arm_hybrid_pricing() <finra.base_client.BaseClient.get_agency_mbs_arm_hybrid_pricing>`
+- :py:meth:`Client.get_agency_mbs_pricing() <finra.base_client.BaseClient.get_agency_mbs_pricing>`
+- :py:meth:`Client.get_collateralized_obligations_pricing() <finra.base_client.BaseClient.get_collateralized_obligations_pricing>`
+- :py:meth:`Client.get_corporate_144a_debt_market_breadth() <finra.base_client.BaseClient.get_corporate_144a_debt_market_breadth>`
+- :py:meth:`Client.get_corporate_144a_debt_market_sentiment() <finra.base_client.BaseClient.get_corporate_144a_debt_market_sentiment>`
+- :py:meth:`Client.get_corporate_and_agency_capped_volume() <finra.base_client.BaseClient.get_corporate_and_agency_capped_volume>`
+- :py:meth:`Client.get_corporate_debt_market_breadth() <finra.base_client.BaseClient.get_corporate_debt_market_breadth>`
+- :py:meth:`Client.get_corporate_debt_market_sentiment() <finra.base_client.BaseClient.get_corporate_debt_market_sentiment>`
+- :py:meth:`Client.get_daily_cmbs_pricing() <finra.base_client.BaseClient.get_daily_cmbs_pricing>`
+- :py:meth:`Client.get_non_agency_cmo_abs_pricing() <finra.base_client.BaseClient.get_non_agency_cmo_abs_pricing>`
+- :py:meth:`Client.get_non_agency_cmo_pricing() <finra.base_client.BaseClient.get_non_agency_cmo_pricing>`
+- :py:meth:`Client.get_securitized_products_capped_volume() <finra.base_client.BaseClient.get_securitized_products_capped_volume>`
+- :py:meth:`Client.get_securitized_products_errata() <finra.base_client.BaseClient.get_securitized_products_errata>`
+- :py:meth:`Client.get_securitized_products_trading_activity() <finra.base_client.BaseClient.get_securitized_products_trading_activity>`
+- :py:meth:`Client.get_treasury_daily_aggregates() <finra.base_client.BaseClient.get_treasury_daily_aggregates>`
+- :py:meth:`Client.get_treasury_monthly_aggregates() <finra.base_client.BaseClient.get_treasury_monthly_aggregates>`
+- :py:meth:`Client.get_weekly_cmbs_pricing() <finra.base_client.BaseClient.get_weekly_cmbs_pricing>`
+
+The **FINRA** group datasets include data and content typically found on FINRA.org including the FINRA Rulebook:
+
+- :py:meth:`Client.get_finra_rulebook() <finra.base_client.BaseClient.get_finra_rulebook>`
+- :py:meth:`Client.get_firm_registration_types() <finra.base_client.BaseClient.get_firm_registration_types>`
+
+The **Firm** group datasets provide access to information that is specific to individual FINRA member firms, some of which are involved in registration operations and only accessible by the firm itself:
+
+- :py:meth:`Client.get_firm_customer_complaints() <finra.base_client.BaseClient.get_firm_customer_complaints>`
+- :py:meth:`Client.get_firm_disclosures() <finra.base_client.BaseClient.get_firm_disclosures>`
+- :py:meth:`Client.get_firm_profile() <finra.base_client.BaseClient.get_firm_profile>`
+- :py:meth:`Client.get_firm_registration_status_history() <finra.base_client.BaseClient.get_firm_registration_status_history>`
+- :py:meth:`Client.get_firm_registrations() <finra.base_client.BaseClient.get_firm_registrations>`
+
+The **Registration** group datasets provide member firms access to their registration records as stored in the Central Registration Depository (CRD):
+
+- :py:meth:`Client.get_accounting() <finra.base_client.BaseClient.get_accounting>`
+- :py:meth:`Client.get_altered_ssn_and_dob() <finra.base_client.BaseClient.get_altered_ssn_and_dob>`
+- :py:meth:`Client.get_branch_delta() <finra.base_client.BaseClient.get_branch_delta>`
+- :py:meth:`Client.get_branch_list() <finra.base_client.BaseClient.get_branch_list>`
+- :py:meth:`Client.get_broker_dealer_firm_list() <finra.base_client.BaseClient.get_broker_dealer_firm_list>`
+- :py:meth:`Client.get_composite_branch() <finra.base_client.BaseClient.get_composite_branch>`
+- :py:meth:`Client.get_composite_individual() <finra.base_client.BaseClient.get_composite_individual>`
+- :py:meth:`Client.get_composite_individual_seed() <finra.base_client.BaseClient.get_composite_individual_seed>`
+- :py:meth:`Client.get_individual_delta() <finra.base_client.BaseClient.get_individual_delta>`
+- :py:meth:`Client.get_individual_fingerprint() <finra.base_client.BaseClient.get_individual_fingerprint>`
+- :py:meth:`Client.get_individual_pre_registration_search() <finra.base_client.BaseClient.get_individual_pre_registration_search>`
+- :py:meth:`Client.get_individual_pre_registration_search_v2() <finra.base_client.BaseClient.get_individual_pre_registration_search_v2>`
+- :py:meth:`Client.get_individual_registration_validation() <finra.base_client.BaseClient.get_individual_registration_validation>`
+- :py:meth:`Client.get_individual_registration_validation_details() <finra.base_client.BaseClient.get_individual_registration_validation_details>`
+- :py:meth:`Client.get_registered_individual_search() <finra.base_client.BaseClient.get_registered_individual_search>`
+- :py:meth:`Client.get_u4_form_prefill() <finra.base_client.BaseClient.get_u4_form_prefill>`
+
+The **TRACE Report Card** group datasets provide access to firms to detect potential compliance issues early and cover a variety of topics and rule sets:
+
+- :py:meth:`Client.get_trace_agency_debt_details() <finra.base_client.BaseClient.get_trace_agency_debt_details>`
+- :py:meth:`Client.get_trace_agency_debt_summary() <finra.base_client.BaseClient.get_trace_agency_debt_summary>`
+- :py:meth:`Client.get_trace_treasuries_details() <finra.base_client.BaseClient.get_trace_treasuries_details>`
+- :py:meth:`Client.get_trace_treasuries_summary() <finra.base_client.BaseClient.get_trace_treasuries_summary>`
+- :py:meth:`Client.get_trace_corporate_bonds_details() <finra.base_client.BaseClient.get_trace_corporate_bonds_details>`
+- :py:meth:`Client.get_trace_corporate_bonds_summary() <finra.base_client.BaseClient.get_trace_corporate_bonds_summary>`
+- :py:meth:`Client.get_trace_securitized_products_details() <finra.base_client.BaseClient.get_trace_securitized_products_details>`
+- :py:meth:`Client.get_trace_securitized_products_summary() <finra.base_client.BaseClient.get_trace_securitized_products_summary>`
+
 .. _endpoints:
 
 +++++++++
@@ -120,7 +120,7 @@ All other query method keywords only apply to the :py:attr:`Endpoint.DATA <finra
 Metadata
 --------
 
-Most datasets support the :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>` endpoint, which provides information about each of the fields in a dataset. These datasets are represented on the client using enums, and the :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>` response for a dataset should contain the same information that is documented on its enum.
+Many datasets support the :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>` endpoint, which provides information about each of the fields in a dataset. These datasets are represented on the client using enums, and the :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>` response for a dataset should contain the same information that is documented on its enum.
 
 .. code-block:: python
 
@@ -152,7 +152,7 @@ Some datasets do not support :py:attr:`Endpoint.PARTITIONS <finra.base_client.Ba
 Datasets
 --------
 
-All datasets support the :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` endpoint. It can be used to retrieve information about the capabilities and features supported by each dataset, including API request methods, data format, versioning, and whether or not it is currently active.
+Almost all datasets support the :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` endpoint. It can be used to retrieve information about the capabilities and features supported by each dataset, including API request methods, data format, versioning, and whether or not it is currently active. To request information about a specific dataset use the dataset's query method.
 
 .. code-block:: python
 
@@ -162,25 +162,15 @@ All datasets support the :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClie
   
   datasets = r.json()  # supported API request methods, data formats, etc.
 
-This information can also be retrieved for multiple datasets in a single call with the :py:meth:`Client.get_datasets() <finra.base_client.BaseClient.get_datasets>` method. Information can be requested for all datasets if no keywords are provided, or for a dataset group by specifying a member of :py:class:`Groups <finra.base_client.BaseClient.Groups>`.
+This information can be retrieved as a comprehensive list of Query API datasets using the :py:meth:`Client.get_datasets() <finra.base_client.BaseClient.get_datasets>` method. If no arguments are provided, this method will return information for all datasets available using the client's credentials, including undocumented and unsupported datasets. If a member of :py:class:`Group <finra.base_client.BaseClient.Group>` is provided, information is returned for only datasets in that group.
 
 .. code-block:: python
 
-  r = c.get_datasets(group=c.Groups.EQUITY)
+  r = c.get_datasets(group=c.Group.EQUITY)
   
   r.raise_for_status()
   
   datasets = r.json()  # information for all EQUITY datasets
-
-This method can also be used to request information for a single dataset by passing a member of one of the group enums: :py:class:`EquityGroup <finra.base_client.BaseClient.EquityGroup>`, :py:class:`FixedIncomeGroup <finra.base_client.BaseClient.FixedIncomeGroup>`, :py:class:`FINRAGroup <finra.base_client.BaseClient.FINRAGroup>`, :py:class:`FirmGroup <finra.base_client.BaseClient.FirmGroup>`, :py:class:`RegistrationGroup <finra.base_client.BaseClient.RegistrationGroup>`, or :py:class:`ReportCardGroup <finra.base_client.BaseClient.ReportCardGroup>`. The response is identical to the one received from a dataset's query method when using the :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` endpoint.
-
-.. code-block:: python
-
-  r = c.get_datasets(name=c.EquityGroup.ATS_BLOCK_SUMMARY)
-  
-  r.raise_for_status()
-  
-  datasets = r.json()  # same as querying via the dataset's query method
 
 .. _fields:
 
@@ -291,7 +281,7 @@ Sorting
 
 Datasets that support requesting data in sorted order have a ``sort_fields`` keyword in their query method, which accepts fields specified as members of a dataset's enum. By default, records are returned in ascending order. To specify the sort direction, provide a 2-tuple of the form ``(direction, <member>)``, where ``direction`` is a number and ``<member>`` is an enum member. A negative ``direction`` sorts records in descending order. To sort by multiple fields, provide them as a list (or an iterable that is not a tuple).
 
-When requesting sorted records, a request must include a compare filter with :py:attr:`CompareType.EQUAL <finra.filters.Filter.CompareType.EQUAL>` on each of the partition fields for the dataset. If a dataset does not have partition fields (such as :py:class:`RegistrationGroup <finra.base_client.BaseClient.RegistrationGroup>` datasets), then a compare filter is not required.
+When requesting sorted records, a request must include a compare filter with :py:attr:`CompareType.EQUAL <finra.filters.Filter.CompareType.EQUAL>` on each of the partition fields for the dataset. If a dataset does not have partition fields (such as Registration group datasets), then a compare filter is not required.
 
 In this example, the query returns records sorted by symbol in ascending order. For this dataset, the partition field is the settlement date.
 
@@ -408,10 +398,10 @@ Pagination
 ----------
 
 To facilitate accessing data in tranches, many datasets support pagination. These datasets have ``limit`` and ``offset`` keywords in their query method:
- 
- - ``limit`` : the number of records to request (default: 1,000)
- - ``offset`` : the record number to start with (non-inclusive)
- 
+
+- ``limit`` : the number of records to request (default: 1,000)
+- ``offset`` : the record number to start with (non-inclusive)
+
 For example, if the ``offset`` is 0 and the ``limit`` is 20, then records 1 to 20 are returned for a total of 20 records. If the ``offset`` is 10 and the ``limit`` is 10, then records 11 to 20 are returned.
 
 The ``offset`` parameter has a maximum value of 500,000. The effect of this constraint is that a maximum of 505,000 records can be accessed synchronously, and a maximum of 600,000 records can be accessed asynchronously, without the use of additional ``filters``. For example, the :py:class:`WeeklySummary <finra.base_client.BaseClient.WeeklySummary>` dataset contains millions of records. Because of the 500,000 maximum ``offset``, it is not possible to access all records simply by increasing the ``offset`` parameter until all data is accessed.
@@ -514,12 +504,12 @@ In this example, ``limit`` and ``offset`` are used to fetch records matching the
           offset += limit         # increment next page offset
 
 However, this query pattern does not guarantee that all matching records will be fetched, even if the ``limit`` is less than the maximum record limit. This is because the API also has a maximum payload size constraint of 3MB, which limits the data returned in each request regardless of the value of ``limit``. If the maximum payload size is the limiting constraint, this query pattern will exit early, and fail to fetch all of the requested records. To mitigate this issue, do one or more of the following:
- 
- - adapt pagination variables using response headers (see the next example)
- - reduce the payload size by requesting fewer fields
- - reduce the payload size by requesting ``text/plain`` content
- - use asynchronous requests, which do not have a maximum payload size
- 
+
+- adapt pagination variables using response headers (see the next example)
+- reduce the payload size by requesting fewer fields
+- reduce the payload size by requesting ``text/plain`` content
+- use asynchronous requests, which do not have a maximum payload size
+
 -------------------
 Adaptive Pagination
 -------------------
@@ -602,9 +592,9 @@ Content Type for a Single Query
 -------------------------------
 
 For a single query, the response content type can be changed using the boolean-valued ``accept_json`` keyword, if it is supported by the dataset's query method. When requesting ``text/plain`` content, two additional keywords can be used to configure the response data:
- 
- - ``delimiter`` : a single-character that separates fields, which must be one of the following values: comma ``,``, pipe ``|``, tab ``\\t`` or ``\\x09``, or ctrl+A ``\\x01`` (default: comma ``,``)
- - ``quote_values`` : a boolean specifying whether non-empty values should be quoted (default: ``False``)
+
+- ``delimiter`` : a single-character that separates fields, which must be one of the following values: comma ``,``, pipe ``|``, tab ``\\t`` or ``\\x09``, or ctrl+A ``\\x01`` (default: comma ``,``)
+- ``quote_values`` : a boolean specifying whether non-empty values should be quoted (default: ``False``)
 
 In this example, the query requests ``text/plain`` content type, with a non-default field ``delimiter`` and quoted values.
 

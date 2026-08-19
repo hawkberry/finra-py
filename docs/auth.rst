@@ -62,7 +62,7 @@ Set ``mock=True`` when creating a client to use this feature.
 Not all datasets have mock endpoints. If a dataset is queried that does not have a mock endpoint, a :py:class:`finra.exceptions.MockException` will be raised.
 
 .. note::
-	Mock endpoints are intended for demonstration purposes, not for comprehensive integration testing, and may lack some functionality documented for production endpoints. Additionally, some mock datasets are sparsely populated, and some endpoints contain no data at all, so it may be necessary to walk the partitions to locate available records (see the :ref:`large_datasets`). For comprehensive integration testing, use the QA Test Environment.
+	Mock endpoints are intended for demonstration purposes, not for comprehensive integration testing, and may lack some functionality documented for production endpoints. Additionally, some mock datasets are sparsely populated, and some endpoints contain no data at all (see :ref:`known_bugs`), so it may be necessary to walk the partitions to locate available records (see the :ref:`large_datasets`). For comprehensive integration testing, use the QA Test Environment.
 
 +++++++++++++++++++
 QA Test Environment

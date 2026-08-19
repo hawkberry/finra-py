@@ -12,19 +12,19 @@ The `Submission API <https://developer.finra.org/docs#submission_api>`__ allows 
 
 Each filing has a single method for submitting, validating and retrieving filing data. All endpoints require Firm credentials.
  
- - :py:meth:`Client.create_individual_submission() <finra.base_client.BaseClient.create_individual_submission>`
- - :py:meth:`Client.form_br_submission() <finra.base_client.BaseClient.form_br_submission>`
- - :py:meth:`Client.form_u4_submission() <finra.base_client.BaseClient.form_u4_submission>`
- - :py:meth:`Client.form_u5_submission() <finra.base_client.BaseClient.form_u5_submission>`
- - :py:meth:`Client.non_registered_fingerprint_submission() <finra.base_client.BaseClient.non_registered_fingerprint_submission>`
+- :py:meth:`Client.create_individual_submission() <finra.base_client.BaseClient.create_individual_submission>`
+- :py:meth:`Client.form_br_submission() <finra.base_client.BaseClient.form_br_submission>`
+- :py:meth:`Client.form_u4_submission() <finra.base_client.BaseClient.form_u4_submission>`
+- :py:meth:`Client.form_u5_submission() <finra.base_client.BaseClient.form_u5_submission>`
+- :py:meth:`Client.non_registered_fingerprint_submission() <finra.base_client.BaseClient.non_registered_fingerprint_submission>`
  
 Each of the following classes corresponds to a specific filing. They are useful for building metadata for submissions, and configuring partial update operations.
  
- - :py:class:`CreateIndividual <finra.filings.create_individual.CreateIndividual>`
- - :py:class:`FormBR <finra.filings.form_br.FormBR>`
- - :py:class:`FormU4 <finra.filings.form_u4.FormU4>`
- - :py:class:`FormU5 <finra.filings.form_u5.FormU5>`
- - :py:class:`NonRegisteredFingerprint <finra.filings.non_registered_fingerprint.NonRegisteredFingerprint>`
+- :py:class:`CreateIndividual <finra.filings.create_individual.CreateIndividual>`
+- :py:class:`FormBR <finra.filings.form_br.FormBR>`
+- :py:class:`FormU4 <finra.filings.form_u4.FormU4>`
+- :py:class:`FormU5 <finra.filings.form_u5.FormU5>`
+- :py:class:`NonRegisteredFingerprint <finra.filings.non_registered_fingerprint.NonRegisteredFingerprint>`
   
 .. _request_flow:
 
@@ -51,11 +51,11 @@ Filing Status
 The request flow for a submission depends on the value of the :py:class:`FilingStatus <finra.filings.base_filing.BaseFilingOps.FilingStatus>`, which specifies the state of a submission.
 
 There are three available values:
- 
- - :py:attr:`FilingStatus.DRAFT <finra.filings.base_filing.BaseFilingOps.FilingStatus.DRAFT>`
- - :py:attr:`FilingStatus.SUBMITTED <finra.filings.base_filing.BaseFilingOps.FilingStatus.SUBMITTED>`
- - :py:attr:`FilingStatus.VALIDATE <finra.filings.base_filing.BaseFilingOps.FilingStatus.VALIDATE>`
- 
+
+- :py:attr:`FilingStatus.DRAFT <finra.filings.base_filing.BaseFilingOps.FilingStatus.DRAFT>`
+- :py:attr:`FilingStatus.SUBMITTED <finra.filings.base_filing.BaseFilingOps.FilingStatus.SUBMITTED>`
+- :py:attr:`FilingStatus.VALIDATE <finra.filings.base_filing.BaseFilingOps.FilingStatus.VALIDATE>`
+
 The :py:class:`FilingStatus <finra.filings.base_filing.BaseFilingOps.FilingStatus>` can be set on the filing object using the :py:meth:`set_filing_status() <finra.filings.base_filing.BaseFilingOps.set_filing_status>` method, if supported by the filing. The :py:class:`CreateIndividual <finra.filings.create_individual.CreateIndividual>` and :py:class:`NonRegisteredFingerprint <finra.filings.non_registered_fingerprint.NonRegisteredFingerprint>` filings only support :py:attr:`FilingStatus.SUBMITTED <finra.filings.base_filing.BaseFilingOps.FilingStatus.SUBMITTED>`, and do not allow this value to be altered.
 
 -----------------------
@@ -212,11 +212,11 @@ Operations are instructions for updating a filing using JSON operations. If both
 
 If a filing supports operations, they can be added using the filing object's :py:meth:`add_operation() <finra.filings.base_filing.BaseFilingOps.add_operation>` method, which takes three arguments:
  
- 1. ``op`` is the action in a JSON operation specified as a member of the :py:class:`Op <finra.filings.base_filing.BaseFilingOps.Op>` enum.
+1. ``op`` is the action in a JSON operation specified as a member of the :py:class:`Op <finra.filings.base_filing.BaseFilingOps.Op>` enum.
  
- 2. ``path`` specifies the location or traversal route within a JSON document. It is based on the `RFC 6901 <https://www.rfc-editor.org/rfc/rfc6901>`__ standard, except with arrays where an additional syntax is supported to uniquely identify an element within an array, instead of relying on array indexes.
+2. ``path`` specifies the location or traversal route within a JSON document. It is based on the `RFC 6901 <https://www.rfc-editor.org/rfc/rfc6901>`__ standard, except with arrays where an additional syntax is supported to uniquely identify an element within an array, instead of relying on array indexes.
  
- 3. ``value`` is placed at the ``path``. For operations with :py:attr:`Op.REMOVE <finra.filings.base_filing.BaseFilingOps.Op.REMOVE>`, the ``value`` must be omitted or ``None``.
+3. ``value`` is placed at the ``path``. For operations with :py:attr:`Op.REMOVE <finra.filings.base_filing.BaseFilingOps.Op.REMOVE>`, the ``value`` must be omitted or ``None``.
  
 Consider the following example filing data:
 
@@ -244,13 +244,17 @@ Consider the following example filing data:
   }
 
 A ``path`` can be specified directly as a string, or it can be specified as an iterable representing the traversal route. The following ``path`` selects an array element from the example data using the syntax ``[<key>:<value>]``, where the key is a label within each element, and the value uniquely identifies an element in the array:
- 
- - "/individualInformation/residentialHistory/[id:5f2df182-f6d0-4504-9e18-38a8c7268b77]"
- 
+
+.. code-block:: python
+
+  "/individualInformation/residentialHistory/[id:5f2df182-f6d0-4504-9e18-38a8c7268b77]"
+
 Alternatively, the same ``path`` can also be specified as an iterable, and elements within an array can be identified uniquely using a (key, value) 2-tuple:
- 
- - ["individualInformation", "residentialHistory", ("id", "5f2df182-f6d0-4504-9e18-38a8c7268b77")]
- 
+
+.. code-block:: python
+
+  ["individualInformation", "residentialHistory", ("id", "5f2df182-f6d0-4504-9e18-38a8c7268b77")]
+
 The following code block uses operations to modify the example filing data:
 
 .. code-block:: python

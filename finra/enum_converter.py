@@ -150,38 +150,6 @@ class EnumConverter:
             return _values
         return [v.value if isinstance(v, enum) else v for v in values]
     
-    def _type_error_union(
-        self,
-        value: Enum | Any,
-        enum: tuple[EnumType, ...]
-        ) -> None:
-        val_type = type(value)
-        val_name = getattr(val_type, "__qualname__", val_type.__name__)
-        enum_name = ", ".join(map(_fully_qualified, enum))
-        if isinstance(value, (Enum, str)):
-            _members = []
-            for e in enum:
-                members = _possible_members(value, e)
-                if members:
-                    _members.append(", ".join(members))
-            msg = "\n" + "\n".join(_members) if _members else ""
-        else:
-            msg = ""
-        self._raise_type_error(enum_name, val_name, msg)
-        
-    # Convert an enum member that belongs to one of several enums
-    # Union of enums **cannot** be parameterized
-    def _convert_union(
-        self,
-        value: Enum | Any,
-        enum: tuple[EnumType, ...]
-        ) -> Any:
-        if isinstance(value, enum):
-            return value.value
-        if self.require_enums: # raise if enums required & value is non-enum
-            self._type_error_union(value, enum)
-        return value
-    
     def set_require_enums(self, require_enums: bool) -> None:
         """
         Set the option to require enums within this object for all values that

@@ -1883,61 +1883,33 @@ class _TestAPI:
     def test_get_datasets_with_params(self):
         self.mock_session.get.return_value = self.response
         
-        result = self.client.get_datasets(
-            group=Client.Groups.EQUITY,
-            name=Client.EquityGroup.ATS_BLOCK_SUMMARY
-            )
+        result = self.client.get_datasets(group=Client.Group.EQUITY)
         
         self.assertEqual(result, self.response)
         self.mock_session.get.assert_called_once_with(
             self.base_url + "/datasets",
-            params={"group": "otcMarket", "name": "blocksSummary"},
+            params={"group": "otcMarket"},
             headers={"Accept": "application/json"}
             )
         
     @no_duplicates
     def test_get_datasets_wrong_group_type(self):
         with self.assertRaisesRegex(
-            TypeError, "finra.base_client.BaseClient.Groups.EQUITY"
+            TypeError, "finra.base_client.BaseClient.Group.EQUITY"
             ):
             self.client.get_datasets(group="EQUITY")
-        
-    @no_duplicates
-    def test_get_datasets_wrong_name_type(self):
-        with self.assertRaisesRegex(
-            TypeError,
-            "finra.base_client.BaseClient.EquityGroup.ATS_BLOCK_SUMMARY"
-            ):
-            self.client.get_datasets(name="ATS_BLOCK_SUMMARY")
-        
-    @no_duplicates
-    def test_get_datasets_wrong_name_type_no_suggestions(self):
-        with self.assertRaisesRegex(
-            TypeError,
-            "Expected type\\(s\\): finra.base_client.BaseClient.EquityGroup, "
-            "finra.base_client.BaseClient.FixedIncomeGroup, "
-            "finra.base_client.BaseClient.FINRAGroup, "
-            "finra.base_client.BaseClient.FirmGroup, "
-            "finra.base_client.BaseClient.RegistrationGroup, "
-            "finra.base_client.BaseClient.ReportCardGroup. "
-            "Got type 'str'. "
-            "\\(Initialize with require_enums=False to disable this check\\)"
-            ):
-            self.client.get_datasets(name="NAME_IS_NOT_EVEN_CLOSE")
         
     @no_duplicates
     def test_get_datasets_enums_not_required(self):
         self.client.set_require_enums(False)
         self.mock_session.get.return_value = self.response
         
-        result = self.client.get_datasets(
-            group="otcMarket", name="blocksSummary"
-            )
+        result = self.client.get_datasets(group="otcMarket")
         
         self.assertEqual(result, self.response)
         self.mock_session.get.assert_called_once_with(
             self.base_url + "/datasets",
-            params={"group": "otcMarket", "name": "blocksSummary"},
+            params={"group": "otcMarket"},
             headers={"Accept": "application/json"}
             )
         

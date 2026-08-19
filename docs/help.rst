@@ -47,6 +47,7 @@ The recommended practice is to enable bug report logging at the beginning of you
 .. code-block:: python
 
   from finra.debug import enable_bug_report_logging
+  
   enable_bug_report_logging()  # enable at beginning, log to sys.stderr
   
   # ...get a client
@@ -73,11 +74,11 @@ Submit Your Ticket
 
 You are now ready to write your bug report. Before submitting an issue, please ensure it includes the following information. Issues may be closed if they cannot be investigated effectively:
  
- - Include code: reproducing the reported behavior requires code demonstrating the failure.
- - Include logs: it is difficult to debug problems without logs.
- - Redact logs: issues may be closed or deleted if logs are not adequately redacted. This is for your own protection.
- - Attach log files: logs that are copy-pasted into the issue message field will not be accepted. Please write them to a file and attach it to your issue.
- - Follow the issue template: this is not strict, but you should at least include all the information it asks for.
+- Include code: reproducing the reported behavior requires code demonstrating the failure.
+- Include logs: it is difficult to debug problems without logs.
+- Redact logs: issues may be closed or deleted if logs are not adequately redacted. This is for your own protection.
+- Attach log files: logs that are copy-pasted into the issue message field will not be accepted. Please write them to a file and attach it to your issue.
+- Follow the issue template: this is not strict, but you should at least include all the information it asks for.
  
 You can file an issue on the ``finra-py`` `Issues Page <https://github.com/hawkberry/finra-py/issues>`__ on GitHub.
 
