@@ -1,6 +1,6 @@
-============================================
-``finra-py``: An Unofficial FINRA API Client
-============================================
+===========================================
+``finra-py`` An Unofficial FINRA API Client
+===========================================
 
 .. image:: https://github.com/hawkberry/finra-py/actions/workflows/run-tests.yml/badge.svg
   :target: https://github.com/hawkberry/finra-py/actions/workflows/run-tests.yml
@@ -104,5 +104,5 @@ Project Links
 * `Support <https://support.hawkberry.com/>`__
 * `Issues <https://github.com/hawkberry/finra-py/issues>`__
 
-**Disclaimer:** ``finra-py`` *is an unofficial, open-source client library for the FINRA API Platform. It is not endorsed by, affiliated with, or sponsored by FINRA or any associated organization. ``finra-py`` does not provide financial advice, investment recommendations, trading strategies, or financial analysis. Users are responsible for reviewing and complying with the terms of service and usage requirements of the underlying FINRA API. This software is provided under the terms of the* `LICENSE <https://github.com/hawkberry/finra-py/blob/main/LICENSE>`__ *without warranty of any kind.*
+**Disclaimer:** ``finra-py`` *is an unofficial, open-source client library for the FINRA API Platform. It is not endorsed by, affiliated with, or sponsored by FINRA or any associated organization.* ``finra-py`` *does not provide financial advice, investment recommendations, trading strategies, or financial analysis. Users are responsible for reviewing and complying with the terms of service and usage requirements of the underlying FINRA API. This software is provided under the terms of the* `LICENSE <https://github.com/hawkberry/finra-py/blob/main/LICENSE>`__ *without warranty of any kind.*
 
