@@ -3169,6 +3169,9 @@ class BaseClient(EnumConverter, ABC):
         FINPRO tasks and alerts for registered representative at the
         requesting firm.
         
+        The ``individual_crd_number`` is required when querying the
+        :py:attr:`Endpoint.DATA` resource endpoint.
+        
         Returned data follows the `FinPro Tasks schema
         <https://schemas.api.finra.org/v1/finproGW/finproTasks.json>`__.
         
