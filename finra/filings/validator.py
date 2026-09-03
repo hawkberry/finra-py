@@ -67,11 +67,11 @@ class Validator:
             registry=cast(Any, referencing.Registry)(retrieve=self._retrieve),
             )
         
-    def __getattr__(self, name: str):
+    def __getattr__(self, name: str) -> Any:
         return getattr(self._validator, name) # raises AttributeError if DNE
     
     @property
-    def schema_registry(self):
+    def schema_registry(self) -> dict[str, Any]:
         """Local schema store"""
         return self._schema_registry
     
@@ -98,13 +98,29 @@ class Validator:
             self._schema_registry[url] = schema  # save schema in registry
         return referencing.Resource.from_contents(schema)
     
-    # Validate a filing object
-    def validate(self, obj: BaseFiling | dict[str, Any], *args, **kwds):
+    # Validate a filing object, return bool
+    def is_valid(
+        self,
+        obj: BaseFiling | dict[str, Any]
+        ) -> bool:
         """
-        Validate a filing JSON object against the given JSON Schema. This
-        raises ``jsonschema.ValidationError`` if validation fails.
+        Validate a filing JSON object against the given JSON Schema, and return
+        a bool indicating validation status.
         """
         if isinstance(obj, BaseFiling):
             obj = obj.build()
-        return self._validator.validate(obj, *args, **kwds)
+        return self._validator.is_valid(obj)
+    
+    # Validate a filing object, raise exception
+    def validate(
+        self,
+        obj: BaseFiling | dict[str, Any]
+        ) -> None:
+        """
+        Validate a filing JSON object against the given JSON Schema, and raise
+        ``jsonschema.ValidationError`` if validation fails.
+        """
+        if isinstance(obj, BaseFiling):
+            obj = obj.build()
+        self._validator.validate(obj)
 

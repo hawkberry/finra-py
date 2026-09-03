@@ -49,3 +49,6 @@ class TestFormBREnums(unittest.TestCase):
             'operations': [{'op': 'add', 'path': '/path', 'value': 'value'}],
             }}, filing.build()))
 
+
+if __name__ == "__main__": # pragma: no cover
+    unittest.main()

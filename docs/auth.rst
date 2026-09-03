@@ -6,13 +6,13 @@
 Authentication and Client Creation
 ==================================
 
-The `FINRA API Platform <https://developer.finra.org/docs#getting_started-api_platform_basics-authorization>`__ authentication and authorization scheme is based on OAuth 2.0.  OAuth 2.0 enhances security by replacing the use of long-lasting credentials with limited life span tokens, reducing the potential of exposing an API Credential.
+The `FINRA API Platform <https://developer.finra.org/docs#getting_started-api_platform_basics-authorization>`__ uses OAuth 2.0 for authentication and authorization. OAuth 2.0 uses short-lived access tokens instead of the resource owner’s long-term credentials, reducing the risk of credential exposure.
 
-Internally, this client uses `Authlib's HTTPX integration <https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html>`__ to perform requests and implement the OAuth 2.0 standard. This OAuth2 session securely manages the credentials and token path you provide, which are never stored directly on the ``finra-py`` client.
+Internally, ``finra-py`` uses `Authlib's HTTPX integration <https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html>`__ to perform requests and implement the OAuth 2.0 standard. This OAuth2 session securely manages the credentials and ``token_path`` you provide, which are never stored directly on the ``finra-py`` client.
 
-``finra-py`` is designed to handle credentials and authentication tokens securely. However, you are ultimately responsible for securing your credentials, authentication tokens, and any data written to disk. This software is provided "as is."
+``finra-py`` is designed to handle credentials and authentication tokens securely. However, you are ultimately responsible for securing your credentials, authentication tokens, and any data written to disk. Make sure to take any additional steps necessary to secure your data.
 
-Read the official `FINRA API Documentation <https://developer.finra.org/docs>`__ to learn more about the API's authentication process. Make sure to take any additional steps necessary to secure your data. This client will save authentication tokens to any file path you provide (assuming you have appropriate file permissions).  It is your responsibility to ensure that this location is secure and appropriate for your environment. Consult your system administrator or security team as appropriate.
+This client will save authentication tokens to any file path you provide (assuming you have appropriate file permissions).  It is your responsibility to ensure that this location is secure and appropriate for your environment. Consult your system administrator or security team as appropriate.
 
 **IMPORTANT! Only use one client at a time. The behavior is undefined if you try to use multiple clients with the same credentials at the same time, and may cause problems with the underlying OAuth2 session management.**
 
@@ -42,11 +42,11 @@ If a valid token exists at the given path it will be used, otherwise a new token
 Mock Endpoints
 ++++++++++++++
 
-Many datasets provide mock endpoints for development and demonstration purposes. To use mock endpoints, a unique ``api_key`` and ``api_secret`` pair must be created through the `FINRA API Console <https://developer.finra.org/docs#getting_started-the_api_console>`__. Because mock endpoints require separate credentials, you will not be able to query production API endpoints when this feature is enabled, including :ref:`notification` and :ref:`submission` endpoints.
+Many :ref:`query` datasets provide mock endpoints for development and demonstration purposes. To use mock endpoints, a unique ``api_key`` and ``api_secret`` pair must be created through the `FINRA API Console <https://developer.finra.org/docs#getting_started-the_api_console>`__. Because mock endpoints require separate credentials, you will not be able to access production API endpoints when this feature is enabled, including :ref:`notification` and :ref:`submission` endpoints.
 
 **IMPORTANT! Make sure you use mock credentials, and set a different** ``token_path`` **to store your mock API token. Otherwise, you may overwrite your production token, or inadvertently load the wrong token and have your requests rejected by the API server. If this happens, create a new client using** :py:func:`client_from_new_token() <finra.auth.client_from_new_token>` **or delete your tokens manually.**
 
-Set ``mock=True`` when creating a client to use this feature.
+Set ``mock=True`` when creating a client to use mock endpoints.
 
 .. code-block:: python
 
@@ -62,17 +62,17 @@ Set ``mock=True`` when creating a client to use this feature.
 Not all datasets have mock endpoints. If a dataset is queried that does not have a mock endpoint, a :py:class:`finra.exceptions.MockException` will be raised.
 
 .. note::
-	Mock endpoints are intended for demonstration purposes, not for comprehensive integration testing, and may lack some functionality documented for production endpoints. Additionally, some mock datasets are sparsely populated, and some endpoints contain no data at all (see :ref:`known_bugs`), so it may be necessary to walk the partitions to locate available records (see the :ref:`large_datasets`). For comprehensive integration testing, use the QA Test Environment.
+	Mock endpoints are intended for demonstration purposes, not for comprehensive integration testing, and may lack some functionality documented for production endpoints. Additionally, some mock datasets are sparsely populated, and some datasets contain no data at all (see :ref:`known_bugs`), so it may be necessary to walk the partitions to locate available records (see :ref:`large_datasets`). For comprehensive integration testing, use the QA Test Environment.
 
 +++++++++++++++++++
 QA Test Environment
 +++++++++++++++++++
 
-More extensive testing features are available through the QA Test Environment endpoints, which are only available for firms with paid FINRA API subscriptions (see `FINRA Developer Center <https://developer.finra.org/>`__). To use QA Test Environment endpoints, a unique ``api_key`` and ``api_secret`` pair must be created through the `FINRA API Console <https://developer.finra.org/docs#getting_started-the_api_console>`__.
+More extensive testing features are available through the QA Test Environment, which is only available for firms with paid FINRA API subscriptions (see `FINRA Developer Center <https://developer.finra.org/>`__). To use the QA Test Environment, a unique ``api_key`` and ``api_secret`` pair must be created through the `FINRA API Console <https://developer.finra.org/docs#getting_started-the_api_console>`__.
 
 **IMPORTANT! Make sure you use QA Test Environment credentials, and set a different** ``token_path`` **to store your QA Test Environment API token. Otherwise, you may overwrite your production token, or inadvertently load the wrong token and have your requests rejected by the API server. If this happens, create a new client using** :py:func:`client_from_new_token() <finra.auth.client_from_new_token>` **or delete your tokens manually.**
 
-Set ``test_environment=True`` when creating a client to use this feature.
+Set ``test_environment=True`` when creating a client to use the QA Test Environment.
 
 .. code-block:: python
 
@@ -87,13 +87,13 @@ Set ``test_environment=True`` when creating a client to use this feature.
 
 If a dataset is queried that requires QA Test Environment credentials and the client is not configured for it, a :py:class:`finra.exceptions.QATestEnvException` will be raised.
 
-Mock datasets can also be used in the QA Test Environment by setting ``mock=True`` when creating a client. This will not disable :ref:`notification` and :ref:`submission` endpoints within the QA Test Environment.
+Mock datasets can also be accessed in the QA Test Environment by setting ``mock=True`` when creating a client. This setting will disable non-mock :ref:`query` endpoints while using the client, but it will not disable :ref:`notification` and :ref:`submission` endpoints.
 
 +++++++++++++++++
 Advanced Creation
 +++++++++++++++++
 
-Aside from :py:func:`get_client() <finra.auth.get_client>` there are additional routines for creating a client with specific behavior.
+Aside from :py:func:`get_client() <finra.auth.get_client>` there are additional routines with different behaviors for creating a client.
 
 ----------------------
 Load an Existing Token
@@ -105,7 +105,7 @@ To load an existing token and create a client with it, use :py:func:`client_from
 Fetch a New Token
 -----------------
 
-To force a new token to be fetched and create a client with it, use :py:func:`client_from_new_token() <finra.auth.client_from_new_token>`. This will write the token to the token path, and will overwrite any file that already exists at that path.
+To force a new token to be fetched and create a client with it, use :py:func:`client_from_new_token() <finra.auth.client_from_new_token>`. This will write the token to the ``token_path``, and will overwrite any file that already exists at that path.
 
 ----------------------------
 Customized Storage Functions

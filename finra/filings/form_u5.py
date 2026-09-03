@@ -32,7 +32,8 @@ _FilingType: TypeAlias = EnumStr[FilingType]
 class FormU5(BaseFilingOps):
     """
     Form U5 is the Uniform Termination Notice for Securities Industry
-    Registration.
+    Registration, which firms must file when a registered individual leaves
+    the company and details the reason for their departure.
     
     This class can be used to:
     

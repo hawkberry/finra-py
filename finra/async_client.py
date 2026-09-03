@@ -1,4 +1,5 @@
-from typing import Any, Optional
+from types import TracebackType
+from typing import Any, Optional, Self
 
 import httpx
 from authlib.integrations.httpx_client import AsyncOAuth2Client
@@ -47,28 +48,53 @@ class AsyncClient(BaseClient):
             )
         
     @_log_wrapper("GET")
-    async def _get_request(self, url, params, headers) -> httpx.Response:
+    async def _get_request(self,
+        url: str,
+        params: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ) -> httpx.Response:
         return await self._session.get(url, params=params, headers=headers)
     
     @_log_wrapper("POST")
-    async def _post_request(self, url, data, headers) -> httpx.Response:
+    async def _post_request(self,
+        url: str,
+        data: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ) -> httpx.Response:
         return await self._session.post(url, json=data, headers=headers)
     
     @_log_wrapper("PUT")
-    async def _put_request(self, url, data, headers) -> httpx.Response:
+    async def _put_request(self,
+        url: str,
+        data: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ) -> httpx.Response:
         return await self._session.put(url, json=data, headers=headers)
     
     @_log_wrapper("PATCH")
-    async def _patch_request(self, url, data, headers) -> httpx.Response:
+    async def _patch_request(self,
+        url: str,
+        data: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ) -> httpx.Response:
         return await self._session.patch(url, json=data, headers=headers)
     
     @_log_wrapper("DELETE")
-    async def _delete_request(self, url, _, headers) -> httpx.Response:
+    async def _delete_request(
+        self,
+        url: str,
+        _: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ) -> httpx.Response:
         return await self._session.delete(url, headers=headers)
     
     @_log_wrapper("GET RESOURCE") # request for pre-signed URLs
-    async def _get_resource_request(self, url, params, headers
-                                    ) -> httpx.Response:
+    async def _get_resource_request(
+        self,
+        url: str,
+        params: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ) -> httpx.Response:
         return await self._resource_session.get(
             url, params=params, headers=headers
             )
@@ -99,11 +125,25 @@ class AsyncClient(BaseClient):
         if getattr(self, "_resource_session", None):
             await self._resource_session.aclose()
         
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
+        """Enter asynchronous context to automatically close client on exit"""
         return self
     
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(
+        self,
+        exc_type: Optional[type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType]
+        ) -> None:
+        """
+        Exit asynchronous context
+        
+        :param exc_type:
+        :param exc_value:
+        :param traceback:
+        """
         await self.close()
+        return
 
 _add_client_init_docs(
     AsyncClient,

@@ -7,23 +7,22 @@ from enum import Enum
 class Endpoint(Enum):
     """Resource Endpoints"""
     
-    #: String: Provides the data for the dataset. Advanced selection criteria,
-    #: including filters, may be available depending on the dataset.
+    #: String: Returns records from the selected dataset. Available filtering
+    #: and other selection options depend on the dataset.
     DATA = "data"
     
-    #: String: Provides the metadata for the dataset, including which fields
-    #: are available, the data type of the field, and a description. The fields
-    #: from this endpoint should match the members of a dataset's enum.
+    #: String: Returns the dataset's field definitions, including field names,
+    #: data types, and descriptions. The fields returned by this endpoint
+    #: correspond to the members defined by the dataset enum.
     METADATA = "metadata"
     
-    #: String: Provides unique values, and versions of those values, for the
-    #: partition field(s) of a dataset
+    #: String: Returns the available values and versions for the dataset's
+    #: partition fields
     PARTITIONS = "partitions"
     
-    #: String: Provides a comprehensive list of all Query API datasets,
-    #: including version information, whether each dataset is currently active,
-    #: and the various capabilities and features supported by each dataset.
-    #: Responses follow the `Datasets schema
+    #: String: Returns information about the dataset, including versions, 
+    #: status, supported data formats and API request methods, and other
+    #: properties. The response conforms to the `Datasets schema
     #: <https://schemas.api.finra.org/FINRAApiPlatformDatasetsDetail.json>`__.
     DATASETS = "datasets"
 
@@ -32,37 +31,32 @@ class Endpoint(Enum):
 # DATASETS - QUERY API GROUPS
 
 class Group(Enum):
-    """Dataset API groups returned by :py:meth:`BaseClient.get_datasets`"""
+    """
+    Query API dataset groups returned by :py:meth:`BaseClient.get_datasets`
+    """
     
-    #: String: OTC Market API group (also known as the Equity group). These
-    #: datasets provide access to Over-the-Counter (OTC) trade and equity data.
+    #: String: Datasets covering OTC equity and trade data
     EQUITY = "otcMarket"
     
-    #: String: Fixed Income API group. These datasets provide access to
-    #: Over-the-Counter (OTC) secondary market transaction data for fixed
-    #: income securities as reported to TRACE.
+    #: String: Datasets covering OTC transactions in fixed-income securities
+    #: reported to TRACE
     FIXED_INCOME = "fixedIncomeMarket"
     
-    #: String: FINRA API group. These datasets include data and content
-    #: typically found on FINRA.org including the FINRA Rulebook.
+    #: String: Datasets covering FINRA-related content, including Rulebook
+    #: information
     FINRA = "finra"
     
-    #: String: Firm API group. These datasets provide access to information
-    #: that is specific to individual FINRA member firms, some of which are
-    #: involved in registration operations and only accessible by the firm
-    #: itself.
+    #: String: Datasets covering information associated with individual member
+    #: firms, including some registration-related datasets that are only
+    #: accessible by the member firm
     FIRM = "firm"
     
-    #: String: Registration API group. These datasets provide member firms
-    #: access to their registration records as stored in the Central
-    #: Registration Depository (CRD).
+    #: String: Datasets for member firms covering their registration records
+    #: stored in CRD
     REGISTRATION = "registration"
     
-    #: String: TRACE Report Card API group. These datasets provide access to
-    #: FINRA TRACE Report Cards available via FINRA Report Center. Report Cards
-    #: help firms detect potential compliance issues early and cover a variety
-    #: of topics and rule sets. Learn more about `TRACE Report Cards
-    #: <https://www.finra.org/compliance-tools/report-center>`__.
+    #: String: Datasets for member firms covering TRACE Report Card information
+    #: across a range of compliance topics and rule sets
     REPORT_CARD = "reportcard"
 
 
@@ -76,7 +70,7 @@ class ATSBlockSummary(Enum):
     #: Format: yyyy-MM-dd
     MONTH_START_DATE = "monthStartDate"
     
-    #: String: ATS MPID
+    #: String: ATS Market Participant Identifier
     MPID = "MPID"
     
     #: String: ATS Market Participant name
@@ -490,7 +484,7 @@ class WeeklySummary(Enum):
     #: Number: Firm CRD Number
     FIRM_CRD_NUMBER = "firmCRDNumber"
     
-    #: String: ATS/OTC identifier
+    #: String: ATS/OTC Market Participant Identifier
     MPID = "MPID"
     
     #: String: Company name of the ATS/OTC or De Minimis Firm

@@ -254,3 +254,6 @@ class TestFilter(unittest.TestCase):
             'values': [DATE_ISO],
             }]}, self.filter.build()))
     
+
+if __name__ == "__main__": # pragma: no cover
+    unittest.main()

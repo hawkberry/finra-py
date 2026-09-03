@@ -7,13 +7,13 @@ __all__ = ["TokenManager"]
 
 class TokenManager:
     """
-    Provides the functionality required to maintain and update token metadata
+    Manages metadata associated with the client's authentication token
     
-    :param token: The token to wrap in metadata
-    :param created_timestamp: Timestamp at which this token was initially
-        created. This timestamp does not change when the token is updated.
-    :param token_write_func: Function that accepts a raw token and writes it to
-        disk or other persistent storage
+    :param token: The raw token managed by this object
+    :param created_timestamp: The timestamp when the token was first created.
+        This value does not change when the token is updated.
+    :param token_write_func: Callable that accepts the raw token as an argument
+        and writes it to disk or another storage location
     """
     
     def __init__(
@@ -28,9 +28,7 @@ class TokenManager:
         
     @property
     def token_age(self) -> int:
-        """
-        Returns the number of seconds since the token was initially created
-        """
+        """Returns the number of seconds since the token was created"""
         return int(time.time()) - self.created_timestamp
     
     @property
@@ -51,9 +49,8 @@ class TokenManager:
     
     def update_token(self, token: dict[str, Any], *args, **kwds) -> None:
         """
-        Returns a version of the write function that wraps the ``token`` in
-        additional metadata, and writes it to disk or some other persistent
-        storage location
+        Wraps the ``token`` with metadata and passes it to the
+        ``token_write_func`` to write it to disk or some other storage location
         
         :param token: The raw token to wrap in metadata
         :param args: Arguments for the ``token_write_func``

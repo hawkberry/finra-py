@@ -72,14 +72,14 @@ _RepAccessType: TypeAlias = EnumStr[RepAccessType]
 
 class FormU4(BaseFilingOps):
     """
-    Form U4 establishes registration of representatives of broker-dealers,
-    investment advisers with appropriate jurisdictions and/or SROs.
+    Form U4 is used to register representatives of broker-dealers and
+    investment advisers with the applicable jurisdictions and/or SROs.
     
-    The `Individual Pre-Registration Search v2
-    <https://developer.finra.org/
-    docs#query_api-registration-individual_pre_registration_search_v2>`__
-    dataset has all the information the CRD system has on an individual, which
-    firms can use to pre-fill Form U4 for a filing.
+    The :py:meth:`BaseClient.get_u4_form_prefill()
+    <finra.base_client.BaseClient.get_u4_form_prefill>` dataset provides
+    individual registration data that can be used to populate Form U4 fields
+    when submitting a filing with :py:attr:`FilingType.INITIAL`. The dataset's
+    response has the same format as the Form U4 initial filing.
     
     This class can be used to:
     

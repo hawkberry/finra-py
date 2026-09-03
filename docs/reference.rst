@@ -9,6 +9,7 @@ finra.async\_client
    :members:
    :show-inheritance:
    :undoc-members:
+   :special-members: __aenter__,__aexit__
 
 finra.auth
 ----------
@@ -33,6 +34,7 @@ finra.client
    :members:
    :show-inheritance:
    :undoc-members:
+   :special-members: __enter__,__exit__
 
 finra.debug
 -----------

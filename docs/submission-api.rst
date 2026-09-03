@@ -8,7 +8,7 @@ Submission API
 
 If you haven't read :ref:`getting_started`, :ref:`auth` and :ref:`client`, please start by reading those sections.
 
-The `Submission API <https://developer.finra.org/docs#submission_api>`__ allows third-party systems to automate compliance operations by submitting regulatory filings and other data directly to FINRA.
+The `Submission API <https://developer.finra.org/docs#submission_api>`__ allows applications to create and update regulatory filings and other submission data to FINRA.
 
 Each filing has a single method for submitting, validating and retrieving filing data. All endpoints require Firm credentials.
  
@@ -26,21 +26,21 @@ Each of the following classes corresponds to a specific filing. They are useful 
 - :py:class:`FormU5 <finra.filings.form_u5.FormU5>`
 - :py:class:`NonRegisteredFingerprint <finra.filings.non_registered_fingerprint.NonRegisteredFingerprint>`
   
-.. _request_flow:
+.. _request_lifecycle:
 
-++++++++++++
-Request Flow
-++++++++++++
++++++++++++++++++
+Request Lifecycle
++++++++++++++++++
 
 Each time a submission request is created, the API generates a universally unique identifier (UUID) that is used to uniquely identify the submission request. This UUID is returned in the body of the ``httpx.Response`` and referred to as the ``request_id`` throughout the documentation. It can be used in subsequent requests to update, delete or retrieve the filing. The ``request_id`` can be extracted using :py:func:`extract_filing_request_id() <finra.utils.extract_filing_request_id>`. To retrieve the results for the request, pass the ``request_id`` back to the filing's submission method as an argument.
 
 Submission requests are processed synchronously or asynchronously depending on the filing. Synchronous submissions are processed immediately, and will return the result status immediately provided there are no server-side validation errors. The only filing that currently supports synchronous submission requests is :py:class:`CreateIndividual <finra.filings.create_individual.CreateIndividual>`. All other submission filings are asynchronous.
 
-For asynchronous submissions, the API will process the request in the background, as long as the submission passes the server-side validation check. The submission response will contain the ``request_id``, but it does not include information on the processing itself, which must be retrieved in a subsequent request using the ``request_id``. Background processing can take from 5 to 15 minutes when the :ref:`filing_status` is :py:attr:`FilingStatus.SUBMITTED <finra.filings.base_filing.BaseFilingOps.FilingStatus.SUBMITTED>`, and FINRA asks users to wait at least this long before requesting the result status.
+For asynchronous submissions, the API will process the request in the background, as long as the submission passes the server-side validation check. The submission response will contain the ``request_id``, but it does not include information on the processing itself, which must be retrieved in a subsequent request using the ``request_id``. Background processing can take from 5 to 15 minutes when the :ref:`filing_status` is :py:attr:`FilingStatus.SUBMITTED <finra.filings.base_filing.BaseFilingOps.FilingStatus.SUBMITTED>`. FINRA asks users to wait at least this long before requesting the result status.
 
 If a server-side validation failure does occur, the ``filing_status`` will be set to ``DRAFT``, if the filing supports it. Information related to the validation error can be retrieved by calling the submission method with the ``request_id``. The response will contain a ``result_status`` field with the value ``FAILED_VALIDATION``, which can be extracted using :py:func:`extract_filing_result_status() <finra.utils.extract_filing_result_status>`. The ``result_status_description`` field will include any error and warning messages, which can be extracted using :py:func:`extract_filing_result_status_desc() <finra.utils.extract_filing_result_status_desc>`.
 
-Read more about the `Overall Flow <https://developer.finra.org/docs#submission_api-api_basics-overall_flow>`__ of Submission API requests in the official documentation.
+Read more about the `Overall Flow <https://developer.finra.org/docs#submission_api-api_basics-overall_flow>`__ for submission requests in the official API documentation.
 
 .. _filing_status:
 
@@ -277,7 +277,7 @@ The following code block uses operations to modify the example filing data:
            )                                                  # no value
   )
 
-Read more about operations in `Partial Updates <https://developer.finra.org/docs#submission_api-api_basics-partial_update>`__ in the official Submission API documentation.
+Read more about operations for `Partial Updates <https://developer.finra.org/docs#submission_api-api_basics-partial_update>`__ in the official API documentation.
 
 ++++++++++++
 Update Draft
@@ -376,7 +376,7 @@ To perform client-side validation within a client's submission method, set ``val
   
   c.schema_registry.clear()  # clear local store, free up memory
 
-The :py:class:`Validator <finra.filings.validator.Validator>` class can also be used outside the client. However, it still requires a client to fetch the schemas. This can be useful to validate the filing data without submitting it to the API. The schema registry can also be managed outside the validator, which enables it to be reused to prevent redundant network operations; many schema parts are shared across filings.
+The :py:class:`Validator <finra.filings.validator.Validator>` class can also be used outside the client. However, it still requires a client to fetch the schemas. This can be useful to validate the filing data without submitting it to the API. The schema registry can also be managed outside the validator, which enables it to be reused to prevent redundant network operations; many schema parts are shared across filings. The validator provides two methods for determining whether a JSON object conforms to a JSON Schema: :py:meth:`Validator.is_valid <finra.filings.validator.Validator.is_valid>` and :py:meth:`Validator.validate <finra.filings.validator.Validator.validate>`.
 
 .. code-block:: python
 
@@ -397,7 +397,7 @@ The :py:class:`Validator <finra.filings.validator.Validator>` class can also be 
       schema_registry=schema_registry           # optional, reusable
       )
   
-  v.validate(obj)       # client-side validation without submission to the API
+  v.validate(obj)  		   # raises jsonschema.ValidationError on fail
   
   schema_registry.clear()  # cleared schemas will need to be re-fetched
 

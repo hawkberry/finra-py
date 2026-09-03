@@ -31,14 +31,14 @@ _FilingType: TypeAlias = EnumStr[FilingType]
 
 class FormBR(BaseFilingOps):
     """
-    Form BR establishes registration of a branch office with FINRA, the New
-    York Stock Exchange (NYSE) and States that require branch registration.
+    Form BR is used to register a branch office with FINRA, the New York
+    Stock Exchange (NYSE), and States that require branch registration.
     
     The `Composite Branch
     <https://developer.finra.org/
-    docs#query_api-registration-composite_branch>`__
-    dataset has all the information the CRD system has on a firm's branches,
-    which firms can use to pre-fill Form BR for a filing.
+    docs#query_api-registration-composite_branch>`__ dataset provides branch
+    registration data that can used to populate Form BR fields when submitting
+    a filing.
     
     This class can be used to:
     

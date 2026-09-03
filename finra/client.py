@@ -1,4 +1,5 @@
-from typing import Any, Optional
+from types import TracebackType
+from typing import Any, Optional, Self
 
 import httpx
 from authlib.integrations.httpx_client import OAuth2Client
@@ -53,27 +54,52 @@ class Client(BaseClient):
         return self._schema_registry
     
     @_log_wrapper("GET")
-    def _get_request(self, url, params, headers) -> httpx.Response:
+    def _get_request(self,
+        url: str,
+        params: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ) -> httpx.Response:
         return self._session.get(url, params=params, headers=headers)
     
     @_log_wrapper("POST")
-    def _post_request(self, url, data, headers) -> httpx.Response:
+    def _post_request(self,
+        url: str,
+        data: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ) -> httpx.Response:
         return self._session.post(url, json=data, headers=headers)
     
     @_log_wrapper("PUT")
-    def _put_request(self, url, data, headers) -> httpx.Response:
+    def _put_request(self,
+        url: str,
+        data: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ) -> httpx.Response:
         return self._session.put(url, json=data, headers=headers)
     
     @_log_wrapper("PATCH")
-    def _patch_request(self, url, data, headers) -> httpx.Response:
+    def _patch_request(self,
+        url: str,
+        data: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ) -> httpx.Response:
         return self._session.patch(url, json=data, headers=headers)
     
     @_log_wrapper("DELETE")
-    def _delete_request(self, url, _, headers) -> httpx.Response:
+    def _delete_request(self,
+        url: str,
+        _: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ) -> httpx.Response:
         return self._session.delete(url, headers=headers)
     
     @_log_wrapper("GET RESOURCE") # request for pre-signed URLs
-    def _get_resource_request(self, url, params, headers) -> httpx.Response:
+    def _get_resource_request(
+        self,
+        url: str,
+        params: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ) -> httpx.Response:
         return self._resource_session.get(url, params=params, headers=headers)
     
     def _set_resource_session(self) -> None:
@@ -99,11 +125,25 @@ class Client(BaseClient):
         if getattr(self, "_resource_session", None):
             self._resource_session.close()
         
-    def __enter__(self):
+    def __enter__(self) -> Self:
+        """Enter context to automatically close client on exit"""
         return self
     
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: Optional[type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType]
+        ) -> None:
+        """
+        Exit context
+        
+        :param exc_type:
+        :param exc_value:
+        :param traceback:
+        """
         self.close()
+        return
 
 _add_client_init_docs(
     Client,

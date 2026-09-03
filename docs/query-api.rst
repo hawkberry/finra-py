@@ -10,7 +10,7 @@ If you haven't read :ref:`getting_started`, :ref:`auth` and :ref:`client`, pleas
 
 The `Query API <https://developer.finra.org/docs#query_api>`__ datasets belong to one of several API groups. Each dataset has its own method for requesting data. Some datasets have access restrictions requiring specific credential types. See each dataset's query method for exact requirements.
 
-The **OTC Market** group (also known as the **Equity** group) datasets that provide access to Over-the-Counter (OTC) trade and equity data:
+The **Equity** group contains datasets covering Over-the-Counter (OTC) trade and equity data:
 
 - :py:meth:`Client.get_ats_block_summary() <finra.base_client.BaseClient.get_ats_block_summary>`
 - :py:meth:`Client.get_otc_block_summary() <finra.base_client.BaseClient.get_otc_block_summary>`
@@ -22,7 +22,7 @@ The **OTC Market** group (also known as the **Equity** group) datasets that prov
 - :py:meth:`Client.get_monthly_summary() <finra.base_client.BaseClient.get_monthly_summary>`
 - :py:meth:`Client.get_otc_daily_list() <finra.base_client.BaseClient.get_otc_daily_list>`
 
-The **Fixed Income** group datasets provide access to Over-the-Counter secondary market transaction data for fixed income securities as reported to TRACE:
+The **Fixed Income** group contains datasets covering Over-the-Counter (OTC) transactions in fixed-income securities reported to TRACE:
 
 - :py:meth:`Client.get_agency_tba_pricing() <finra.base_client.BaseClient.get_agency_tba_pricing>`
 - :py:meth:`Client.get_agency_cmo_pricing() <finra.base_client.BaseClient.get_agency_cmo_pricing>`
@@ -47,12 +47,12 @@ The **Fixed Income** group datasets provide access to Over-the-Counter secondary
 - :py:meth:`Client.get_treasury_monthly_aggregates() <finra.base_client.BaseClient.get_treasury_monthly_aggregates>`
 - :py:meth:`Client.get_weekly_cmbs_pricing() <finra.base_client.BaseClient.get_weekly_cmbs_pricing>`
 
-The **FINRA** group datasets include data and content typically found on FINRA.org including the FINRA Rulebook:
+The **FINRA** group contains datasets covering FINRA-related content, including the FINRA Rulebook:
 
 - :py:meth:`Client.get_finra_rulebook() <finra.base_client.BaseClient.get_finra_rulebook>`
 - :py:meth:`Client.get_firm_registration_types() <finra.base_client.BaseClient.get_firm_registration_types>`
 
-The **Firm** group datasets provide access to information that is specific to individual FINRA member firms, some of which are involved in registration operations and only accessible by the firm itself:
+The **Firm** group contains datasets covering information associated with individual member firms, including some registration-related datasets that are only accessible by the member firm:
 
 - :py:meth:`Client.get_firm_customer_complaints() <finra.base_client.BaseClient.get_firm_customer_complaints>`
 - :py:meth:`Client.get_firm_disclosures() <finra.base_client.BaseClient.get_firm_disclosures>`
@@ -60,7 +60,7 @@ The **Firm** group datasets provide access to information that is specific to in
 - :py:meth:`Client.get_firm_registration_status_history() <finra.base_client.BaseClient.get_firm_registration_status_history>`
 - :py:meth:`Client.get_firm_registrations() <finra.base_client.BaseClient.get_firm_registrations>`
 
-The **Registration** group datasets provide member firms access to their registration records as stored in the Central Registration Depository (CRD):
+The **Registration** group contains datasets for member firms covering their registration records stored in the Central Registration Depository (CRD):
 
 - :py:meth:`Client.get_accounting() <finra.base_client.BaseClient.get_accounting>`
 - :py:meth:`Client.get_altered_ssn_and_dob() <finra.base_client.BaseClient.get_altered_ssn_and_dob>`
@@ -70,6 +70,7 @@ The **Registration** group datasets provide member firms access to their registr
 - :py:meth:`Client.get_composite_branch() <finra.base_client.BaseClient.get_composite_branch>`
 - :py:meth:`Client.get_composite_individual() <finra.base_client.BaseClient.get_composite_individual>`
 - :py:meth:`Client.get_composite_individual_seed() <finra.base_client.BaseClient.get_composite_individual_seed>`
+- :py:meth:`Client.get_finpro_tasks() <finra.base_client.BaseClient.get_finpro_tasks>`
 - :py:meth:`Client.get_individual_delta() <finra.base_client.BaseClient.get_individual_delta>`
 - :py:meth:`Client.get_individual_fingerprint() <finra.base_client.BaseClient.get_individual_fingerprint>`
 - :py:meth:`Client.get_individual_pre_registration_search() <finra.base_client.BaseClient.get_individual_pre_registration_search>`
@@ -79,7 +80,7 @@ The **Registration** group datasets provide member firms access to their registr
 - :py:meth:`Client.get_registered_individual_search() <finra.base_client.BaseClient.get_registered_individual_search>`
 - :py:meth:`Client.get_u4_form_prefill() <finra.base_client.BaseClient.get_u4_form_prefill>`
 
-The **TRACE Report Card** group datasets provide access to firms to detect potential compliance issues early and cover a variety of topics and rule sets:
+The **Report Card** group contains datasets for member firms covering TRACE Report Card information across a range of compliance topics and rule sets:
 
 - :py:meth:`Client.get_trace_agency_debt_details() <finra.base_client.BaseClient.get_trace_agency_debt_details>`
 - :py:meth:`Client.get_trace_agency_debt_summary() <finra.base_client.BaseClient.get_trace_agency_debt_summary>`
@@ -152,7 +153,7 @@ Some datasets do not support :py:attr:`Endpoint.PARTITIONS <finra.base_client.Ba
 Datasets
 --------
 
-Almost all datasets support the :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` endpoint. It can be used to retrieve information about the capabilities and features supported by a dataset, including API request methods, data format, versioning, and whether or not it is currently active. To request information about a specific dataset use the dataset's query method.
+Almost all datasets support the :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` endpoint. It can be used to retrieve information about a dataset, including versions, status, supported data formats and API request methods, and other properties. To request information about a specific dataset use the dataset's query method.
 
 .. code-block:: python
 
@@ -317,94 +318,28 @@ Sorting is not supported on historical datasets, for example, when calling :py:m
 
 Read more about `Sorting Restrictions <https://developer.finra.org/docs#query_api-api_basics-sorting_restrictions>`__ in the official API documentation.
 
-.. _async_requests:
-
-+++++++++++++++++++++
-Asynchronous Requests
-+++++++++++++++++++++
-
-Asynchronous requests are useful when accessing a large number of records. They allow more records to be obtained per API request while reducing the load on the platform. Datasets that support the asynchronous request flow described below have an ``async_request`` keyword in their query method.
-
-Asynchronous requests involve making (at least) three separate requests to the API. The first leg of an asynchronous operation is to call the dataset's query method with the keyword argument ``async_request=True``. The response will include a status code, but it will not include the requested data in the response body. Instead, the response will include a ``Location`` header that contains the URL to use for the second leg of the operation to check the status of the request. To simplify handling the ``Location`` header, pass the ``httpx.Response`` object from the first leg to the :py:func:`extract_location() <finra.utils.extract_location>` function as an argument, which will return the check status URL.
-
-.. code-block:: python
-
-  from finra import utils
-  
-  r = c.get_consolidated_short_interest(async_request=True)  # first leg
-  
-  r.raise_for_status()
-  
-  assert r.status_code == 202      # status code should be 202
-  
-  check_status_link = utils.extract_location(r)  # URL for second leg
-
-For the second leg, pass the check status URL to :py:meth:`Client.get_async_request_status() <finra.base_client.BaseClient.get_async_request_status>` to request the status of the results. The result status can be extracted from the response using :py:func:`extract_status() <finra.utils.extract_status>`. If the results are still being processed, the response will return with a status code of ``202``, and the result status will have a value of ``pending``. When the response returns a status code of ``200``, the result status will have a value of ``complete``, indicating that the result data is ready. The result URL can then be extracted from the response using the :py:func:`extract_result_link() <finra.utils.extract_result_link>` function.
-
-.. code-block:: python
-
-  import time
-  
-  while True:                      # keep checking status until "complete"
-      r = c.get_async_request_status(check_status_link)   # second leg
-      
-      r.raise_for_status()
-      
-      if r.status_code == 200:     # result status is "complete"
-          # assert utils.extract_status(r) == "complete"  # expected status
-          break
-      
-      assert r.status_code == 202  # result status is "pending"
-      # assert utils.extract_status(r) == "pending"       # expected status
-      
-      time.sleep(60)  # FINRA recommends polling no more than once per minute
-      
-  result_link = utils.extract_result_link(r)  # URL for third leg
-
-When the result status is ``complete``, the response body will contain several other fields. A timezone-aware UTC datetime object representing the expiration of the result link can be extracted using the :py:func:`extract_expires() <finra.utils.extract_expires>` function. And the ``request_id`` field containing the FINRA UUID used to uniquely identify the request can be extracted using the :py:func:`extract_request_id() <finra.utils.extract_request_id>` function.
-
-The third and final leg of the asynchronous request operation involves fetching the result by passing the result URL to :py:meth:`Client.get_async_result() <finra.base_client.BaseClient.get_async_result>`. The result URL is *pre-signed*, meaning the caller's authentication token is not used to access the result data. Any caller with this URL can fetch the result, however it will expire 2 hours after a status code of ``200`` is received from the check status URL, or 24 hours after the result dataset is created, whichever is earlier.
-
-.. code-block:: python
-
-  r = c.get_async_result(result_link)  # third leg, get the data
-  
-  r.raise_for_status()
-  
-  data = r.json()                      # this is the requested dataset
-
-Read more about `Request Types <https://developer.finra.org/docs#query_api-api_basics-api_request_types>`__ in the official API documentation.
-
-.. _native_async_requests:
-
------------------------
-Natively Async Requests
------------------------
-
-A few datasets do not follow the operation flow described above, and instead handle the second leg of the asynchronous request natively through their own API endpoint. For these datasets, extract the ``request_id`` from the response in the first leg, and pass it back to the same query method to check the status of the request. Notable examples that implement this pattern include :py:meth:`Client.get_composite_individual_seed() <finra.base_client.BaseClient.get_composite_individual_seed>` and :py:meth:`Client.get_firm_renewal() <finra.base_client.BaseClient.get_firm_renewal>` in the Registration group, as well as most of the :ref:`submission` endpoints. See the client's reference documentation for details about specific datasets.
-
 .. _large_datasets:
 
-+++++++++++++++++++++++++++
-Working with Large Datasets
-+++++++++++++++++++++++++++
++++++++++++++++++++++++++
+Retrieving Large Datasets
++++++++++++++++++++++++++
 
-When working with large datasets that contain more records than the **maximum record limit (5,000 synchronous / 100,000 asynchronous)** an application must be designed to access the data in tranches that honor the `Platform Usage Limits <https://developer.finra.org/docs#getting_started-api_platform_basics-platform_usage_limits>`__.
+A large dataset requires retrieving more records than allowed by the **maximum record limit (5,000 synchronous / 100,000 asynchronous)** for a single API request. To retrieve a large dataset, an application must make multiple requests while remaining within the `Platform Usage Limits <https://developer.finra.org/docs#getting_started-api_platform_basics-platform_usage_limits>`__.
 
-The examples in this section are intended to demonstrate specific API concepts, not as production routines. In almost all cases, you should write your own routine that suits your application's needs.
+The examples in this section are intended to demonstrate specific API concepts that enable data access, not as production routines. In almost all cases, you should write your own routine that suits your application's needs.
 
 ----------
 Pagination
 ----------
 
-To facilitate accessing data in tranches, many datasets support pagination. These datasets have ``limit`` and ``offset`` keywords in their query method:
+Many datasets support pagination through the ``limit`` and ``offset`` keywords in their query methods:
 
 - ``limit`` : the number of records to request (default: 1,000)
-- ``offset`` : the record number to start with (non-inclusive)
+- ``offset`` : the record number to start with (exclusive)
 
-For example, if the ``offset`` is 0 and the ``limit`` is 20, then records 1 to 20 are returned for a total of 20 records. If the ``offset`` is 10 and the ``limit`` is 10, then records 11 to 20 are returned.
+The ``offset`` parameter is exclusive, which means that if the ``offset`` is 0 and the ``limit`` is 100, then records 1 through 100 will be returned. In general, the API will return records ``offset + 1`` through ``offset + limit``.
 
-The ``offset`` parameter has a maximum value of 500,000. The effect of this constraint is that a maximum of 505,000 records can be accessed synchronously, and a maximum of 600,000 records can be accessed asynchronously, without the use of additional ``filters``. For example, the :py:class:`WeeklySummary <finra.base_client.BaseClient.WeeklySummary>` dataset contains millions of records. Because of the 500,000 maximum ``offset``, it is not possible to access all records simply by increasing the ``offset`` parameter until all data is accessed.
+The ``offset`` has a maximum value of 500,000. As a consequence, pagination without additional filters can retrieve at most 505,000 records using synchronous requests, or 600,000 records using asynchronous requests. For datasets that contain more records than this, such as :py:class:`WeeklySummary <finra.base_client.BaseClient.WeeklySummary>`, increasing the ``offset`` alone cannot retrieve the complete dataset.
 
 Instead, ``filters`` must be used together with the ``limit`` and ``offset`` parameters to reduce the size of the result set. For example, the :py:class:`WeeklySummary <finra.base_client.BaseClient.WeeklySummary>` dataset can be filtered by its partition fields, allowing each partition to be paginated independently without exceeding the API's maximum ``offset`` value.
 
@@ -412,7 +347,7 @@ Instead, ``filters`` must be used together with the ``limit`` and ``offset`` par
 Iterate Partitions
 ------------------
 
-Many large datasets require the use of partition fields to access and sort tranches of data. To fetch data in sorted order, a request must include a compare filter on each of the partition fields for a dataset (see :ref:`sorting`). Most datasets only have a single partition field, however :py:class:`WeeklySummary <finra.base_client.BaseClient.WeeklySummary>` is so large that it has two: :py:attr:`WeeklySummary.WEEK_START_DATE <finra.base_client.BaseClient.WeeklySummary.WEEK_START_DATE>` and :py:attr:`WeeklySummary.TIER_IDENTIFIER <finra.base_client.BaseClient.WeeklySummary.TIER_IDENTIFIER>`.
+Many large datasets require the use of partition fields to access and sort data. To fetch data in sorted order, a request must include a compare filter on each of the partition fields for a dataset (see :ref:`sorting`). Most datasets only have a single partition field, however :py:class:`WeeklySummary <finra.base_client.BaseClient.WeeklySummary>` is so large that it has two: :py:attr:`WeeklySummary.WEEK_START_DATE <finra.base_client.BaseClient.WeeklySummary.WEEK_START_DATE>` and :py:attr:`WeeklySummary.TIER_IDENTIFIER <finra.base_client.BaseClient.WeeklySummary.TIER_IDENTIFIER>`.
 
 The following example fetches data for all ``T1`` securities with more than 10,000 weekly trades, with week start dates going back through 2026. It returns the data sorted first by number of trades in descending order, and then by symbol in ascending order.
 
@@ -507,7 +442,7 @@ However, this query pattern does not guarantee that all matching records will be
 
 - adapt pagination variables using response headers (see the next example)
 - reduce the payload size by requesting fewer fields
-- reduce the payload size by requesting ``text/plain`` content
+- reduce the payload size by requesting ``text/plain`` content type, if supported
 - use asynchronous requests, which do not have a maximum payload size
 
 -------------------
@@ -560,6 +495,72 @@ The :py:mod:`finra.utils` module provides functions to simplify handling respons
           break
 
 Three additional response headers may also be useful: see :py:func:`extract_response_payload_max_size() <finra.utils.extract_response_payload_max_size>`, :py:func:`extract_total_records_on_page() <finra.utils.extract_total_records_on_page>`, and :py:func:`extract_finra_api_request_id() <finra.utils.extract_finra_api_request_id>`.
+
+.. _async_requests:
+
++++++++++++++++++++++
+Asynchronous Requests
++++++++++++++++++++++
+
+Asynchronous requests are useful for retrieving a large number of records. They can return more records per request, which means a large dataset can be retrieved using fewer API calls. Datasets that support the asynchronous request flow described below have an ``async_request`` keyword in their query method.
+
+Asynchronous requests involve making (at least) three separate requests to the API. The first leg of an asynchronous operation is to call the dataset's query method with the keyword argument ``async_request=True``. The response will include a status code, but it will not include the requested data in the response body. Instead, the response will include a ``Location`` header that contains the URL to use for the second leg of the operation to check the status of the request. To simplify handling the ``Location`` header, pass the ``httpx.Response`` object from the first leg to the :py:func:`extract_location() <finra.utils.extract_location>` function as an argument, which will return the check status URL.
+
+.. code-block:: python
+
+  from finra import utils
+  
+  r = c.get_consolidated_short_interest(async_request=True)  # first leg
+  
+  r.raise_for_status()
+  
+  assert r.status_code == 202      # status code should be 202
+  
+  check_status_link = utils.extract_location(r)  # URL for second leg
+
+For the second leg, pass the check status URL to :py:meth:`Client.get_async_request_status() <finra.base_client.BaseClient.get_async_request_status>` to request the status of the results. The result status can be extracted from the response using :py:func:`extract_status() <finra.utils.extract_status>`. If the results are still being processed, the response will return with a status code of ``202``, and the result status will have a value of ``pending``. When the response returns a status code of ``200``, the result status will have a value of ``complete``, indicating that the result data is ready. The result URL can then be extracted from the response using the :py:func:`extract_result_link() <finra.utils.extract_result_link>` function.
+
+.. code-block:: python
+
+  import time
+  
+  while True:                      # keep checking status until "complete"
+      r = c.get_async_request_status(check_status_link)   # second leg
+      
+      r.raise_for_status()
+      
+      if r.status_code == 200:     # result status is "complete"
+          # assert utils.extract_status(r) == "complete"  # expected status
+          break
+      
+      assert r.status_code == 202  # result status is "pending"
+      # assert utils.extract_status(r) == "pending"       # expected status
+      
+      time.sleep(60)  # FINRA recommends polling no more than once per minute
+      
+  result_link = utils.extract_result_link(r)  # URL for third leg
+
+When the result status is ``complete``, the response body will contain several other fields. A timezone-aware UTC datetime object representing the expiration of the result link can be extracted using the :py:func:`extract_expires() <finra.utils.extract_expires>` function. And the ``request_id`` field containing the FINRA UUID used to uniquely identify the request can be extracted using the :py:func:`extract_request_id() <finra.utils.extract_request_id>` function.
+
+The third and final leg of the asynchronous request operation involves fetching the result by passing the result URL to :py:meth:`Client.get_async_result() <finra.base_client.BaseClient.get_async_result>`. The result URL is *pre-signed*, meaning the caller's authentication token is not used to access the result data. Any caller with this URL can fetch the result, however it will expire 2 hours after a status code of ``200`` is received from the check status URL, or 24 hours after the result dataset is created, whichever is earlier.
+
+.. code-block:: python
+
+  r = c.get_async_result(result_link)  # third leg, get the data
+  
+  r.raise_for_status()
+  
+  data = r.json()                      # this is the requested dataset
+
+Read more about `Request Types <https://developer.finra.org/docs#query_api-api_basics-api_request_types>`__ in the official API documentation.
+
+.. _native_async_requests:
+
+-----------------------
+Natively Async Requests
+-----------------------
+
+A few datasets do not follow the operation flow described above, and instead handle the second leg of the asynchronous request natively through their own API endpoint. For these datasets, extract the ``request_id`` from the response in the first leg, and pass it back to the same query method to check the status of the request. Notable examples that implement this pattern include :py:meth:`Client.get_composite_individual_seed() <finra.base_client.BaseClient.get_composite_individual_seed>` in the Registration group, as well as most of the :ref:`submission` endpoints. See the client's reference documentation for details about specific datasets.
 
 .. _content_types:
 

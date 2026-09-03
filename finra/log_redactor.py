@@ -18,8 +18,8 @@ __all__ = [
 # Class for building a global singleton for redacting secrets in logs
 class _LogRedactor:
     """
-    Collects strings that should not be emitted and replaces them with safe
-    placeholders
+    Maintains values that must be removed from log output and substitutes
+    redaction labels for them
     """
     
     def __init__(self):
@@ -28,7 +28,8 @@ class _LogRedactor:
         
     def register(self, s: Any, label: str) -> None:
         """
-        Registers a string that should not be logged and its replacement label
+        Adds a value to the redaction registry and associates it with the
+        provided label
         
         :param s:
         :param label:
@@ -56,8 +57,8 @@ class _LogRedactor:
     
     def redact(self, msg: str) -> str:
         """
-        Scans the string for secret strings and returns a sanitized version
-        with the secrets replaced with placeholders
+        Replaces registered values in the provided message string with their
+        corresponding redaction labels
         
         :param msg:
         """
@@ -162,10 +163,11 @@ def register_redactions(
     whitelist: Optional[list[str]]=None
     ) -> None:
     """
-    Recursively iterates through the leaf elements of JSON  and registers
-    elements for redaction with keys matching a bad pattern blacklist. Any key
-    containing an element of ``bad_patterns`` will be redacted, unless it is
-    specified exactly in ``whitelist``. Pattern matching is case-insensitive.
+    Recursively walk a JSON object, and registers leaf values for redaction if
+    their corresponding keys match a string in ``bad_patterns``. Any key
+    containing a string in ``bad_patterns`` will be matched, unless it is
+    specified exactly in ``whitelist``. Bad pattern matching is
+    case-insensitive.
     
     :param obj: JSON object with values to redact, or a string to redact
     :param key_path: The redaction label. Must provide if redacting a string.
@@ -197,11 +199,11 @@ def _register_redactions_from_response(
 
 def register_redactions_from_response(response: Response) -> None:
     """
-    Convenience method that calls :func:`register_redactions` on an
-    ``httpx.Response`` object if the response is successful. To register a
-    response object for redaction it must have an ``application/json`` content
-    type. If the response object has a ``text/plain`` content type, secrets in
-    the response will **NOT** be redacted.
+    Registers redactions from a successful ``httpx.Response`` object by passing
+    it through :func:`register_redactions`. To register a response object for
+    redaction it must have an ``application/json`` content type. If the
+    response object has a ``text/plain`` content type, secrets in the response
+    will **NOT** be redacted.
     
     :param response:
     """

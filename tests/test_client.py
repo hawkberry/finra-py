@@ -689,6 +689,9 @@ REGISTRATION: T = {
     "get_composite_individual": (
         "registration", "compositeIndividual", None, [],
         ),
+    "get_finpro_tasks": (
+        "registration", "finproTasks", None, [],
+        ),
     "get_individual_delta": (
         "registration", "individualDelta", None, [],
         ),
@@ -2427,6 +2430,72 @@ class _TestAPI:
             headers={"Accept": "application/json"}
             )
         
+    
+    ##########################################################################
+    # REGISTRATION - FINPRO TASKS
+    
+    @no_duplicates
+    @patch("finra.base_client.datetime", MockDateTime)
+    def test_get_finpro_tasks_data(self):
+        url = self.base_url + "/data/group/registration/name/finproTasks"
+        self.mock_session.get.return_value = self.response
+        
+        individual_crd_number = 12345
+        result = self.client.get_finpro_tasks(individual_crd_number)
+        
+        self.assertEqual(result, self.response)
+        self.mock_session.get.assert_called_once_with(
+            url + "Mock" if self.mock else url,
+            params={"individualCrdNumber": individual_crd_number},
+            headers={"Accept": "application/json"}
+            )
+        
+    @no_duplicates
+    @patch("finra.base_client.datetime", MockDateTime)
+    def test_get_finpro_tasks_data_with_headers(self):
+        url = self.base_url + "/data/group/registration/name/finproTasks"
+        self.mock_session.get.return_value = self.response
+        
+        individual_crd_number = 12345
+        result = self.client.get_finpro_tasks(individual_crd_number, version=1)
+        
+        self.assertEqual(result, self.response)
+        self.mock_session.get.assert_called_once_with(
+            url + "Mock" if self.mock else url,
+            params={"individualCrdNumber": individual_crd_number},
+            headers={"Accept": "application/json", "Data-Version": "1"}
+            )
+        
+    @no_duplicates
+    def test_get_finpro_tasks_data_no_individual_crd_number(self):
+        with self.assertRaisesRegex(
+            ValueError,
+            "When querying the DATA resource endpoint, "
+            "FINPRO Tasks requires the individual_crd_number "
+            "of a registered representative."
+            ):
+            self.client.get_finpro_tasks()
+        
+    @no_duplicates
+    @patch("finra.base_client.datetime", MockDateTime)
+    def test_get_finpro_tasks_data_enums_not_required(self):
+        self.client.set_require_enums(False)
+        url = self.base_url + "/data/group/registration/name/finproTasks"
+        self.mock_session.get.return_value = self.response
+        
+        individual_crd_number = 12345
+        result = self.client.get_finpro_tasks(
+            individual_crd_number,
+            endpoint=self.client.Endpoint.DATA.value
+            )
+        
+        self.assertEqual(result, self.response)
+        self.mock_session.get.assert_called_once_with(
+            url + "Mock" if self.mock else url,
+            params={"individualCrdNumber": individual_crd_number},
+            headers={"Accept": "application/json"}
+            )
+    
     
     ##########################################################################
     # REGISTRATION - INDIVIDUAL DELTA
@@ -5264,3 +5333,6 @@ class TestAsyncClientQAEnvMock(
     ):
     pass
 
+
+if __name__ == "__main__": # pragma: no cover
+    unittest.main()

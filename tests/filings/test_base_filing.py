@@ -1,3 +1,4 @@
+import unittest
 from datetime import date, datetime
 
 from ..common import has_diff, no_duplicates
@@ -296,3 +297,6 @@ class _TestU4U5:
             'metadata': self.metadata,
             }}, self.filing.build()))
 
+
+if __name__ == "__main__": # pragma: no cover
+    unittest.main()

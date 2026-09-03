@@ -10,19 +10,15 @@ For details on client creation and authentication see :ref:`auth`.
 
 See :py:mod:`finra.base_client` module for complete reference documentation.
 
-+++++++++++++++++++
-Calling Conventions
-+++++++++++++++++++
+Each dataset has its own method for requesting data.
 
-Each dataset has its own method for requesting data. Many of these methods have the same signature, however there are some datasets that require different arguments, especially those in the Firm and Registration groups.
-
-The API recognizes an extensive number of special values, for example the field names for each dataset. Rather than requiring users to manually enter these values, this library represents them using enums from Python's `enum <https://docs.python.org/3/library/enum.html>`__ module. The reason for this design choice is that the API rejects requests with unrecognized values, which would be a common source of error and frustration for users. Using enums to manage these values avoids these common errors and simplifies access to the datasets. A dataset's enum is typically displayed in the reference documentation just above its associated query method. With a few exceptions, each dataset has its own enum containing all of its available field names.
+Many FINRA API parameters accept a defined set of values, for example the field names for each dataset. Rather than requiring users to manually enter these values, ``finra-py`` represents them using enums from Python's `enum <https://docs.python.org/3/library/enum.html>`__ module. The reason for this design choice is that requests with unrecognized values will be rejected by the API, which would be a common source of error and frustration for users. Using enums to manage these values avoids common errors and simplifies access to the datasets. A dataset's enum is typically displayed in the reference documentation just above its associated query method. With a few exceptions, each dataset has its own enum containing all of its available field names.
 
 If a value is passed other than a member of the expected enum, a ``TypeError`` will be raised. This functionality can be disabled on the client by setting ``require_enums=False`` during creation, or via its :py:meth:`set_require_enums() <finra.enum_converter.EnumConverter.set_require_enums>` method. Several other classes in this library have the same functionality, including the :py:class:`Filter <finra.filters.Filter>` class (see :ref:`filters`), and the filing classes used by :ref:`submission` methods. In general, disabling this constraint should not be necessary, however it may be useful if you notice the API accepts a value that is not yet supported by this library. If you do find a value that is not supported here, please open an issue on the ``finra-py`` `Issues Page <https://github.com/hawkberry/finra-py/issues>`__ on GitHub and describe your findings.
 
-Additionally, all :ref:`query` datasets support multiple :ref:`endpoints` for accessing information about them. When querying the :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>` endpoint, required parameters can be passed as positional or keyword arguments. Optional parameters are always passed as keyword arguments. Any deviation from this convention is described in the reference documentation.
+Additionally, almost all :ref:`query` datasets support multiple :ref:`endpoints` for accessing information about them. Parameters that are required when querying the :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>` endpoint can be provided as arguments or by keyword. Optional parameters must be provided using keywords. Any deviation from this convention is described in the reference documentation.
 
-This client also supports the API's server-side asynchronous request flow. This is different than the client-side ``asyncio`` support detailed below. For information about asynchronous requests for Query API datasets see :ref:`here <async_requests>`, or for Submission API filings see :ref:`here <request_flow>`.
+This client also supports the API's server-side asynchronous request flow. This is different than the client-side ``asyncio`` support detailed below. For information about asynchronous requests for Query API datasets see :ref:`here <async_requests>`, or for Submission API filings see :ref:`request_lifecycle`.
 
 .. _async:
 
@@ -93,7 +89,7 @@ These attributes describe a token's lifecycle, and can indicate when to proactiv
 Data Versioning
 +++++++++++++++
 
-Some datasets support multiple versions. This is usually the case only when a dataset's structure or its access patterns have been upgraded, with the older version(s) typically having a limited support window and a retirement date.
+Some datasets support multiple versions. This is relevant when a dataset's structure or access patterns have been upgraded. Typically the older version(s) have a limited support window and a retirement date.
 
 To request a specific data version use the ``version`` keyword in a dataset's query method. If the value is set to ``None``, the data version of the response will be the server's default for that dataset. Even though most datasets only support a single data version, the ``version`` keyword is included as a calling convention for all datasets to support potential future updates.
 

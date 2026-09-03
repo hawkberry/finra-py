@@ -7,7 +7,7 @@ __all__ = ["CreateIndividual"]
 
 class CreateIndividual(BaseFiling):
     """
-    Create the initial registration record of an individual to submit to FINRA,
+    Create the initial registration record of an individual to FINRA,
     which will include the generation of an Individual CRD number.
     
     This class can be used to:

@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from datetime import date, datetime
 from enum import Enum
@@ -77,7 +78,10 @@ class _Metadata:
     def set_filing_type(self, filing_type: Optional[str]) -> None:
         self._filingType = filing_type
         
-    def set_individual_crd_number(self, individual_crd_number: Optional[int]) -> None:
+    def set_individual_crd_number(
+        self,
+        individual_crd_number: Optional[int]
+        ) -> None:
         self._individualCrdNumber = individual_crd_number
         
     def set_date_of_birth(self, date_of_birth: Optional[str]) -> None:
@@ -86,7 +90,10 @@ class _Metadata:
     def set_rep_access(self, rep_access: Optional[dict[str, bool]]) -> None:
         self._repAccess = rep_access
         
-    def set_rep_completion_status(self, rep_completion_status: Optional[str]) -> None:
+    def set_rep_completion_status(
+        self,
+        rep_completion_status: Optional[str]
+        ) -> None:
         self._repCompletionStatus = rep_completion_status
         
     def set_ignore_warnings(self, ignore_warning: Optional[bool]) -> None:
@@ -246,7 +253,7 @@ def _set_filing_type(
     filing: BaseFiling,
     filing_type: Optional[EnumStr[E]],
     enum: type[E]
-    ):
+    ) -> None:
     if filing_type is None:
         _filing_type = None
     else:
@@ -257,7 +264,7 @@ def _set_filing_type(
 def _set_individual_crd_number(
     filing: BaseFiling,
     individual_crd_number: Optional[int]
-    ):
+    ) -> None:
     """
     Set the Individual CRD Number for the filing
     
@@ -271,7 +278,10 @@ def _set_individual_crd_number(
     filing._metadata.set_individual_crd_number(individual_crd_number)
 
 
-def _set_date_of_birth(filing: BaseFiling, date_of_birth: Optional[date]):
+def _set_date_of_birth(
+    filing: BaseFiling,
+    date_of_birth: Optional[date]
+    ) -> None:
     """
     Set the Date of Birth for the filing
     

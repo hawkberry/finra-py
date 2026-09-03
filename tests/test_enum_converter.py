@@ -14,3 +14,6 @@ class TestEnumConverter(unittest.TestCase):
         with self.assertRaisesRegex(TypeError, 'enum.Enum'):
             EnumConverter(False)._type_error(123, Enum)
 
+
+if __name__ == "__main__": # pragma: no cover
+    unittest.main()

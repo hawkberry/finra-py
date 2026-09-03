@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import inspect
 import json
 import logging
@@ -57,7 +59,6 @@ _SortFieldsType: TypeAlias = EnumStr[E] | tuple[int | float, EnumStr[E]]
 #: Type for a dataset query method's ``sort_fields`` keyword, parameterized by
 #: its ``Enum``.
 SortFieldsType: TypeAlias = _SortFieldsType[E] | Iterable[_SortFieldsType[E]]
-
 
 
 ##############################################################################
@@ -474,31 +475,61 @@ class BaseClient(EnumConverter, ABC):
     # ABSTRACT
     
     @abstractmethod
-    def _get_request(self, url, params, headers):
+    def _get_request(
+        self,
+        url: str,
+        params: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ):
         raise NotImplementedError
     
     @abstractmethod
-    def _post_request(self, url, data, headers):
+    def _post_request(
+        self,
+        url: str,
+        data: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ):
         raise NotImplementedError
     
     @abstractmethod
-    def _put_request(self, url, data, headers):
+    def _put_request(
+        self,
+        url: str,
+        data: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ):
         raise NotImplementedError
     
     @abstractmethod
-    def _patch_request(self, url, data, headers):
+    def _patch_request(
+        self,
+        url: str,
+        data: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ):
         raise NotImplementedError
     
     @abstractmethod
-    def _delete_request(self, url, _, headers):
+    def _delete_request(
+        self,
+        url: str,
+        _: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ):
         raise NotImplementedError
     
     @abstractmethod
-    def _get_resource_request(self, url, params, headers):
+    def _get_resource_request(
+        self,
+        url: str,
+        params: Optional[dict[str, Any]],
+        headers: Optional[dict[str, str]]
+        ):
         raise NotImplementedError
     
     @abstractmethod
-    def _set_resource_session(self):
+    def _set_resource_session(self) -> None:
         raise NotImplementedError
     
     @abstractmethod
@@ -521,18 +552,18 @@ class BaseClient(EnumConverter, ABC):
     @property
     def mock(self) -> bool:
         """
-        The mock endpoint setting configured when creating this client. If
-        ``True``, this client will query mock dataset API endpoints. This
-        setting must be accompanied by Mock API credentials.
+        Indicates whether this client uses FINRA's Mock API endpoints. When
+        ``True``, the client requires credentials that provide access to the
+        Mock API.
         """
         return self._mock
     
     @property
     def test_environment(self) -> bool:
         """
-        The test environment setting configured when creating this client. If
-        ``True``, this client will query test environment API endpoints. This
-        setting must be accompanied by Test Environment API credentials.
+        Indicates whether this client uses FINRA's Test Environment endpoints.
+        When ``True``, the client requires credentials that provide access to
+        the Test Environment.
         """
         return self._test_environment
     
@@ -636,12 +667,11 @@ class BaseClient(EnumConverter, ABC):
     
     def get_async_request_status(self, check_status_link: str):
         """
-        Asynchronous request second leg: check the status of a request.
+        Second leg: check the current status of an asynchronous request.
         
-        Query a check status URL, typically found in the ``Location`` header of
-        a response, or in the ``checkStatusLink`` field of a response body.
-        
-        Response body always has json data type.
+        Pass the status URL returned by the API, typically obtained from the
+        response ``Location`` header or the ``checkStatusLink`` field in the
+        body of the response. The returned response has JSON content.
         
         Helper functions for extracting metadata from responses are available
         in the :py:mod:`utils <finra.utils>` module. Specifically see:
@@ -659,10 +689,10 @@ class BaseClient(EnumConverter, ABC):
     
     def get_async_result(self, result_link: str):
         """
-        Asynchronous request final leg: fetch the result.
+        Final leg: retrieve the result of a completed asynchronous request.
         
         Query the **pre-signed** result URL returned by
-        :py:meth:`BaseClient.get_async_request_status` after the response
+        :py:meth:`BaseClient.get_async_request_status` when the response
         returns with status ``complete``.
         
         Helper functions for extracting metadata from response objects are
@@ -796,7 +826,7 @@ class BaseClient(EnumConverter, ABC):
         endpoint: Optional[_EndpointType],
         async_request: Optional[bool],
         version: Optional[int],
-        **params
+        **params: Any
         ):
         if self._mock:
             name += "Mock"
@@ -841,7 +871,7 @@ class BaseClient(EnumConverter, ABC):
         delimiter: Optional[str],
         quote_values: Optional[bool],
         version: Optional[int],
-        **params
+        **params: Any
         ):
         if self._mock:
             name += "Mock"
@@ -913,22 +943,27 @@ class BaseClient(EnumConverter, ABC):
     
     def get_datasets(self, group: Optional[EnumStr[_enums.Group]]=None):
         """
+        Retrieve information about Query API datasets, including their
+        versions, status, supported data formats and request methods, and other
+        properties.
+        
         Retrieve a comprehensive list of Query API datasets with information
         about the capabilities and features supported by each dataset,
         including API request methods, data format, versioning, and whether or
         not it is currently active.
         
-        If no arguments are provided, this method will return information for
-        all datasets available using the client's credentials, including
-        undocumented and unsupported datasets. If a member of :py:class:`Group`
-        is provided, information is returned only for datasets in that group.
+        If no arguments are provided, this method requests information for
+        all datasets available to the client's credentials, including datasets
+        that are not documented or supported by ``finra-py``. If a member of
+        :py:class:`Group` is provided, information is returned only for
+        datasets in that group.
         
         For information about a specific dataset use the dataset's query method
         with the ``endpoint`` keyword. For more information and examples see
         :ref:`endpoints`.
         
-        Most of the response fields from this endpoint are self-explanatory,
-        however detailed descriptions can be found in the `Datasets schema
+        For detailed definitions of the response fields, refer to the
+        `Datasets schema
         <https://schemas.api.finra.org/FINRAApiPlatformDatasetsDetail.json>`__.
         
         :param group: Only return datasets belonging to an API group by
@@ -965,7 +1000,7 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Aggregated ATS trade data in NMS stocks that meets certain share based
+        Aggregated ATS trade data for NMS stocks that meets certain share based
         and dollar based thresholds.
         
         Requires Public, Firm or Organization API credentials.
@@ -1002,7 +1037,7 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Aggregated OTC (Non-ATS) trade data in NMS stocks that meets certain
+        Aggregated OTC (Non-ATS) trade data for NMS stocks that meets certain
         share based and dollar based thresholds.
         
         Requires Public, Firm or Organization API credentials.
@@ -1041,7 +1076,7 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        A single view of OTC short interest positions submitted across all
+        Consolidated OTC short interest positions reported across all
         exchanges.
         
         `FINRA Rule 4560
@@ -1053,6 +1088,12 @@ class BaseClient(EnumConverter, ABC):
         securities reported with a short position. Data is available online for
         one rolling year based on the settlement date provided in the Short
         Interest Reporting Deadlines.
+        
+        FINRA says: The Consolidated Short Interest data is available via the
+        dataset by 4:40 PM ET on the publication date. For the publication
+        schedule, see `here
+        <https://www.finra.org/filing-reporting/regulatory-filing-systems/
+        short-interest>`__.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1180,10 +1221,10 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Weekly aggregate trade data for OTC (ATS and non-ATS) trading data for
-        each ATS/firm with trade reporting obligations under FINRA rules.
+        Weekly aggregate OTC (ATS and non-ATS) trade data reported by firms and
+        ATSs subject to FINRA trade-reporting requirements.
         
-        The production dataset contains a rolling twelve months of data.
+        The production dataset contains a twelve month rolling window of data.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1223,11 +1264,13 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Historic OTC Transparency Weekly Summary.
+        Historical weekly summary data.
         
-        The datasets provides a historical 4-year rolling window of data
-        starting with one year prior to the current date.
-
+        This dataset is the historical version of
+        :py:meth:`BaseClient.get_weekly_summary`, and provides an historical
+        4-year rolling window between one and five years prior to the current
+        date.
+        
         The :py:attr:`Endpoint.DATA` resource endpoint requires EXACTLY one of
         the following fields be provided: ``week_start_date``,
         ``historical_week``, or ``historical_month``. The ``tier_identifier``
@@ -1363,8 +1406,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Monthly aggregate trade data for OTC (non-ATS) trading data for each
-        firm with trade reporting obligations under FINRA rules.
+        Monthly aggregate OTC (non-ATS) trade data reported by firms subject to
+        FINRA trade-reporting requirements.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1448,8 +1491,8 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Daily pricing statistics for Agency Pass-Thru Mortgage-Backed
-        Securities (MBS) traded on To-Be-Announced (TBA), Standardized Trade
-        Information Protocol (STIP), and Dollar Roll basis.
+        Securities (MBS) traded through To-Be-Announced (TBA), Standardized
+        Trade Information Protocol (STIP), and Dollar Roll transactions.
         
         This dataset covers Single Family 15-year and 30-year pools issued by
         UMBS (Uniform MBS, the joint Fannie Mae / Freddie Mac security), FHLMC
@@ -1489,7 +1532,7 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Daily pricing statistics for Agency Collateralized Mortgage Obligation
-        (CMO) by deal vintage.
+        (CMO), stratified by deal vintage.
         
         Returned data follows the `Agency CMO Pricing schema
         <https://schemas.api.finra.org/v1/
@@ -1530,7 +1573,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        TRACE market breadth calculations for Agency debt securities.
+        Market breadth indicators for transactions in agency debt securities
+        reported to TRACE.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1569,7 +1613,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        TRACE market sentiment calculations for Agency debt securities.
+        Market sentiment indicators for transactions in agency debt securities
+        reported to TRACE.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1603,7 +1648,7 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Daily trading activity statistics for Agency Mortgage-Backed Securities
-        (MBS).
+        (MBS), stratified by product type.
         
         Returned data follows the `Agency MBS Trading Activity schema
         <https://schemas.api.finra.org/v1/
@@ -1678,12 +1723,11 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Daily pricing statistics for specified Agency Pass-Thru fixed-rate
+        Daily pricing statistics for Agency Pass-Thru fixed-rate
         Mortgage-Backed Securities (MBS).
         
-        This dataset covers fixed-rate products: Single Family 15-year, Single
-        Family 30-year, and other fixed-rate term variants for UMBS, FHLMC, and
-        GNMA. 
+        This dataset covers Single Family 15-year, Single Family 30-year, and
+        other fixed-rate term variants for UMBS, FHLMC, and GNMA. 
         
         Returned data follows the `Agency MBS Pricing schema
         <https://schemas.api.finra.org/v1/
@@ -1723,7 +1767,8 @@ class BaseClient(EnumConverter, ABC):
         """
         Daily pricing statistics for Collateralized Bond Obligations (CBOs),
         Collateralized Debt Obligations (CDOs), and Collateralized Loan
-        Obligations (CLOs) by credit tier and vintage.
+        Obligations (CLOs), stratified by product type, deal vintage and
+        credit tier.
         
         Returned data follows the `Collateralized Obligation Pricing schema
         <https://schemas.api.finra.org/v1/
@@ -1769,8 +1814,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        TRACE market breadth calculations for Rule 144A corporate debt
-        securities.
+        Market breadth indicators for transactions in Rule 144A corporate debt
+        securities reported to TRACE.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1814,8 +1859,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        TRACE market sentiment calculations for Rule 144A corporate debt
-        securities.
+        Market sentiment indicators for transactions in Rule 144A corporate
+        debt securities reported to TRACE.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1859,7 +1904,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        TRACE capped volume calculations for corporate and agency debt.
+        Capped volume indicators for transactions in corporate and agency debt
+        reported to TRACE.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1900,7 +1946,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        TRACE market breadth calculations for corporate debt securities.
+        Market breadth indicators for transactions in corporate debt
+        securities reported to TRACE.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1940,7 +1987,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        TRACE market sentiment calculations for corporate debt securities.
+        Market sentiment indicators for transactions in corporate debt
+        securities reported to TRACE.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1976,7 +2024,7 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Daily pricing statistics for Commercial Mortgage-Backed Securities
-        (CMBS) by deal vintage.
+        (CMBS), stratified by product type and deal vintage.
         
         Returned data follows the `Daily CMBS Pricing schema
         <https://schemas.api.finra.org/v1/
@@ -2012,7 +2060,8 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Daily pricing statistics for Non-Agency Collateralized Mortgage
-        Obligations (CMOs) and Asset-Backed Securities (ABS) by product.
+        Obligations (CMOs) and Asset-Backed Securities (ABS), stratified by
+        product type.
         
         Returned data follows the `Non-Agency CMO ABS Pricing schema
         <https://schemas.api.finra.org/v1/
@@ -2050,7 +2099,7 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Daily pricing statistics for Non-Agency Collateralized Mortgage
-        Obligation (CMO) P&I securities by deal vintage.
+        Obligation (CMO) P&I securities, stratified by deal vintage.
         
         Returned data follows the `Non-Agency CMO Vintage Pricing schema
         <https://schemas.api.finra.org/v1/
@@ -2095,7 +2144,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        TRACE capped volume calculations for securitized products.
+        Capped volume indicators for transactions in securitized products
+        reported to TRACE.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -2173,7 +2223,8 @@ class BaseClient(EnumConverter, ABC):
         """
         Daily trading activity statistics for securitized products other than
         Agency Pass-Thru Mortgage-Backed Securities (MBS), including Non-Agency
-        MBS and Commercial Mortgage-Backed Securities (CMBS).
+        MBS and Commercial Mortgage-Backed Securities (CMBS), stratified by
+        product type.
         
         Returned data follows the `Securitized Product Trading Activity schema
         <https://schemas.api.finra.org/v1/
@@ -2291,8 +2342,7 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Weekly pricing statistics for Agency Commercial Mortgage-Backed
-        Securities (CMBS) by deal vintage, aggregated across a full
-        Monday-to-Friday trading week.
+        Securities (CMBS), stratified by product type and deal vintage.
         
         Returned data follows the `Weekly CMBS Pricing schema
         <https://schemas.api.finra.org/v1/
@@ -2418,7 +2468,7 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Form 4530 customer complaint filings submitted against the firm.
+        Form 4530 customer complaint filings submitted against a firm.
         
         No partition field.
         
@@ -2454,7 +2504,7 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Firm disclosure information.
+        Disclosure information for a firm.
         
         The ``firm_crd_number`` can optionally be passed as an argument when
         querying the :py:attr:`Endpoint.DATA` resource endpoint.
@@ -2494,7 +2544,7 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Basic information about a firm.
+        General profile information for a firm.
         
         The ``firm_crd_number`` can optionally be passed as an argument when
         querying the :py:attr:`Endpoint.DATA` resource endpoint.
@@ -2538,7 +2588,7 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        A complete listing of registration notices for a firm.
+        All registration notices associated with a firm.
         
         The ``firm_crd_number`` can optionally be passed as an argument when
         querying the :py:attr:`Endpoint.DATA` resource endpoint.
@@ -2579,7 +2629,7 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Firm registration information.
+        Registration information for a firm.
         
         The ``firm_crd_number`` can optionally be passed as an argument when
         querying the :py:attr:`Endpoint.DATA` resource endpoint.
@@ -3108,6 +3158,48 @@ class BaseClient(EnumConverter, ABC):
     _add_params_docs(get_composite_individual_seed, "version")
     
     # This dataset only supports GET requests to DATA endpoint
+    def get_finpro_tasks(
+        self,
+        individual_crd_number: Optional[int]=None,
+        *,
+        endpoint: Optional[_EndpointType]=None,
+        version: Optional[int]=None
+        ):
+        """
+        FINPRO tasks and alerts for registered representative at the
+        requesting firm.
+        
+        Returned data follows the `FinPro Tasks schema
+        <https://schemas.api.finra.org/v1/finproGW/finproTasks.json>`__.
+        
+        This dataset only supports synchronous requests.
+        
+        Requires Firm API credentials.
+        """
+        if (endpoint is None
+            or endpoint == self.Endpoint.DATA
+            or endpoint == "data"):
+            if individual_crd_number is None:
+                raise ValueError(
+                    "When querying the DATA resource endpoint, "
+                    "FINPRO Tasks requires the individual_crd_number "
+                    "of a registered representative."
+                    )
+            
+            params = {"individualCrdNumber": individual_crd_number}
+        else:
+            params = {}
+        
+        return self._get_query(
+            self._base_url, "registration", "finproTasks", None,
+            endpoint, None, version, **params
+            )
+    
+    _add_params_docs(
+        get_finpro_tasks, "endpoint", "limit", "offset", "version"
+        )
+    
+    # This dataset only supports GET requests to DATA endpoint
     def get_individual_delta(
         self,
         start_datetime: Optional[date | datetime]=None,
@@ -3282,8 +3374,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Registration records of industry individuals being considered for
-        employment.
+        Search for registration information for individuals being considered
+        for employment.
         
         The Pre-registration Individual dataset enables firms to automate the
         due diligence portion of their hiring processes by providing them with
@@ -3381,8 +3473,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Registration records of individuals in the industry being considered
-        for employment, along with complete disclosure information.
+        Search for registration and disclosure information for individuals
+        being considered for employment.
         
         Deprecated with Retirement Date: February 26, 2027
         
@@ -3414,13 +3506,12 @@ class BaseClient(EnumConverter, ABC):
         .. note::
             - SSN must be provided if the registered individual has an SSN.
             - DOB does not include the year; it is ignored by the client.
-            - According to FINRA: *"The purpose of this dataset is to support
-              the pre-registration process for firms. It is not to be used for
-              downloading bulk data or for other pre-hire purposes. Each
-              request is logged and audited by the API Platform. FINRA reserves
-              the right to throttle or disable any API connection that appears
-              to be making excessive requests that do not fit normal usage
-              patterns for pre-registration searches."*
+            - FINRA states that this dataset is intended for firms'
+              pre-registration activities and is not intended for bulk-data
+              downloads or other pre-hire uses. Requests are logged and
+              audited, and FINRA may throttle or disable API connections that
+              make excessive requests inconsistent with normal pre-registration
+              search activity.
         """
         filters: Optional[FiltersDictType]
         if (endpoint is None
@@ -3495,8 +3586,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Validate the registration status of a registered individual with FINRA
-        and the States, independent of what firm they are affiliated with.
+        Validate an individual's registration status with FINRA and the States,
+        independent of firm affiliation.
         
         The Registration Validation dataset supports industry wide validation
         of the registration status of all registered reps by firms and other
@@ -3546,9 +3637,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=2
         ):
         """
-        Validate the registration status **including disclosure details** of a
-        registered individual with FINRA and the States, independent of what
-        firm they are affiliated with.
+        Validate an individual's registration status with FINRA and the States,
+        **including disclosure details**, independent of firm affiliation.
         
         The ``individual_crd_number`` is required when querying the
         :py:attr:`Endpoint.DATA` resource endpoint.
@@ -3619,7 +3709,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=2
         ):
         """
-        CRD numbers for registered individuals.
+        Search for Central Registration Depository (CRD) numbers for registered
+        individuals.
         
         The :py:attr:`Endpoint.DATA` resource endpoint can only be queried by
         providing the ``date_of_birth`` (with an accurate month and day), and
@@ -3712,10 +3803,11 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        The U4 Form Prefill dataset is a data resource that can be used to
-        pre-populate Form U4 initial fields when submitting registration
-        applications through the Submission API. The response of the dataset is
-        returned in the same format as a Form U4 initial submission.
+        The U4 Form Prefill dataset provides individual registration data that
+        can be used to populate
+        :py:class:`FormU4 <finra.filings.form_u4.FormU4>` fields when
+        submitting an initial filing through the Submission API. The dataset's
+        response has the same format as the Form U4 initial filing.
         
         This dataset replaces
         :py:meth:`BaseClient.get_individual_pre_registration_search_v2`, and
@@ -4658,8 +4750,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Form BR establishes registration of a branch office with FINRA, the New
-        York Stock Exchange (NYSE) and States that require branch registration.
+        Form BR is used to register a branch office with FINRA, the New York
+        Stock Exchange (NYSE), and States that require branch registration.
         
         See :py:class:`FormBR <finra.filings.form_br.FormBR>` for more
         information about how to build a Form BR filing for submission.
@@ -4717,8 +4809,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Form U4 establishes registration of representatives of broker-dealers,
-        investment advisers with appropriate jurisdictions and/or SROs.
+        Form U4 is used to register representatives of broker-dealers and
+        investment advisers with the applicable jurisdictions and/or SROs.
         
         See :py:class:`FormU4 <finra.filings.form_u4.FormU4>` for more
         information about how to build a Form U4 filing for submission.
@@ -4777,7 +4869,8 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Form U5 is the Uniform Termination Notice for Securities Industry
-        Registration.
+        Registration, which firms must file when a registered individual leaves
+        the company and details the reason for their departure.
         
         See :py:class:`FormU5 <finra.filings.form_u5.FormU5>` for more
         information about how to build a Form U5 filing for submission.

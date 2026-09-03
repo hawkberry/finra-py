@@ -5,11 +5,11 @@
 .. image:: https://github.com/hawkberry/finra-py/actions/workflows/run-tests.yml/badge.svg
   :target: https://github.com/hawkberry/finra-py/actions/workflows/run-tests.yml
 
-.. image:: https://codecov.io/github/hawkberry/finra-py/coverage.svg?branch=main
-  :target: https://codecov.io/github/hawkberry/finra-py?branch=main
+.. image:: https://codecov.io/gh/hawkberry/finra-py/branch/main/graph/badge.svg
+  :target: https://app.codecov.io/gh/hawkberry/finra-py
 
-.. image:: https://readthedocs.org/projects/finra-py/badge/?version=latest
-  :target: https://finra.hawkberry.com/en/latest/?badge=latest
+.. image:: https://app.readthedocs.org/projects/finra-py/badge/?version=latest
+  :target: https://finra.hawkberry.com/en/latest/
 
 .. image:: https://badge.fury.io/py/finra-py.svg
   :target: https://badge.fury.io/py/finra-py
@@ -27,13 +27,13 @@
 What is ``finra-py``?
 +++++++++++++++++++++
 
-``finra-py`` is an unofficial, open-source Python client library for the `FINRA API Platform <https://developer.finra.org/products>`__. It is designed to be as thin and unopinionated as possible, offering an elegant programmatic interface to every endpoint and dataset.
+``finra-py`` is an unofficial, open-source Python client library for the `FINRA API Platform <https://developer.finra.org/products>`__. It is designed to be a lightweight, unopinionated interface that supports every endpoint and dataset.
 
 Notable functionality includes:
 
 - Authentication and client creation
 - Equity, Fixed Income, FINRA, Firm, Registration and TRACE Report Card datasets via the `Query API <https://finra.hawkberry.com/en/latest/query-api.html>`__
-- Notification datasets via the `Notification API <https://finra.hawkberry.com/en/latest/notification-api.html>`__
+- Notification event datasets via the `Notification API <https://finra.hawkberry.com/en/latest/notification-api.html>`__
 - Submission of regulatory filings and other data to FINRA via the `Submission API <https://finra.hawkberry.com/en/latest/submission-api.html>`__
 - Support for the Mock API
 - Support for the QA Test Environment API
@@ -41,25 +41,45 @@ Notable functionality includes:
 - Support for asynchronous requests (server-side)
 - Support for ``asyncio`` (client-side)
 
-Python requirement: **3.11 or later**
++++++++++++
+Quick Start
++++++++++++
 
-++++++++++++++++++++++++++
-How do I use ``finra-py``?
-++++++++++++++++++++++++++
+``finra-py`` requires **Python 3.11 or later**.
+
+To install the latest stable PyPI package using ``pip``:
+
+.. code-block:: shell
+
+  python -m pip install finra-py
+
+To install the unstable version from GitHub:
+
+.. code-block:: shell
+
+  git clone https://github.com/hawkberry/finra-py
+  cd python finra-py
+  python -m pip install .
+
+To import the package in Python:
+
+.. code-block:: python
+
+  import finra
 
 You can find a full description of the ``finra-py`` library's functionality in the `documentation <https://finra.hawkberry.com/>`__.
 
 For detailed instructions on how to get started with ``finra-py``, see `Getting Started <https://finra.hawkberry.com/en/latest/getting-started.html>`__.
 
-++++++++++++++++++++++++++++++
-Why should I use ``finra-py``?
-++++++++++++++++++++++++++++++
++++++++++++++++++++++
+Why use ``finra-py``?
++++++++++++++++++++++
 
-``finra-py`` is designed to provide a few important pieces of functionality:
+``finra-py`` focuses on a few key areas:
 
-1. **Safe Authentication**: The FINRA API Platform authentication and authorization scheme is based on OAuth 2.0. However, too many people online end up rolling their own implementation of the OAuth 2.0 authentication flow, which is both unnecessarily complex and dangerous. ``finra-py`` handles the token fetch and management for you.
+1. **OAuth 2.0 Authentication**: The FINRA API uses OAuth 2.0 for authentication and authorization. Implementing the OAuth 2.0 authentication flow yourself can introduce unnecessary complexity and security risks. ``finra-py`` handles token acquisition and lifecycle management for you.
 
-2. **Minimal API Wrapping**: Unlike some other API wrappers, which build in lots of opinionated logic and validation, ``finra-py`` takes raw values and returns raw responses, allowing you to interpret the complex API responses as you see fit. Anything you can do with raw HTTP requests you can do with ``finra-py``, only more easily.
+2. **Direct API Access**: ``finra-py`` keeps the client layer deliberately thin. It accepts the values expected by the API and returns the responses directly to you, without adding layers of application-specific logic. ``finra-py`` enables you to access the FINRA API with ease, without having to build and maintain the HTTP requests yourself.
 
 3. **All API Endpoints**: The ``finra-py`` library is designed to provide thorough coverage of the FINRA API Platform. With this goal in mind, ``finra-py`` implements full functionality for every dataset and regulatory filing supported by the FINRA API and described in the documentation.
 

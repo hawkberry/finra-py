@@ -137,15 +137,45 @@ class TestValidator(unittest.TestCase):
         
     @no_duplicates
     @patch('finra.client.Client')
-    def test_validate(self, client):
+    def test_is_valid(self, client):
         url = self.url
+        obj = self.obj
         
         class NewFiling(BaseFiling):
             @property
             def schema_url(self):
                 return url
             def build(self):
-                return {"test": 1}
+                return obj
+        
+        filing = NewFiling()
+        
+        retrieve = Mock()
+        retrieve.return_value = referencing.Resource.from_contents(self.schema)
+        
+        v = validator.Validator(client, filing.schema_url)
+        v._validator = jsonschema.Draft7Validator(
+            {"$ref": filing.schema_url},
+            registry=referencing.Registry(retrieve=retrieve)
+            )
+        
+        self.assertTrue(v.is_valid(filing))
+        self.assertTrue(v.is_valid(filing.build()))
+        self.assertEqual(len(retrieve.mock_calls), 2)
+        self.assertEqual(retrieve.mock_calls[-1][1][0], self.url)
+        
+    @no_duplicates
+    @patch('finra.client.Client')
+    def test_validate(self, client):
+        url = self.url
+        obj = self.obj
+        
+        class NewFiling(BaseFiling):
+            @property
+            def schema_url(self):
+                return url
+            def build(self):
+                return obj
         
         filing = NewFiling()
         
@@ -191,3 +221,6 @@ class TestValidator(unittest.TestCase):
         with self.assertRaises(AttributeError):
             validator.Validator(client, self.url).missing_attribute
 
+
+if __name__ == "__main__": # pragma: no cover
+    unittest.main()

@@ -152,8 +152,8 @@ tags
 virtualenv
 
 # Other
-app_develop.sh
+dev/
+scripts/
+state/
 NOTES
-os_requirements.txt
-dev_tools/
 

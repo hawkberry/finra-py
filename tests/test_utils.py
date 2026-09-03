@@ -950,3 +950,6 @@ class TestRelabelJSON(unittest.TestCase):
             ['TEST_GROUP_LABEL', 'TEST_LABEL', 'TEST_NO_FIELDS_RELABELED']
             )
 
+
+if __name__ == "__main__": # pragma: no cover
+    unittest.main()

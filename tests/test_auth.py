@@ -1212,3 +1212,6 @@ class TestGetClient(unittest.TestCase):
         
         self.assertIs(c, mock_client)
 
+
+if __name__ == "__main__": # pragma: no cover
+    unittest.main()

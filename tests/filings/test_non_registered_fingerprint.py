@@ -169,3 +169,6 @@ class TestNonRegisteredFingerprintEnums(unittest.TestCase):
             'filingData': {'data': '1'},
             }}, filing.build()))
 
+
+if __name__ == "__main__": # pragma: no cover
+    unittest.main()

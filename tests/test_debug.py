@@ -339,3 +339,6 @@ class TestEnableBugReportLogging(unittest.TestCase):
             ):
             debug.enable_bug_report_logging(stream=None)
 
+
+if __name__ == "__main__": # pragma: no cover
+    unittest.main()
