@@ -104,7 +104,7 @@ class Client(BaseClient):
     
     def _set_resource_session(self) -> None:
         self._resource_session = httpx.Client(timeout=self._session.timeout)
-        
+    
     def refresh_token(self) -> None:
         """
         Fetch a new token from the `FINRA Identity Platform
@@ -114,7 +114,7 @@ class Client(BaseClient):
         self._set_token(
             self._session.fetch_token(grant_type="client_credentials")
             )
-        
+    
     def close(self) -> None:
         """
         Close the `OAuth2Client
@@ -124,7 +124,7 @@ class Client(BaseClient):
         self._session.close()
         if getattr(self, "_resource_session", None):
             self._resource_session.close()
-        
+    
     def __enter__(self) -> Self:
         """Enter context to automatically close client on exit"""
         return self
