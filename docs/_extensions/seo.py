@@ -92,7 +92,6 @@ def _metadata_html(app: Sphinx, pagename: str) -> str:
     return f"""
 <meta name="description" content="{escaped_description}">
 <link rel="canonical" href="{url}">
-
 <meta property="og:type" content="website">
 <meta property="og:title" content="{escaped_title}">
 <meta property="og:description" content="{escaped_description}">
@@ -100,8 +99,6 @@ def _metadata_html(app: Sphinx, pagename: str) -> str:
 <meta property="og:site_name" content="{app.config.project}">
 <meta property="og:image" content="{social_image}">
 <meta property="og:image:alt" content="{escaped_project_description}">
-<meta property="og:locale" content="en_US">
-
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{escaped_title}">
 <meta name="twitter:description" content="{escaped_description}">
