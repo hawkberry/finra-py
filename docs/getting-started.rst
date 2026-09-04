@@ -10,7 +10,7 @@ Getting Started
 
 This page describes how to install and configure your first ``finra-py`` client, and it provides some basic examples you can build on for your application.
 
-``finra-py`` is designed for software developers, researchers, media companies, the general public, and FINRA member firms and organizations. To support this diverse set of user groups, the client implements all documented endpoints for the :ref:`query`, the :ref:`notification`, and the :ref:`submission`, and it provides comprehensive test coverage across Windows, macOS, and Linux.
+``finra-py`` is designed for software developers, researchers, media companies, the general public, and FINRA member firms and organizations. To support these diverse user groups, the client implements all documented endpoints for the :ref:`query`, the :ref:`notification`, and the :ref:`submission`, with comprehensive test coverage across Windows, macOS, and Linux.
 
 You can read the official FINRA API documentation `here <https://developer.finra.org/docs>`__.
 
