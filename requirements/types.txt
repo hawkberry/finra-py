@@ -1,0 +1,4 @@
+mypy==1.19.1
+types-Authlib==1.6.8.20260215
+types-colorama==0.4.15.20260508
+types-jsonschema==4.26.0.20260518
