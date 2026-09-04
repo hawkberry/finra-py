@@ -30,7 +30,7 @@ def _is_viewcode_page(pagename: str) -> bool:
 def _page_title(app: Sphinx, pagename: str) -> str:
     title = app.env.titles.get(pagename)
     if title is not None:
-        return title.astext()
+        return f"{app.config.project} — {title.astext()}"
     
     return app.config.project
 
@@ -59,7 +59,7 @@ def _json_ld(app: Sphinx, pagename: str) -> str:
         "codeRepository": app.config.repository_url,
         "programmingLanguage": "Python",
         "license": app.config.license_url,
-        "version": app.config.release,
+        "version": app.config.version,
         "author": {
             "@type": "Person",
             "name": app.config.author,

@@ -84,7 +84,7 @@ finra-py is an unofficial, open-source Python client library for the FINRA API P
 
 This page describes how to install and configure your first finra-py client, and it provides some basic examples you can build on for your application.
 
-finra-py is designed for software developers, researchers, media companies, the general public, and FINRA member firms and organizations. To support this diverse set of user groups, the client implements all documented endpoints for the query, the notification, and the submission.
+finra-py is designed for software developers, researchers, media companies, the general public, and FINRA member firms and organizations. To support these diverse user groups, the client implements all documented endpoints for the query, the notification, and the submission, with comprehensive test coverage across Windows, macOS, and Linux.
 
 You can read the official FINRA API documentation here.
 

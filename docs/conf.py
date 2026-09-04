@@ -25,7 +25,7 @@ with open(Path(__file__).parent.parent.joinpath("pyproject.toml"), "rb") as f:
 
 project = config["project"]["name"]
 
-release = config["project"]["version"]
+version = config["project"]["version"]
 
 author = config["project"]["authors"][0]["name"]
 
@@ -51,7 +51,7 @@ license_url = config["tool"]["finra-py"]["license_url"]
 
 pypi_url = config["tool"]["finra-py"]["pypi_url"]
 
-html_title = f"{project} {release}"
+html_title = f"{project} {version}"
 
 consulting_desc = (
     "Consulting services for FINRA API integration and production systems."
