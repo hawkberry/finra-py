@@ -5,8 +5,10 @@
 ## Project Details
 
 - Authentication support for the FINRA API Platform.
-- Client interfaces for FINRA API endpoints.
-- Support for public market datasets and regulatory APIs.
+- Client interfaces for all FINRA API endpoints.
+- Support for market and regulatory datasets.
+- Support for programmatic submission of regulatory filings.
+- Support for the Query, Notification, and Submission APIs.
 - Support for Mock datasets and the QA Test Environment API.
 - Support for all credential types.
 - Support for asynchronous requests (server-side).
@@ -102,21 +104,13 @@ Please use this client responsibly and comply with the API’s usage limits. To 
 
 finra-py requires Python 3.11 or later.
 
-To install the latest stable PyPI package using pip:
+Install the latest stable PyPI package using pip:
 
 ```
 python -m pip install finra-py
 ```
 
-To install the unstable version from GitHub:
-
-```
-git clone https://github.com/hawkberry/finra-py
-cd python finra-py
-python -m pip install .
-```
-
-To import the package in Python:
+Import the package in Python:
 
 ```
 import finra

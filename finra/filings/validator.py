@@ -11,25 +11,25 @@ __all__ = ["Validator"]
 
 # Custom retrieval using client, sets draft schema if missing from sub-schema
 # Stores schema registry, so multiple objects can be validated, but only
-# retrieve schemas once. Proxy behavior for getting underlying validator
+# retrieve schemas once. Proxy behavior for accessing underlying validator
 # methods and attributes; does not support setting attributes on underlying.
 class Validator:
     """
     Client-side JSON Object Validator.
     
-    This class acts as a proxy for a ``jsonschema`` validator class to validate
-    JSON objects against JSON Schemas retrieved from the FINRA API Platform.
-    See more about the underlying validation process `here
-    <https://python-jsonschema.readthedocs.io/en/stable/validate/>`__.
+    This class can be used to fetch a JSON Schema from the FINRA API Platform
+    and validate JSON objects against it. It can be used outside of the client,
+    however it requires an authenticated client instance to fetch the JSON
+    Schemas.
     
     To do client-side validation, use :py:class:`Client <finra.client.Client>`.
     Integration with :py:class:`AsyncClient <finra.async_client.AsyncClient>`
     is not currently supported.
     
-    This class can also be used outside of the client, however it requires a
-    client instance to fetch the JSON Schemas. If an object fails validation, a
-    ``jsonschema.ValidationError`` will be raised. If no exception is raised,
-    the object passed validation.
+    This class also supports proxy behavior for accessing the underlying
+    ``jsonschema`` validator's methods and attributes if they haven't been
+    overridden. See more about the underlying validation process `here
+    <https://python-jsonschema.readthedocs.io/en/stable/validate/>`__.
     
     See more information in the :ref:`validation` tutorial.
     
@@ -37,10 +37,10 @@ class Validator:
     :param schema_url: The URL of the top-level JSON Schema for an object
     :param schema_registry: A ``dict`` storing the retrieved JSON Schemas
         {url: schema}. The registry is searched first before fetching a JSON
-        Schema with the client. If a registry is not provided, one is created
-        automatically. This greatly speeds up validation by preventing
+        Schema with the client. This greatly speeds up validation by preventing
         redundant network operations, particularly if the registry is re-used
-        when validating multiple objects with overlapping schemas.
+        across validator instances. If a registry is not provided, one is
+        created automatically. 
     :param validator_cls: The underlying validator class from the
         ``jsonschema`` library. Default: ``jsonschema.Draft7Validator``.
     """
@@ -80,8 +80,7 @@ class Validator:
         if url in self._schema_registry: # from stored schema
             schema = self._schema_registry[url]
             
-        # Fetch schema from URL
-        else:
+        else: # fetch schema using authenticated client session
             r = self.client._session.get(
                 url,
                 params=None,

@@ -23,6 +23,10 @@ def _canonical_url(app: Sphinx, pagename: str) -> str:
     return f"{_base_url(app)}{pagename}.html"
 
 
+def _is_viewcode_page(pagename: str) -> bool:
+    return pagename.startswith("_modules/")
+
+
 def _page_title(app: Sphinx, pagename: str) -> str:
     title = app.env.titles.get(pagename)
     if title is not None:
@@ -72,6 +76,9 @@ def _json_ld(app: Sphinx, pagename: str) -> str:
 
 
 def _metadata_html(app: Sphinx, pagename: str) -> str:
+    if _is_viewcode_page(pagename):
+        return '<meta name="robots" content="noindex,follow">'
+    
     url = _canonical_url(app, pagename)
     title = _page_title(app, pagename)
     description = _page_description(app, pagename)
@@ -241,8 +248,10 @@ def _project_details():
         "## Project Details",
         "",
         "- Authentication support for the FINRA API Platform.",
-        "- Client interfaces for FINRA API endpoints.",
-        "- Support for public market datasets and regulatory APIs.",
+        "- Client interfaces for all FINRA API endpoints.",
+        "- Support for market and regulatory datasets.",
+        "- Support for programmatic submission of regulatory filings.",
+        "- Support for the Query, Notification, and Submission APIs.",
         "- Support for Mock datasets and the QA Test Environment API.",
         "- Support for all credential types.",
         "- Support for asynchronous requests (server-side).",
