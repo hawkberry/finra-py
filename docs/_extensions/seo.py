@@ -23,10 +23,6 @@ def _canonical_url(app: Sphinx, pagename: str) -> str:
     return f"{_base_url(app)}{pagename}.html"
 
 
-def _is_viewcode_page(pagename: str) -> bool:
-    return pagename.startswith("_modules/")
-
-
 def _page_title(app: Sphinx, pagename: str) -> str:
     title = app.env.titles.get(pagename)
     if title is None:
@@ -81,8 +77,13 @@ def _json_ld(app: Sphinx, pagename: str) -> str:
 
 
 def _metadata_html(app: Sphinx, pagename: str) -> str:
-    if _is_viewcode_page(pagename):
-        return '<meta name="robots" content="noindex,follow">'
+    if pagename.startswith("_modules/"): # source code pages
+        title = _page_title(app, pagename)
+        escaped_description = escape(title, quote=True)
+        return f"""
+<meta name="description" content="{escaped_description}">
+<meta name="robots" content="noindex,follow">
+""".strip()
     
     url = _canonical_url(app, pagename)
     title = _page_title(app, pagename)
