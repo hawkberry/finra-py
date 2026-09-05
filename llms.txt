@@ -1,6 +1,6 @@
 # finra-py
 
-> `finra-py` — An Unofficial, Open-Source Python Client Library for the FINRA API Platform. `finra-py` simplifies integration with FINRA APIs for accessing public market datasets and regulatory services..
+> `finra-py` - An Unofficial, Open-Source Python Client Library for the FINRA API Platform. `finra-py` simplifies integration with FINRA APIs for accessing public market datasets and regulatory services..
 
 ## Project Details
 
