@@ -2883,9 +2883,9 @@ class BaseClient(EnumConverter, ABC):
         registered with and regulated by FINRA.
         
         The dataset mirrors what is publicly available through FINRA's
-        `BrokerCheck <www.finra.org/brokercheck>`__ service. However, it
-        returns only firms actively registered with FINRA, as well as firms for
-        which a termination request has been received. It will not return
+        `BrokerCheck <https://www.finra.org/brokercheck>`__ service. However,
+        it returns only firms actively registered with FINRA, as well as firms
+        for which a termination request has been received. It will not return
         terminated firms. Each firm record provides rich details including:
         
          - Registration Information: CRD number, SEC number, legal status, and
