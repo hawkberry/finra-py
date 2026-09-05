@@ -12,11 +12,9 @@ This page describes how to install and configure your first ``finra-py`` client,
 
 ``finra-py`` is designed for software developers, researchers, media companies, the general public, and FINRA member firms and organizations. To support these diverse user groups, the client implements all documented endpoints for the :ref:`query`, the :ref:`notification`, and the :ref:`submission`, with comprehensive test coverage across Windows, macOS, and Linux.
 
-You can read the official FINRA API documentation `here <https://developer.finra.org/docs>`__.
-
 ``finra-py`` is open source and may be used, modified, and distributed according to the terms of the `LICENSE <https://github.com/hawkberry/finra-py/blob/main/LICENSE>`__. Organizations are welcome to use the library in their own applications and workflows.
 
-For assistance implementing the FINRA API, migrating from Web EFT, or building reliable applications using FINRA data, see `FINRA API Consulting <https://finra.hawkberry.com/en/latest/consulting.html>`__.
+You can read the official FINRA API documentation `here <https://developer.finra.org/docs>`__.
 
 ++++++++++++++++
 FINRA API Access
@@ -168,11 +166,24 @@ For the asynchronous client use :py:meth:`await AsyncClient.close() <finra.async
 
 Any requests made after closing a client will raise a ``RuntimeError``. To make additional requests, create a new client.
 
-++++++++++++
-Getting Help
-++++++++++++
+++++++++++++++++++++
+Help and Development
+++++++++++++++++++++
 
-For information on how to report a bug, see :ref:`debug`.
+For troubleshooting guidance and answers to common questions, see the
+`Getting Help <https://finra.hawkberry.com/en/latest/help.html>`__ page.
 
-If you are looking for additional support, please see `FINRA API Consulting <https://finra.hawkberry.com/en/latest/consulting.html>`__.
+Submit bug reports on the ``finra-py`` `Issues Page <https://github.com/hawkberry/finra-py/issues>`__ on GitHub.
+
+If you need a dataset or feature that is not currently supported by the client, please file a `Feature Request <https://github.com/hawkberry/finra-py/issues>`__. Pull requests are not currently accepted.
+
+++++++++++++++++++++
+FINRA API Consulting
+++++++++++++++++++++
+
+Need help with a custom integration?
+
+As the author and maintainer of ``finra-py``, I provide consulting on FINRA API integrations, Web EFT migrations, compliance-related workflows, and market data systems.
+
+See the `consulting page <https://finra-py.readthedocs.io/en/latest/consulting.html>`__ for more information.
 

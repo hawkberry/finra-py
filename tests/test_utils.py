@@ -265,7 +265,7 @@ class TestAsyncRequestUtils(unittest.TestCase):
             'expires': '2026-01-02 03:04:05 UTC',
             'checkStatusLink': 'https://check.status.link.url',
             'requestId': 'test request id',
-            'requestTimestamp': '2026-02-03 04:05:06 UTC',
+            'requestTimestamp': '2026-01-02T03:04:05.000000Z',
             'errorMessages': ['error message'],
             }
         self.response = httpx.Response(200, json=self.json)
@@ -308,6 +308,24 @@ class TestAsyncRequestUtils(unittest.TestCase):
             )
         
     @no_duplicates
+    def test_extract_expires_isoformat(self):
+        json = self.response.json()
+        json['expires'] = "2026-01-02T03:04:05.000Z" 
+        self.assertEqual(
+            utils.extract_expires_isoformat(json),
+            DATETIME_UTC
+            )
+        
+    @no_duplicates
+    def test_extract_expires_isoformat_none(self):
+        json = self.response.json()
+        del json['expires']
+        self.assertEqual(
+            utils.extract_expires_isoformat(json),
+            None
+            )
+        
+    @no_duplicates
     def test_extract_check_status_link(self):
         self.assertEqual(
             utils.extract_check_status_link(self.response),
@@ -326,6 +344,22 @@ class TestAsyncRequestUtils(unittest.TestCase):
         self.assertEqual(
             utils.extract_request_timestamp(self.response),
             self.json['requestTimestamp']
+            )
+        
+    @no_duplicates
+    def test_extract_request_timestamp_dt(self):
+        self.assertEqual(
+            utils.extract_request_timestamp_dt(self.response),
+            DATETIME_UTC
+            )
+        
+    @no_duplicates
+    def test_extract_request_timestamp_dt_none(self):
+        json = self.response.json()
+        del json['requestTimestamp']
+        self.assertEqual(
+            utils.extract_request_timestamp_dt(json),
+            None
             )
         
     @no_duplicates

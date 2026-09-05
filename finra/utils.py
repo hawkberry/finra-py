@@ -15,6 +15,7 @@ __all__ = [
     'extract_content_type',
     'extract_error_messages',
     'extract_expires',
+    'extract_expires_isoformat',
     'extract_filing_created',
     'extract_filing_data',
     'extract_filing_date_of_birth',
@@ -38,6 +39,7 @@ __all__ = [
     'extract_record_total',
     'extract_request_id',
     'extract_request_timestamp',
+    'extract_request_timestamp_dt',
     'extract_response_payload_max_size',
     'extract_result_link',
     'extract_status',
@@ -231,9 +233,7 @@ def extract_status(response: Response | dict[str, Any]) -> Optional[str]:
     ``httpx.Response`` object, or from the JSON data returned by
     ``httpx.Response.json()``, if it exists.
     
-    The value is the status of the file requested. Possible values, depending
-    on the request:
-    ``complete``, ``pending``, ``unavailable``, ``success`` or ``failed``.
+    The value is the status of the file requested.
     
     :param response:
     :type response: :py:class:`httpx.Response`
@@ -258,15 +258,23 @@ def extract_result_link(response: Response | dict[str, Any]) -> Optional[str]:
     return _extract_response_field(response, "resultLink")
 
 
-def extract_expires(response: Response | dict[str, Any]) -> Optional[datetime]:
+def extract_expires(
+    response: Response | dict[str, Any]
+    ) -> Optional[datetime]:
     """
     Extract and return the result expiration datetime from the body of the
     ``httpx.Response`` object, or from the JSON data returned by
     ``httpx.Response.json()``, if it exists.
     
-    The value is the timezone-aware UTC expiration datetime of the *pre-signed*
-    URL. After the URL expires, the URL will no longer be valid. This attribute
-    is only included in the response body when the status is ``complete``.
+    The ``expires`` field must have the format ``%Y-%m-%d %H:%M:%S %Z``. This is
+    typically the case with non-native asynchronous request flows that check their
+    status using :py:meth:`BaseClient.get_async_request_status()
+    <finra.base_client.BaseClient.get_async_request_status>`.
+    
+    The returned value is the timezone-aware UTC expiration datetime of the
+    *pre-signed* URL. After the URL expires, the URL will no longer be valid.
+    This attribute is only included in the response body when the status is
+    ``complete``.
     
     :param response:
     :type response: :py:class:`httpx.Response`
@@ -274,14 +282,42 @@ def extract_expires(response: Response | dict[str, Any]) -> Optional[datetime]:
     """
     expires = _extract_response_field(response, "expires")
     if expires:
-        return datetime.strptime(expires, "%Y-%m-%d %H:%M:%S %Z").replace(
-            tzinfo=timezone.utc
-            )
+        return datetime.strptime(
+            expires, "%Y-%m-%d %H:%M:%S %Z"
+            ).replace(tzinfo=timezone.utc)
     return None
 
 
-def extract_check_status_link(response: Response | dict[str, Any]
-                              ) -> Optional[str]:
+def extract_expires_isoformat(
+    response: Response | dict[str, Any]
+    ) -> Optional[datetime]:
+    """
+    Extract and return the result expiration datetime from the body of the
+    ``httpx.Response`` object, or from the JSON data returned by
+    ``httpx.Response.json()``, if it exists.
+    
+    The ``expires`` field must be in ISO format. This is typically the case with
+    asynchronous request flows that check their status natively within their
+    original request method.
+    
+    The returned value is the timezone-aware UTC expiration datetime of the
+    *pre-signed* URL. After the URL expires, the URL will no longer be valid.
+    This attribute is only included in the response body when the status is
+    ``complete``.
+    
+    :param response:
+    :type response: :py:class:`httpx.Response`
+    :return: Result expiration
+    """
+    expires = _extract_response_field(response, "expires")
+    if expires:
+        return datetime.fromisoformat(expires)
+    return None
+
+
+def extract_check_status_link(
+    response: Response | dict[str, Any]
+    ) -> Optional[str]:
     """
     Extract and return the check status link from the body of the
     ``httpx.Response`` object, or from the JSON data returned by
@@ -289,9 +325,7 @@ def extract_check_status_link(response: Response | dict[str, Any]
     
     The value is the check status URL returned by the first leg in an
     asynchronous request. Use this URL in the second leg of the operation to
-    check the status of an asynchronous request. This attribute is only
-    included in the response body when the result status is ``pending`` or
-    ``unavailable``.
+    check the status of an asynchronous request.
     
     :param response:
     :type response: :py:class:`httpx.Response`
@@ -323,14 +357,16 @@ def extract_request_id(response: Response | dict[str, Any]) -> Optional[str]:
     return _extract_response_field(response, "requestId")
 
 
-def extract_request_timestamp(response: Response | dict[str, Any]
-                              ) -> Optional[str]:
+def extract_request_timestamp(
+    response: Response | dict[str, Any]
+    ) -> Optional[str]:
     """
     Extract and return the ``request_timestamp`` from the body of the
     ``httpx.Response`` object, or from the JSON data returned by
     ``httpx.Response.json()``, if it exists.
     
-    The value is the ISO datetime when the API request was created.
+    The value is the ISO datetime string when the API request was created, returned
+    as a string.
     
     :param response:
     :type response: :py:class:`httpx.Response`
@@ -339,15 +375,34 @@ def extract_request_timestamp(response: Response | dict[str, Any]
     return _extract_response_field(response, "requestTimestamp")
 
 
-def extract_error_messages(response: Response | dict[str, Any]
-                           ) -> Optional[list[str]]:
+def extract_request_timestamp_dt(
+    response: Response | dict[str, Any]
+    ) -> Optional[datetime]:
+    """
+    Extract and return the ``request_timestamp`` from the body of the
+    ``httpx.Response`` object, or from the JSON data returned by
+    ``httpx.Response.json()``, if it exists.
+    
+    The value is the ISO datetime when the API request was created, returned as a
+    ``datetime.datetime`` object.
+    
+    :param response:
+    :type response: :py:class:`httpx.Response`
+    :return: ``request_timestamp``
+    """
+    request_timestamp = _extract_response_field(response, "requestTimestamp")
+    if request_timestamp:
+        return datetime.fromisoformat(request_timestamp)
+    return None
+
+
+def extract_error_messages(
+    response: Response | dict[str, Any]
+    ) -> Optional[list[str]]:
     """
     Extract and return any error messages from the body of the
     ``httpx.Response`` object, or from the JSON data returned by
     ``httpx.Response.json()``, if they exist.
-    
-    If there is a processing error or a request is invalid, then the value of
-    the status will be ``failed``, and the response may contain error messages.
     
     :param response:
     :type response: :py:class:`httpx.Response`
@@ -364,8 +419,9 @@ def extract_error_messages(response: Response | dict[str, Any]
 ##############################################################################
 # ASYNCHRONOUS SUBMISSION API REQUEST UTILITIES
 
-def extract_filing_request_id(response: Response | dict[str, Any]
-                              ) -> Optional[str]:
+def extract_filing_request_id(
+    response: Response | dict[str, Any]
+    ) -> Optional[str]:
     """
     Extract and return a filing's ``request_id`` field from the body of the
     ``httpx.Response`` object, or from the JSON data returned by
@@ -373,8 +429,7 @@ def extract_filing_request_id(response: Response | dict[str, Any]
     
     The value is the FINRA UUID used to identify the filing request.
     This value must be passed back to the same method that was originally
-    called, in order to check the status of the result, and to get the
-    *pre-signed* result URL when the status is ``complete``.
+    called.
     
     :param response:
     :type response: :py:class:`httpx.Response`
@@ -427,8 +482,9 @@ def extract_filing_data(response: Response | dict[str, Any]) -> Optional[dict]:
 
 
 # Extract metadata fields from a filing response
-def extract_filing_metadata(response: Response | dict[str, Any]
-                            ) -> Optional[dict]:
+def extract_filing_metadata(
+    response: Response | dict[str, Any]
+    ) -> Optional[dict]:
     """
     Extract metadata from the body of the ``httpx.Response`` object, or the
     JSON data returned by ``httpx.Response.json()``, if it exists.
@@ -443,8 +499,9 @@ def extract_filing_metadata(response: Response | dict[str, Any]
     return None
 
 
-def extract_filing_status(response: Response | dict[str, Any]
-                          ) -> Optional[str]:
+def extract_filing_status(
+    response: Response | dict[str, Any]
+    ) -> Optional[str]:
     """
     Extract the ``filing_status`` from the body of the ``httpx.Response``
     object, or from the JSON data returned by ``httpx.Response.json()``, if it
@@ -490,8 +547,9 @@ def extract_filing_type(response: Response | dict[str, Any]) -> Optional[str]:
     return None
 
 
-def extract_filing_result_status(response: Response | dict[str, Any]
-                                 ) -> Optional[str]:
+def extract_filing_result_status(
+    response: Response | dict[str, Any]
+    ) -> Optional[str]:
     """
     Extract the result status from the body of the ``httpx.Response`` object,
     or from the JSON data returned by ``httpx.Response.json()``, if it exists.
@@ -506,8 +564,9 @@ def extract_filing_result_status(response: Response | dict[str, Any]
     return None
 
 
-def extract_filing_result_status_desc(response: Response | dict[str, Any]
-                                      ) -> Optional[dict]:
+def extract_filing_result_status_desc(
+    response: Response | dict[str, Any]
+    ) -> Optional[dict]:
     """
     Extract the result status description from the body of the
     ``httpx.Response`` object, or from the JSON data returned by
@@ -526,8 +585,9 @@ def extract_filing_result_status_desc(response: Response | dict[str, Any]
     return None
 
 
-def extract_filing_created(response: Response | dict[str, Any]
-                           ) -> Optional[dict]:
+def extract_filing_created(
+    response: Response | dict[str, Any]
+    ) -> Optional[dict]:
     """
     Extract metadata on filing creation from the body of the ``httpx.Response``
     object, or from the JSON data returned by ``httpx.Response.json()``, if it
@@ -548,8 +608,9 @@ def extract_filing_created(response: Response | dict[str, Any]
     return None
 
 
-def extract_filing_updated(response: Response | dict[str, Any]
-                           ) -> Optional[dict]:
+def extract_filing_updated(
+    response: Response | dict[str, Any]
+    ) -> Optional[dict]:
     """
     Extract metadata on filing update from the body of the ``httpx.Response``
     object, or from the JSON data returned by ``httpx.Response.json()``, if it
@@ -570,8 +631,9 @@ def extract_filing_updated(response: Response | dict[str, Any]
     return None
 
 
-def extract_filing_submitted(response: Response | dict[str, Any]
-                             ) -> Optional[dict]:
+def extract_filing_submitted(
+    response: Response | dict[str, Any]
+    ) -> Optional[dict]:
     """
     Extract metadata on filing submission from the body of the
     ``httpx.Response`` object, or from the JSON data returned by
@@ -593,8 +655,9 @@ def extract_filing_submitted(response: Response | dict[str, Any]
     return None
 
 
-def extract_filing_individual_crd_number(response: Response | dict[str, Any]
-                                         ) -> Optional[int]:
+def extract_filing_individual_crd_number(
+    response: Response | dict[str, Any]
+    ) -> Optional[int]:
     """
     Extract the Individual CRD Number from the body of the ``httpx.Response``
     object, or from the JSON data returned by ``httpx.Response.json()``, if it
@@ -612,8 +675,9 @@ def extract_filing_individual_crd_number(response: Response | dict[str, Any]
     return None
 
 
-def extract_filing_date_of_birth(response: Response | dict[str, Any]
-                                 ) -> Optional[date]:
+def extract_filing_date_of_birth(
+    response: Response | dict[str, Any]
+    ) -> Optional[date]:
     """
     Extract the Date of Birth from the body of the ``httpx.Response`` object,
     or from the JSON data returned by ``httpx.Response.json()``, if it exists.

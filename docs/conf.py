@@ -33,7 +33,7 @@ copyright = f"2026, {author}"
 
 description = config["project"]["description"]
 
-project_description = f"{project} — {description}."
+project_description = f"{project} - {description}."
 
 docs_url = config["project"]["urls"]["Documentation"].rstrip("/") + "/"
 
@@ -58,7 +58,7 @@ consulting_desc = (
     )
 
 description_llms = (
-    "`finra-py` — An Unofficial, Open-Source Python Client Library for the "
+    "`finra-py` - An Unofficial, Open-Source Python Client Library for the "
     "FINRA API Platform. `finra-py` simplifies integration with FINRA APIs "
     "for accessing public market datasets and regulatory services."
     )

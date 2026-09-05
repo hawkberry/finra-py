@@ -98,11 +98,11 @@ If you need a dataset or feature that is not currently supported by the client, 
 FINRA API Consulting
 ++++++++++++++++++++
 
-Need help implementing the FINRA API?
+Need help with a custom integration?
 
 As the author and maintainer of ``finra-py``, I provide consulting on FINRA API integrations, Web EFT migrations, compliance-related workflows, and market data systems.
 
-See the `consulting page <https://finra.hawkberry.com/en/latest/consulting.html>`__ for more information.
+See the `consulting page <https://finra-py.readthedocs.io/en/latest/consulting.html>`__ for more information.
 
 +++++++++++++
 Project Links

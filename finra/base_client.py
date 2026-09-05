@@ -348,7 +348,7 @@ def _add_params_docs(
                 "delimiter", "quote_values", "version",
                 "firm_crd_number", "individual_crd_number",
                 "date_of_birth", "ssn", "last_name", "first_name",
-                "period", "firm_market_id",
+                "period", "firm_market_id", "request_id",
                 ]
             unknown = ", ".join([f"'{p}'" for p in params if p not in _all])
             available = ", ".join([f"'{p}'" for p in _all])
@@ -1083,17 +1083,13 @@ class BaseClient(EnumConverter, ABC):
         <https://www.finra.org/rules-guidance/rulebooks/finra-rules/4560>`__
         requires FINRA member firms to report their short
         positions in all over-the-counter (OTC) equity securities to FINRA.
-        OTC equity short interest is available for view by issue, or by
-        downloadable pipe-delimited (``|``) text file containing all OTC equity
-        securities reported with a short position. Data is available online for
-        one rolling year based on the settlement date provided in the Short
-        Interest Reporting Deadlines.
+        OTC short interest is available for equities by issue, or by short
+        position, for a one year rolling window based on the settlement date.
         
-        FINRA says: The Consolidated Short Interest data is available via the
-        dataset by 4:40 PM ET on the publication date. For the publication
-        schedule, see `here
-        <https://www.finra.org/filing-reporting/regulatory-filing-systems/
-        short-interest>`__.
+        According to FINRA, the Consolidated Short Interest data should be
+        available by 4:40 PM ET on the publication date. For the publication
+        schedule, see `here <https://www.finra.org/filing-reporting/
+        regulatory-filing-systems/short-interest>`__.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -3087,10 +3083,11 @@ class BaseClient(EnumConverter, ABC):
         This dataset only supports asynchronous requests. The first response
         returns a ``request_id`` in the response body, which must be passed
         back to this method as an argument in order to check the result status.
-        If the result is not ready, the response will return with a status of
-        ``pending`` or ``unavailable``, and will also include the check status
-        link. If the response returns with ``failed`` status, it will also
-        include error messages.
+        
+        If the result is not ready when the result status is checked, the
+        response will contain the check status link. After waiting awhile, pass
+        the ``request_id`` back to this method again to re-check the status.
+        FINRA recommends polling no more than once per minute.
         
         When the request returns with status ``complete``, the result is ready.
         The response will also contain the **pre-signed** result URL, which can
@@ -3099,17 +3096,23 @@ class BaseClient(EnumConverter, ABC):
         the call is made, after which the URL will no longer be valid and a new
         call to this method must be made with the same ``request_id``.
         
+        The result file will return with either a ``success`` or ``failed``
+        status in the response body. If the status is ``success``, it will also
+        include the seed file data. If the status is ``failed``, it will
+        include error messages.
+        
         Helper functions for extracting metadata from response objects are
         available in the :py:mod:`utils <finra.utils>` module.
         Specifically see:
         :py:func:`extract_request_id() <finra.utils.extract_request_id>`,
-        :py:func:`extract_status() <finra.utils.extract_status>`,
         :py:func:`extract_check_status_link()
         <finra.utils.extract_check_status_link>`,
+        :py:func:`extract_status() <finra.utils.extract_status>`,
         :py:func:`extract_result_link() <finra.utils.extract_result_link>`,
-        :py:func:`extract_expires() <finra.utils.extract_expires>`, and
         :py:func:`extract_error_messages()
-        <finra.utils.extract_error_messages>`.
+        <finra.utils.extract_error_messages>`, and
+        :py:func:`extract_expires_isoformat()
+        <finra.utils.extract_expires_isoformat>`.
         
         See the `API documentation <https://developer.finra.org/
         docs#query_api-registration-composite_individual_seed>`__ for more
@@ -3201,6 +3204,74 @@ class BaseClient(EnumConverter, ABC):
     _add_params_docs(
         get_finpro_tasks, "endpoint", "limit", "offset", "version"
         )
+    
+    def get_firm_renewal(
+        self,
+        request_id: Optional[str]=None,
+        *,
+        version: Optional[int]=None
+        ):
+        """
+        JSON file download of annual renewal fees charged per registered
+        individual.
+        
+        The purpose of this dataset is to enable firms to track their annual
+        renewal fees. The data file will contain the prior year's renewal
+        statements until the current year's become available in CRD.
+        
+        Returned data follows the `Firm Renewal schema
+        <https://static.rampweb.qa.finra.org/schemas/firmrenewal.json>`__.
+        
+        This dataset only supports asynchronous requests. The first response
+        returns a ``request_id`` in the response body, which must be passed
+        back to this method as an argument in order to check the result status.
+        
+        If the result is not ready when the result status is checked, the
+        response will contain the check status link. After waiting awhile, pass
+        the ``request_id`` back to this method again to re-check the status.
+        FINRA recommends polling no more than once per minute.
+        
+        When the request returns with status ``complete``, the result is ready.
+        The response will also contain the **pre-signed** result URL, which can
+        be passed to the :py:meth:`BaseClient.get_async_result` method to fetch
+        the result. The **pre-signed** URL is valid for only 30 minutes after
+        the call is made, after which the URL will no longer be valid and a new
+        call to this method must be made with the same ``request_id``.
+        
+        Helper functions for extracting metadata from response objects are
+        available in the :py:mod:`utils <finra.utils>` module.
+        Specifically see:
+        :py:func:`extract_request_id() <finra.utils.extract_request_id>`,
+        :py:func:`extract_check_status_link()
+        <finra.utils.extract_check_status_link>`,
+        :py:func:`extract_status() <finra.utils.extract_status>`,
+        :py:func:`extract_result_link() <finra.utils.extract_result_link>`, and
+        :py:func:`extract_expires_isoformat()
+        <finra.utils.extract_expires_isoformat>`.
+        
+        See the `API documentation <https://developer.finra.org/
+        docs#query_api-registration-firm_renewal>`__ for more information about
+        this dataset, including URLs that you may need to whitelist in order to
+        retrieve the results.
+        
+        No mock API available.
+        
+        Requires Firm API credentials.
+        """
+        if self._mock:
+            raise MockException()
+        
+        if version is None: # changes path, not headers
+            base_url = f"{self._base_url}/v1"
+        else:
+            base_url = f"{self._base_url}/v{version}"
+        
+        return self._get_query(
+            base_url, "registration", "firmRenewal", request_id,
+            None, None, None
+            )
+    
+    _add_params_docs(get_firm_renewal, "request_id", "version")
     
     # This dataset only supports GET requests to DATA endpoint
     def get_individual_delta(
@@ -3926,8 +3997,7 @@ class BaseClient(EnumConverter, ABC):
            receive a ``request_id`` in the response body.
          - Poll for status: Pass the ``request_id`` back to this method as a
            keyword argument to check whether the file is ready. If the result
-           is not ready, the response will return with a status of
-           ``unavailable``, and will also include the check status link. Repeat
+           is not ready, the response will return the check status link. Repeat
            this step until the response returns with a status of ``complete``.
          - Download the file: When the response returns with a value of
            ``complete``, the result is ready. The response will also contain a
@@ -3939,13 +4009,14 @@ class BaseClient(EnumConverter, ABC):
         available in the :py:mod:`utils <finra.utils>` module.
         Specifically see:
         :py:func:`extract_request_id() <finra.utils.extract_request_id>`,
-        :py:func:`extract_request_timestamp()
-        <finra.utils.extract_request_timestamp>`,
-        :py:func:`extract_status() <finra.utils.extract_status>`,
+        :py:func:`extract_request_timestamp_dt()
+        <finra.utils.extract_request_timestamp_dt>`,
         :py:func:`extract_check_status_link()
         <finra.utils.extract_check_status_link>`,
-        :py:func:`extract_result_link() <finra.utils.extract_result_link>`,
-        :py:func:`extract_expires() <finra.utils.extract_expires>`.
+        :py:func:`extract_status() <finra.utils.extract_status>`,
+        :py:func:`extract_result_link() <finra.utils.extract_result_link>`, and
+        :py:func:`extract_expires_isoformat()
+        <finra.utils.extract_expires_isoformat>`.
         
         See the `API documentation
         <https://developer.finra.org/docs#query_api-trace_report_cards-
@@ -4068,8 +4139,7 @@ class BaseClient(EnumConverter, ABC):
            receive a ``request_id`` in the response body.
          - Poll for status: Pass the ``request_id`` back to this method as a
            keyword argument to check whether the file is ready. If the result
-           is not ready, the response will return with a status of
-           ``unavailable``, and will also include the check status link. Repeat
+           is not ready, the response will return the check status link. Repeat
            this step until the response returns with a status of ``complete``.
          - Download the file: When the response returns with a value of
            ``complete``, the result is ready. The response will also contain a
@@ -4081,13 +4151,14 @@ class BaseClient(EnumConverter, ABC):
         available in the :py:mod:`utils <finra.utils>` module.
         Specifically see:
         :py:func:`extract_request_id() <finra.utils.extract_request_id>`,
-        :py:func:`extract_request_timestamp()
-        <finra.utils.extract_request_timestamp>`,
-        :py:func:`extract_status() <finra.utils.extract_status>`,
+        :py:func:`extract_request_timestamp_dt()
+        <finra.utils.extract_request_timestamp_dt>`,
         :py:func:`extract_check_status_link()
         <finra.utils.extract_check_status_link>`,
-        :py:func:`extract_result_link() <finra.utils.extract_result_link>`,
-        :py:func:`extract_expires() <finra.utils.extract_expires>`.
+        :py:func:`extract_status() <finra.utils.extract_status>`,
+        :py:func:`extract_result_link() <finra.utils.extract_result_link>`, and
+        :py:func:`extract_expires_isoformat()
+        <finra.utils.extract_expires_isoformat>`.
         
         See the `API documentation
         <https://developer.finra.org/docs#query_api-trace_report_cards-
@@ -4210,8 +4281,7 @@ class BaseClient(EnumConverter, ABC):
            receive a ``request_id`` in the response body.
          - Poll for status: Pass the ``request_id`` back to this method as a
            keyword argument to check whether the file is ready. If the result
-           is not ready, the response will return with a status of
-           ``unavailable``, and will also include the check status link. Repeat
+           is not ready, the response will return the check status link. Repeat
            this step until the response returns with a status of ``complete``.
          - Download the file: When the response returns with a value of
            ``complete``, the result is ready. The response will also contain a
@@ -4223,13 +4293,14 @@ class BaseClient(EnumConverter, ABC):
         available in the :py:mod:`utils <finra.utils>` module.
         Specifically see:
         :py:func:`extract_request_id() <finra.utils.extract_request_id>`,
-        :py:func:`extract_request_timestamp()
-        <finra.utils.extract_request_timestamp>`,
-        :py:func:`extract_status() <finra.utils.extract_status>`,
+        :py:func:`extract_request_timestamp_dt()
+        <finra.utils.extract_request_timestamp_dt>`,
         :py:func:`extract_check_status_link()
         <finra.utils.extract_check_status_link>`,
-        :py:func:`extract_result_link() <finra.utils.extract_result_link>`,
-        :py:func:`extract_expires() <finra.utils.extract_expires>`.
+        :py:func:`extract_status() <finra.utils.extract_status>`,
+        :py:func:`extract_result_link() <finra.utils.extract_result_link>`, and
+        :py:func:`extract_expires_isoformat()
+        <finra.utils.extract_expires_isoformat>`.
         
         See the `API documentation
         <https://developer.finra.org/docs#query_api-trace_report_cards-
@@ -4354,8 +4425,7 @@ class BaseClient(EnumConverter, ABC):
            receive a ``request_id`` in the response body.
          - Poll for status: Pass the ``request_id`` back to this method as a
            keyword argument to check whether the file is ready. If the result
-           is not ready, the response will return with a status of
-           ``unavailable``, and will also include the check status link. Repeat
+           is not ready, the response will return the check status link. Repeat
            this step until the response returns with a status of ``complete``.
          - Download the file: When the response returns with a value of
            ``complete``, the result is ready. The response will also contain a
@@ -4367,13 +4437,14 @@ class BaseClient(EnumConverter, ABC):
         available in the :py:mod:`utils <finra.utils>` module.
         Specifically see:
         :py:func:`extract_request_id() <finra.utils.extract_request_id>`,
-        :py:func:`extract_request_timestamp()
-        <finra.utils.extract_request_timestamp>`,
-        :py:func:`extract_status() <finra.utils.extract_status>`,
+        :py:func:`extract_request_timestamp_dt()
+        <finra.utils.extract_request_timestamp_dt>`,
         :py:func:`extract_check_status_link()
         <finra.utils.extract_check_status_link>`,
-        :py:func:`extract_result_link() <finra.utils.extract_result_link>`,
-        :py:func:`extract_expires() <finra.utils.extract_expires>`.
+        :py:func:`extract_status() <finra.utils.extract_status>`,
+        :py:func:`extract_result_link() <finra.utils.extract_result_link>`, and
+        :py:func:`extract_expires_isoformat()
+        <finra.utils.extract_expires_isoformat>`.
         
         See the `API documentation
         <https://developer.finra.org/docs#query_api-trace_report_cards-

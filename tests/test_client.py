@@ -734,6 +734,9 @@ REGISTRATION_NO_MOCK: T = {
     "get_composite_individual_seed": (
         "registration", "compositeIndividualSeed", None, [],
         ),
+    "get_firm_renewal": (
+        "registration", "firmRenewal", None, [],
+        ),
     }
 
 REPORT_CARD_DETAILS: T = {
@@ -4539,6 +4542,49 @@ class _NoMockQuerySupport:
                 )
             ):
             self.client.get_composite_individual_seed(sections=f.name)
+        
+    @no_duplicates
+    def test_get_firm_renewal_get_data(self):
+        self.mock_session.get.return_value = self.response
+        
+        result = self.client.get_firm_renewal()
+        
+        self.assertEqual(result, self.response)
+        self.mock_session.get.assert_called_once_with(
+            self.base_url + "/v1" + \
+            "/data/group/registration/name/firmRenewal",
+            params={}, headers={"Accept": "application/json"}
+            )
+        
+    @no_duplicates
+    def test_get_firm_renewal_get_data_with_request_id(self):
+        self.mock_session.get.return_value = self.response
+        
+        result = self.client.get_firm_renewal("requestId")
+        
+        self.assertEqual(result, self.response)
+        self.mock_session.get.assert_called_once_with(
+            self.base_url + "/v1" + \
+            "/data/group/registration/name/firmRenewal/requestId",
+            params={}, headers={"Accept": "application/json"}
+            )
+        
+    @no_duplicates
+    def test_get_firm_renewal_get_data_with_version(self):
+        self.mock_session.get.return_value = self.response
+        
+        result = self.client.get_firm_renewal(
+            "requestId",
+            version=2
+            )
+        
+        self.assertEqual(result, self.response)
+        self.mock_session.get.assert_called_once_with(
+            self.base_url + "/v2" + \
+            "/data/group/registration/name/firmRenewal/requestId",
+            params={},
+            headers={"Accept": "application/json"}
+            )
 
 def _set_no_mock_query_support_methods():
     for method, (group, name, enum, partition_fields) in (

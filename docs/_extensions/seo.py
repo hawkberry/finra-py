@@ -29,10 +29,15 @@ def _is_viewcode_page(pagename: str) -> bool:
 
 def _page_title(app: Sphinx, pagename: str) -> str:
     title = app.env.titles.get(pagename)
-    if title is not None:
-        return f"{app.config.project} — {title.astext()}"
+    if title is None:
+        return f"{app.config.project} {app.config.version}"
     
-    return app.config.project
+    if pagename in ("", "index"):
+        return title.astext()
+    
+    return (
+        f"{title.astext()} &#8212; {app.config.project} {app.config.version}"
+        )
 
 
 def _page_description(app: Sphinx, pagename: str) -> str:

@@ -71,6 +71,7 @@ The **Registration** group contains datasets for member firms covering their reg
 - :py:meth:`Client.get_composite_individual() <finra.base_client.BaseClient.get_composite_individual>`
 - :py:meth:`Client.get_composite_individual_seed() <finra.base_client.BaseClient.get_composite_individual_seed>`
 - :py:meth:`Client.get_finpro_tasks() <finra.base_client.BaseClient.get_finpro_tasks>`
+- :py:meth:`Client.get_firm_renewal() <finra.base_client.BaseClient.get_firm_renewal>`
 - :py:meth:`Client.get_individual_delta() <finra.base_client.BaseClient.get_individual_delta>`
 - :py:meth:`Client.get_individual_fingerprint() <finra.base_client.BaseClient.get_individual_fingerprint>`
 - :py:meth:`Client.get_individual_pre_registration_search() <finra.base_client.BaseClient.get_individual_pre_registration_search>`
