@@ -48,11 +48,11 @@
 
 - [MIT](https://github.com/hawkberry/finra-py/blob/main/LICENSE): MIT License.
 
-# finra-py An Unofficial FINRA API Client
+# finra-py: An Unofficial FINRA API Client
 
-Source: https://finra.hawkberry.com/
+Source: https://finra.hawkberry.com/en/latest/
 
-## finra-py An Unofficial FINRA API Client
+## finra-py: An Unofficial FINRA API Client
 
 finra-py is an unofficial, open-source Python client library for the FINRA API Platform.
 

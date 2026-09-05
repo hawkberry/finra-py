@@ -1,8 +1,8 @@
 .. rst-class:: index-title
 
-===========================================
-``finra-py`` An Unofficial FINRA API Client
-===========================================
+============================================
+``finra-py``: An Unofficial FINRA API Client
+============================================
 
 ``finra-py`` is an unofficial, open-source Python client library for the FINRA API Platform.
 

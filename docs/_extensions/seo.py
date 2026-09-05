@@ -18,7 +18,7 @@ def _base_url(app: Sphinx) -> str:
 
 def _canonical_url(app: Sphinx, pagename: str) -> str:
     if pagename in ("", "index"):
-        return app.config.docs_url
+        return app.config.docs_url.rstrip("/") + "/en/latest/"
     
     return f"{_base_url(app)}{pagename}.html"
 

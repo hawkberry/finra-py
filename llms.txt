@@ -70,7 +70,7 @@ import finra
 
 ## Documentation
 
-- [finra-py An Unofficial FINRA API Client](https://finra.hawkberry.com/)
+- [finra-py: An Unofficial FINRA API Client](https://finra.hawkberry.com/en/latest/)
 - [Getting Started](https://finra.hawkberry.com/en/latest/getting-started.html)
 - [Authentication and Client Creation](https://finra.hawkberry.com/en/latest/auth.html)
 - [HTTP Client](https://finra.hawkberry.com/en/latest/client.html)

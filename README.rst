@@ -1,6 +1,6 @@
-===========================================
-``finra-py`` An Unofficial FINRA API Client
-===========================================
+============================================
+``finra-py``: An Unofficial FINRA API Client
+============================================
 
 .. image:: https://github.com/hawkberry/finra-py/actions/workflows/run-tests.yml/badge.svg
   :target: https://github.com/hawkberry/finra-py/actions/workflows/run-tests.yml
@@ -108,7 +108,7 @@ See the `consulting page <https://finra-py.readthedocs.io/en/latest/consulting.h
 Project Links
 +++++++++++++
 
-* `Documentation <https://finra.hawkberry.com/>`__
+* `Documentation <https://finra.hawkberry.com/en/latest/>`__
 * `Repository <https://github.com/hawkberry/finra-py>`__
 * `PyPI <https://pypi.org/project/finra-py/>`__
 * `Changelog <https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md>`__
