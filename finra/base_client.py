@@ -1732,7 +1732,7 @@ class BaseClient(EnumConverter, ABC):
         Requires Public, Firm or Organization API credentials.
         """
         return self._query(
-            self._base_url, "fixedIncomeMarket", "agencyMBSPricing", None,
+            self._base_url, "fixedIncomeMarket", "agencyMbsPricing", None,
             self.AgencyMBSPricing,
             [], endpoint, fields, filters or {}, None, limit, offset,
             async_request, True, None, None, version

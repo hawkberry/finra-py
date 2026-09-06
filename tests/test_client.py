@@ -581,23 +581,23 @@ FIXED_INCOME: T = {
 
 FIXED_INCOME_JSON_ONLY: T = {
     "get_agency_tba_pricing": (
-        "fixedIncomeMarket", "agencyTBAPricing",
+        "fixedIncomeMarket", "agencyTbaPricing",
         Client.AgencyTBAPricing, [],
         ),
     "get_agency_cmo_pricing": (
-        "fixedIncomeMarket", "agencyCMOPricing",
+        "fixedIncomeMarket", "agencyCmoPricing",
         Client.AgencyCMOPricing, [],
         ),
     "get_agency_mbs_trading_activity": (
-        "fixedIncomeMarket", "agencyMBSTradingActivity",
+        "fixedIncomeMarket", "agencyMbsTradingActivity",
         Client.AgencyMBSTradingActivity, [],
         ),
     "get_agency_mbs_arm_hybrid_pricing": (
-        "fixedIncomeMarket", "agencyMBSArmHybridPricing",
+        "fixedIncomeMarket", "agencyMbsArmHybridPricing",
         Client.AgencyMBSARMHybridPricing, [],
         ),
     "get_agency_mbs_pricing": (
-        "fixedIncomeMarket", "agencyMBSPricing",
+        "fixedIncomeMarket", "agencyMbsPricing",
         Client.AgencyMBSPricing, [],
         ),
     "get_collateralized_obligations_pricing": (
@@ -605,15 +605,15 @@ FIXED_INCOME_JSON_ONLY: T = {
         Client.CollateralizedObligationsPricing, [],
         ),
     "get_daily_cmbs_pricing": (
-        "fixedIncomeMarket", "dailyCMBSPricing",
+        "fixedIncomeMarket", "dailyCmbsPricing",
         Client.DailyCMBSPricing, [],
         ),
     "get_non_agency_cmo_abs_pricing": (
-        "fixedIncomeMarket", "nonAgencyCMOABSPricing",
+        "fixedIncomeMarket", "nonAgencyCmoAbsPricing",
         Client.NonAgencyCMOABSPricing, [],
         ),
     "get_non_agency_cmo_pricing": (
-        "fixedIncomeMarket", "nonAgencyCMOVintagePricing",
+        "fixedIncomeMarket", "nonAgencyCmoVintagePricing",
         Client.NonAgencyCMOPricing, [],
         ),
     "get_securitized_products_errata": (
@@ -625,7 +625,7 @@ FIXED_INCOME_JSON_ONLY: T = {
         Client.SecuritizedProductsTradingActivity, [],
         ),
     "get_weekly_cmbs_pricing": (
-        "fixedIncomeMarket", "weeklyCMBSPricing",
+        "fixedIncomeMarket", "weeklyCmbsPricing",
         Client.WeeklyCMBSPricing, [],
         ),
     }
@@ -690,7 +690,7 @@ REGISTRATION: T = {
         "registration", "compositeIndividual", None, [],
         ),
     "get_finpro_tasks": (
-        "registration", "finproTasks", None, [],
+        "registration", "finprotasks", None, [],
         ),
     "get_individual_delta": (
         "registration", "individualDelta", None, [],
@@ -707,14 +707,14 @@ REGISTRATION: T = {
         Client.IndividualRegistrationValidation, [],
         ),
     "get_individual_registration_validation_details": (
-        "registration", "individualRegistrationValidationDetails", None, [],
+        "registration", "IndividualRegistrationValidationDetails", None, [],
         ),
     "get_registered_individual_search": (
-        "registration", "registeredIndividualSearch",
+        "registration", "RegisteredIndividualSearch",
         Client.RegisteredIndividualSearch, [],
         ),
     "get_u4_form_prefill": (
-        "registration", "u4FormPrefill", None, [],
+        "registration", "U4FormPrefill", None, [],
         ),
     }
 
@@ -732,10 +732,10 @@ REGISTRATION_QA_ONLY: T = {
 
 REGISTRATION_NO_MOCK: T = {
     "get_composite_individual_seed": (
-        "registration", "compositeIndividualSeed", None, [],
+        "registration", "compositeindividualseed", None, [],
         ),
     "get_firm_renewal": (
-        "registration", "firmRenewal", None, [],
+        "registration", "firmrenewal", None, [],
         ),
     }
 
@@ -1562,7 +1562,7 @@ SUBMISSION = {
         "registration", "create-individual", _make_create_individual,
         ),
     "form_br_submission": (
-        "registration", "br", _make_form_br,
+        "registration", "BR", _make_form_br,
         ),
     "form_u4_submission": (
         "registration", "u4", _make_form_u4,
@@ -2440,7 +2440,7 @@ class _TestAPI:
     @no_duplicates
     @patch("finra.base_client.datetime", MockDateTime)
     def test_get_finpro_tasks_data(self):
-        url = self.base_url + "/data/group/registration/name/finproTasks"
+        url = self.base_url + "/data/group/registration/name/finprotasks"
         self.mock_session.get.return_value = self.response
         
         individual_crd_number = 12345
@@ -2456,7 +2456,7 @@ class _TestAPI:
     @no_duplicates
     @patch("finra.base_client.datetime", MockDateTime)
     def test_get_finpro_tasks_data_with_headers(self):
-        url = self.base_url + "/data/group/registration/name/finproTasks"
+        url = self.base_url + "/data/group/registration/name/finprotasks"
         self.mock_session.get.return_value = self.response
         
         individual_crd_number = 12345
@@ -2483,7 +2483,7 @@ class _TestAPI:
     @patch("finra.base_client.datetime", MockDateTime)
     def test_get_finpro_tasks_data_enums_not_required(self):
         self.client.set_require_enums(False)
-        url = self.base_url + "/data/group/registration/name/finproTasks"
+        url = self.base_url + "/data/group/registration/name/finprotasks"
         self.mock_session.get.return_value = self.response
         
         individual_crd_number = 12345
@@ -3349,8 +3349,11 @@ class _TestAPI:
     
     @no_duplicates
     def test_get_individual_registration_validation_details_data_version_1(self):
-        url = self.base_url + \
-              "/data/group/registration/name/individualRegistrationValidationDetails"
+        url = (
+            self.base_url + 
+            "/data/group/registration/name/"
+            "IndividualRegistrationValidationDetails"
+            )
         if self.mock:
             url += "Mock"
         self.mock_session.get.return_value = self.response
@@ -3370,8 +3373,11 @@ class _TestAPI:
         
     @no_duplicates
     def test_get_individual_registration_validation_details_data_version_2(self):
-        url = self.base_url + \
-              "/data/group/registration/name/individualRegistrationValidationDetails"
+        url = (
+            self.base_url +
+            "/data/group/registration/name/"
+            "IndividualRegistrationValidationDetails"
+            )
         if self.mock:
             url += "Mock"
         self.mock_session.get.return_value = self.response
@@ -3390,8 +3396,11 @@ class _TestAPI:
         
     @no_duplicates
     def test_get_individual_registration_validation_details_data_with_params(self):
-        url = self.base_url + \
-              "/data/group/registration/name/individualRegistrationValidationDetails"
+        url = (
+            self.base_url +
+            "/data/group/registration/name/"
+            "IndividualRegistrationValidationDetails"
+            )
         if self.mock:
             url += "Mock"
         self.mock_session.get.return_value = self.response
@@ -3427,8 +3436,11 @@ class _TestAPI:
     @no_duplicates
     def test_get_individual_registration_validation_details_data_enums_not_required(self):
         self.client.set_require_enums(False)
-        url = self.base_url + \
-              "/data/group/registration/name/individualRegistrationValidationDetails"
+        url = (
+            self.base_url +
+            "/data/group/registration/name/"
+            "IndividualRegistrationValidationDetails"
+            )
         if self.mock:
             url += "Mock"
         self.mock_session.get.return_value = self.response
@@ -3453,7 +3465,7 @@ class _TestAPI:
     @no_duplicates
     def test_get_registered_individual_search_data_with_ssn(self):
         url = self.base_url + \
-              "/data/group/registration/name/registeredIndividualSearch"
+              "/data/group/registration/name/RegisteredIndividualSearch"
         self.mock_session.post.return_value = self.response
         
         result = self.client.get_registered_individual_search(
@@ -3482,7 +3494,7 @@ class _TestAPI:
     @no_duplicates
     def test_get_registered_individual_search_data_with_last_name(self):
         url = self.base_url + \
-              "/data/group/registration/name/registeredIndividualSearch"
+              "/data/group/registration/name/RegisteredIndividualSearch"
         self.mock_session.post.return_value = self.response
         
         last_name = "Smith"
@@ -3512,7 +3524,7 @@ class _TestAPI:
     @no_duplicates
     def test_get_registered_individual_search_data_with_first_name(self):
         url = self.base_url + \
-              "/data/group/registration/name/registeredIndividualSearch"
+              "/data/group/registration/name/RegisteredIndividualSearch"
         self.mock_session.post.return_value = self.response
         
         first_name = "John"
@@ -3542,7 +3554,7 @@ class _TestAPI:
     @no_duplicates
     def test_get_registered_individual_search_data_with_headers(self):
         url = self.base_url + \
-              "/data/group/registration/name/registeredIndividualSearch"
+              "/data/group/registration/name/RegisteredIndividualSearch"
         self.mock_session.post.return_value = self.response
         
         result = self.client.get_registered_individual_search(
@@ -3572,7 +3584,7 @@ class _TestAPI:
     @no_duplicates
     def test_get_registered_individual_search_data_with_params(self):
         url = self.base_url + \
-              "/data/group/registration/name/registeredIndividualSearch"
+              "/data/group/registration/name/RegisteredIndividualSearch"
         self.mock_session.post.return_value = self.response
 
         e = Client.RegisteredIndividualSearch
@@ -3694,7 +3706,7 @@ class _TestAPI:
     def test_get_registered_individual_search_data_enums_not_required(self):
         self.client.set_require_enums(False)
         url = self.base_url + \
-              "/data/group/registration/name/registeredIndividualSearch"
+              "/data/group/registration/name/RegisteredIndividualSearch"
         self.mock_session.post.return_value = self.response
         
         e = Client.RegisteredIndividualSearch
@@ -3738,7 +3750,7 @@ class _TestAPI:
     
     @no_duplicates
     def test_get_u4_form_prefill_data_with_ssn(self):
-        url = self.base_url + "/data/group/registration/name/u4FormPrefill"
+        url = self.base_url + "/data/group/registration/name/U4FormPrefill"
         self.mock_session.post.return_value = self.response
         
         result = self.client.get_u4_form_prefill(
@@ -3768,7 +3780,7 @@ class _TestAPI:
         
     @no_duplicates
     def test_get_u4_form_prefill_data_with_individual_crd_number(self):
-        url = self.base_url + "/data/group/registration/name/u4FormPrefill"
+        url = self.base_url + "/data/group/registration/name/U4FormPrefill"
         self.mock_session.post.return_value = self.response
         
         individual_crd_number = 1234567
@@ -3799,7 +3811,7 @@ class _TestAPI:
     
     @no_duplicates
     def test_get_u4_form_prefill_data_with_headers(self):
-        url = self.base_url + "/data/group/registration/name/u4FormPrefill"
+        url = self.base_url + "/data/group/registration/name/U4FormPrefill"
         self.mock_session.post.return_value = self.response
         
         result = self.client.get_u4_form_prefill(
@@ -3875,7 +3887,7 @@ class _TestAPI:
     @no_duplicates
     def test_get_u4_form_prefill_data_enums_not_required(self):
         self.client.set_require_enums(False)
-        url = self.base_url + "/data/group/registration/name/u4FormPrefill"
+        url = self.base_url + "/data/group/registration/name/U4FormPrefill"
         self.mock_session.post.return_value = self.response
         
         result = self.client.get_u4_form_prefill(
@@ -4472,7 +4484,7 @@ class _NoMockQuerySupport:
         self.assertEqual(result, self.response)
         self.mock_session.get.assert_called_once_with(
             self.base_url + "/v2" + \
-            "/data/group/registration/name/compositeIndividualSeed/requestId",
+            "/data/group/registration/name/compositeindividualseed/requestId",
             params={},
             headers={"Accept": "application/json"}
             )
@@ -4495,7 +4507,7 @@ class _NoMockQuerySupport:
         self.assertEqual(result, self.response)
         self.mock_session.post.assert_called_once_with(
             self.base_url + "/v1" + \
-            "/data/group/registration/name/compositeIndividualSeed",
+            "/data/group/registration/name/compositeindividualseed",
             json={}, headers={"Accept": "application/json"}
             )
         
@@ -4508,7 +4520,7 @@ class _NoMockQuerySupport:
         self.assertEqual(result, self.response)
         self.mock_session.post.assert_called_once_with(
             self.base_url + "/v2" + \
-            "/data/group/registration/name/compositeIndividualSeed",
+            "/data/group/registration/name/compositeindividualseed",
             json={},
             headers={"Accept": "application/json"}
             )
@@ -4526,7 +4538,7 @@ class _NoMockQuerySupport:
         self.assertEqual(result, self.response)
         self.mock_session.post.assert_called_once_with(
             self.base_url + "/v1" + \
-            "/data/group/registration/name/compositeIndividualSeed",
+            "/data/group/registration/name/compositeindividualseed",
             json={"sections": [s.value for s in sections]},
             headers={"Accept": "application/json"}
             )
@@ -4552,7 +4564,7 @@ class _NoMockQuerySupport:
         self.assertEqual(result, self.response)
         self.mock_session.get.assert_called_once_with(
             self.base_url + "/v1" + \
-            "/data/group/registration/name/firmRenewal",
+            "/data/group/registration/name/firmrenewal",
             params={}, headers={"Accept": "application/json"}
             )
         
@@ -4565,7 +4577,7 @@ class _NoMockQuerySupport:
         self.assertEqual(result, self.response)
         self.mock_session.get.assert_called_once_with(
             self.base_url + "/v1" + \
-            "/data/group/registration/name/firmRenewal/requestId",
+            "/data/group/registration/name/firmrenewal/requestId",
             params={}, headers={"Accept": "application/json"}
             )
         
@@ -4581,7 +4593,7 @@ class _NoMockQuerySupport:
         self.assertEqual(result, self.response)
         self.mock_session.get.assert_called_once_with(
             self.base_url + "/v2" + \
-            "/data/group/registration/name/firmRenewal/requestId",
+            "/data/group/registration/name/firmrenewal/requestId",
             params={},
             headers={"Accept": "application/json"}
             )

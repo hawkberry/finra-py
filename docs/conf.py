@@ -65,45 +65,45 @@ description_llms = (
 page_descriptions = {
     "index": (
         "finra-py is an unofficial, open-source Python client library for "
-        "the FINRA API Platform, providing a lightweight, unopinionated "
-        "interface for authentication and integration with FINRA APIs."
+        "the FINRA API Platform, providing a lightweight interface for "
+        "authentication and access to FINRA APIs."
         ),
     "getting-started": (
-        "Learn how to install and configure finra-py, a Python client for "
-        "the FINRA API Platform, and make your first FINRA API request."
+        "Install and configure finra-py, authenticate with the FINRA API "
+        "Platform, and make your first API request from Python."
         ),
     "auth": (
-        "Learn how to authenticate Python applications with the FINRA API "
-        "Platform using finra-py and supported FINRA API credentials."
+        "Configure authentication for the FINRA API Platform with finra-py, "
+        "including OAuth 2.0 credentials and authenticated API requests."
         ),
     "client": (
-        "Learn how finra-py provides a Python HTTP client for making "
-        "authenticated requests to the FINRA API Platform."
+        "Use the finra-py HTTP client to configure connections, authenticate "
+        "requests, and interact directly with the FINRA API Platform."
         ),
     "query-api": (
-        "Learn how to retrieve FINRA market and regulatory datasets using "
-        "the FINRA Query API and the finra-py Python client."
+        "Retrieve FINRA market and regulatory datasets from Python using "
+        "the FINRA Query API and finra-py."
         ),
     "notification-api": (
-        "Learn how to retrieve FINRA notification events using the FINRA "
-        "Notification API and the finra-py Python client."
+        "Retrieve FINRA API notification events from Python using the FINRA "
+        "Notification API and finra-py."
         ),
     "submission-api": (
-        "Learn how to create and update FINRA regulatory filings for "
-        "compliance workflows using the FINRA Submission API and the finra-py "
-        "Python client."
+        "Create and update FINRA regulatory filings from Python using the "
+        "FINRA Submission API and finra-py."
         ),
     "help": (
-        "Find troubleshooting information, known FINRA API issues, "
-        "bug-reporting guidance, and support resources for finra-py."
+        "Troubleshoot finra-py, find answers to common FINRA API issues, "
+        "report bugs, and get support for using the client library."
         ),
     "consulting": (
-        "FINRA API integration and software development consulting for "
-        "production systems using finra-py and the FINRA API Platform."
+        "FINRA API consulting for integrations, regulatory workflows, data "
+        "systems, and production applications using finra-py and the FINRA "
+        "API Platform."
         ),
     "reference": (
-        "Complete finra-py API reference for Python developers, including "
-        "the client, API methods, utilities, data types, and FINRA APIs."
+        "Complete finra-py API reference for Python developers, covering the "
+        "client, authentication, API methods, utilities, and data types."
         ),
     }
 
