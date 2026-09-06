@@ -125,6 +125,8 @@ templates_path = ["_templates"]
 
 exclude_patterns = []
 
+viewcode_follow_imported_members = False
+
 
 ##############################################################################
 # -- Options for HTML output -------------------------------------------------
