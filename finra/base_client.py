@@ -1501,7 +1501,7 @@ class BaseClient(EnumConverter, ABC):
         Requires Public, Firm or Organization API credentials.
         """
         return self._query(
-            self._base_url, "fixedIncomeMarket", "agencyTBAPricing", None,
+            self._base_url, "fixedIncomeMarket", "agencyTbaPricing", None,
             self.AgencyTBAPricing,
             [], endpoint, fields, filters or {}, None, limit, offset,
             async_request, True, None, None, version
@@ -1537,7 +1537,7 @@ class BaseClient(EnumConverter, ABC):
         Requires Public, Firm or Organization API credentials.
         """
         return self._query(
-            self._base_url, "fixedIncomeMarket", "agencyCMOPricing", None,
+            self._base_url, "fixedIncomeMarket", "agencyCmoPricing", None,
             self.AgencyCMOPricing,
             [], endpoint, fields, filters or {}, None, limit, offset,
             async_request, True, None, None, version
@@ -1653,7 +1653,7 @@ class BaseClient(EnumConverter, ABC):
         Requires Public, Firm or Organization API credentials.
         """
         return self._query(
-            self._base_url, "fixedIncomeMarket", "agencyMBSTradingActivity",
+            self._base_url, "fixedIncomeMarket", "agencyMbsTradingActivity",
             None,
             self.AgencyMBSTradingActivity,
             [], endpoint, fields, filters or {}, None, limit, offset,
@@ -1691,7 +1691,7 @@ class BaseClient(EnumConverter, ABC):
         Requires Public, Firm or Organization API credentials.
         """
         return self._query(
-            self._base_url, "fixedIncomeMarket", "agencyMBSArmHybridPricing",
+            self._base_url, "fixedIncomeMarket", "agencyMbsArmHybridPricing",
             None,
             self.AgencyMBSARMHybridPricing,
             [], endpoint, fields, filters or {}, None, limit, offset,
@@ -2029,7 +2029,7 @@ class BaseClient(EnumConverter, ABC):
         Requires Public, Firm or Organization API credentials.
         """
         return self._query(
-            self._base_url, "fixedIncomeMarket", "dailyCMBSPricing", None,
+            self._base_url, "fixedIncomeMarket", "dailyCmbsPricing", None,
             self.DailyCMBSPricing,
             [], endpoint, fields, filters or {}, None, limit, offset,
             async_request, True, None, None, version
@@ -2066,7 +2066,7 @@ class BaseClient(EnumConverter, ABC):
         Requires Public, Firm or Organization API credentials.
         """
         return self._query(
-            self._base_url, "fixedIncomeMarket", "nonAgencyCMOABSPricing",
+            self._base_url, "fixedIncomeMarket", "nonAgencyCmoAbsPricing",
             None,
             self.NonAgencyCMOABSPricing,
             [], endpoint, fields, filters or {}, None, limit, offset,
@@ -2104,7 +2104,7 @@ class BaseClient(EnumConverter, ABC):
         Requires Public, Firm or Organization API credentials.
         """
         return self._query(
-            self._base_url, "fixedIncomeMarket", "nonAgencyCMOVintagePricing",
+            self._base_url, "fixedIncomeMarket", "nonAgencyCmoVintagePricing",
             None,
             self.NonAgencyCMOPricing,
             [], endpoint, fields, filters or {}, None, limit, offset,
@@ -2347,7 +2347,7 @@ class BaseClient(EnumConverter, ABC):
         Requires Public, Firm or Organization API credentials.
         """
         return self._query(
-            self._base_url, "fixedIncomeMarket", "weeklyCMBSPricing",
+            self._base_url, "fixedIncomeMarket", "weeklyCmbsPricing",
             None,
             self.WeeklyCMBSPricing,
             [], endpoint, fields, filters or {}, None, limit, offset,
@@ -3152,7 +3152,7 @@ class BaseClient(EnumConverter, ABC):
             base_url = f"{self._base_url}/v{version}"
         
         return self._query(
-            base_url, "registration", "compositeIndividualSeed", request_id,
+            base_url, "registration", "compositeindividualseed", request_id,
             None,
             [], None, None, filters, None, None, 0,
             None, True, None, None, None
@@ -3197,7 +3197,7 @@ class BaseClient(EnumConverter, ABC):
             params = {}
         
         return self._get_query(
-            self._base_url, "registration", "finproTasks", None,
+            self._base_url, "registration", "finprotasks", None,
             endpoint, None, version, **params
             )
     
@@ -3267,7 +3267,7 @@ class BaseClient(EnumConverter, ABC):
             base_url = f"{self._base_url}/v{version}"
         
         return self._get_query(
-            base_url, "registration", "firmRenewal", request_id,
+            base_url, "registration", "firmrenewal", request_id,
             None, None, None
             )
     
@@ -3749,7 +3749,7 @@ class BaseClient(EnumConverter, ABC):
         
         return self._get_query(
             self._base_url, "registration",
-            "individualRegistrationValidationDetails",
+            "IndividualRegistrationValidationDetails",
             (None if individual_crd_number is None
              else f"id/{individual_crd_number}"),
             endpoint, async_request, version, **params
@@ -3852,7 +3852,7 @@ class BaseClient(EnumConverter, ABC):
             filters = None
         
         return self._query(
-            self._base_url, "registration", "registeredIndividualSearch", None,
+            self._base_url, "registration", "RegisteredIndividualSearch", None,
             self.RegisteredIndividualSearch,
             [], endpoint, fields, filters, sort_fields, limit, offset,
             async_request, True, None, None, version
@@ -3954,7 +3954,7 @@ class BaseClient(EnumConverter, ABC):
             filters = None
         
         return self._query(
-            self._base_url, "registration", "u4FormPrefill", None, None,
+            self._base_url, "registration", "U4FormPrefill", None, None,
             [], endpoint, None, filters, None, None, 0,
             None, True, None, None, version
             )
@@ -4860,7 +4860,7 @@ class BaseClient(EnumConverter, ABC):
         Requires Firm API credentials.
         """
         return self._submission(
-            "registration", "br", request_id, filing,
+            "registration", "BR", request_id, filing,
             put, delete, validate, schema_url, version
             )
     

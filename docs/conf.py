@@ -9,18 +9,19 @@ import tomllib
 from enum import Enum
 from importlib import import_module
 from pathlib import Path
+from urllib.parse import urlsplit, urlunsplit
 
 from sphinx import addnodes
 
 
-sys.path.insert(0, str(Path(__file__).parent.joinpath("_extensions")))
+sys.path.insert(0, str(Path(__file__).parent))
 
 
 ##############################################################################
-# -- Project information -----------------------------------------------------
+# -- Config From pyproject.toml ----------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-with open(Path(__file__).parent.parent.joinpath("pyproject.toml"), "rb") as f:
+with open(Path(__file__).parent.parent / "pyproject.toml", "rb") as f:
     config = tomllib.load(f)
 
 project = config["project"]["name"]
@@ -35,7 +36,6 @@ description = config["project"]["description"]
 
 project_description = f"{project} - {description}."
 
-docs_url = config["project"]["urls"]["Documentation"].rstrip("/") + "/"
 
 repository_url = config["project"]["urls"]["Repository"]
 
@@ -51,7 +51,6 @@ license_url = config["tool"]["finra-py"]["license_url"]
 
 pypi_url = config["tool"]["finra-py"]["pypi_url"]
 
-html_title = f"{project} {version}"
 
 consulting_desc = (
     "Consulting services for FINRA API integration and production systems."
@@ -66,8 +65,8 @@ description_llms = (
 page_descriptions = {
     "index": (
         "finra-py is an unofficial, open-source Python client library for "
-        "the FINRA API Platform, providing authentication and access to "
-        "FINRA APIs."
+        "the FINRA API Platform, providing a lightweight, unopinionated "
+        "interface for authentication and integration with FINRA APIs."
         ),
     "getting-started": (
         "Learn how to install and configure finra-py, a Python client for "
@@ -82,16 +81,17 @@ page_descriptions = {
         "authenticated requests to the FINRA API Platform."
         ),
     "query-api": (
-        "Learn how to query FINRA market datasets and regulatory data using "
+        "Learn how to retrieve FINRA market and regulatory datasets using "
         "the FINRA Query API and the finra-py Python client."
         ),
     "notification-api": (
-        "Learn how to use the FINRA Notification API with finra-py, a Python "
-        "client for retrieving FINRA API notifications."
+        "Learn how to retrieve FINRA notification events using the FINRA "
+        "Notification API and the finra-py Python client."
         ),
     "submission-api": (
-        "Learn how to use the FINRA Submission API with finra-py, a Python "
-        "client for FINRA regulatory data submission workflows."
+        "Learn how to create and update FINRA regulatory filings for "
+        "compliance workflows using the FINRA Submission API and the finra-py "
+        "Python client."
         ),
     "help": (
         "Find troubleshooting information, known FINRA API issues, "
@@ -112,27 +112,28 @@ page_descriptions = {
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
+exclude_patterns = []
+
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
-    "sphinx_autodoc_typehints",
     "sphinx.ext.napoleon",
-    "seo",
+    "sphinx_autodoc_typehints",
+    "_extensions.seo",
+    "_extensions.sitemap",
     ]
 
 templates_path = ["_templates"]
-
-exclude_patterns = []
-
-viewcode_follow_imported_members = False
 
 
 ##############################################################################
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-toc_object_entries_show_parents = "hide"
+parts = urlsplit(config["project"]["urls"]["Documentation"].rstrip("/"))
+
+html_baseurl = urlunsplit((parts.scheme, parts.netloc, "", "", "")) + "/"
 
 html_css_files = ["custom.css"]
 
@@ -151,25 +152,23 @@ html_theme_options = {
     "navbar_align": "left",
     }
 
+html_title = f"{project} {version}"
+
 
 ##############################################################################
 # -- Custom options ----------------------------------------------------------
 
-autodoc_member_order = "bysource"
-
 add_module_names = False
+
+always_use_bars_union = True  # use pipes in docs, not Union[]
+
+autodoc_member_order = "bysource"
 
 autodoc_default_options = {
     "members": True,
     "undoc-members": True,
     "show-inheritance": True,
     }
-
-always_use_bars_union = True  # use pipes in docs, not Union[]
-
-suppress_warnings = ["toc.not_included"]
-
-viewcode_line_numbers = True
 
 # NOTE: This requires top of file import: from futures import __annotations__
 autodoc_type_aliases = {
@@ -181,6 +180,15 @@ autodoc_type_aliases = {
         ),
     "LabelsMapType": ":py:type:`LabelsMapType <finra.utils.LabelsMapType>`",
     }
+
+suppress_warnings = ["toc.not_included"]
+
+toc_object_entries_show_parents = "hide"
+
+viewcode_line_numbers = True
+
+viewcode_follow_imported_members = False
+
 
 # Skip documentation for certain module level objects
 def autodoc_skip_member(app, what, name, obj, skip, options):

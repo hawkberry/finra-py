@@ -39,7 +39,7 @@ dependencies = [
 	]
 
 [project.urls]
-Documentation = "https://finra.hawkberry.com/"
+Documentation = "https://finra.hawkberry.com/en/latest/"
 Repository = "https://github.com/hawkberry/finra-py"
 Changelog = "https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md"
 Consulting = "https://finra.hawkberry.com/en/latest/consulting.html"

@@ -11,16 +11,7 @@ from docutils import nodes
 from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
 
-
-def _base_url(app: Sphinx) -> str:
-    return app.config.docs_url.rstrip("/") + "/en/latest/"
-
-
-def _canonical_url(app: Sphinx, pagename: str) -> str:
-    if pagename in ("", "index"):
-        return app.config.docs_url.rstrip("/") + "/en/latest/"
-    
-    return f"{_base_url(app)}{pagename}.html"
+from .urls import canonical_url, docs_url
 
 
 def _page_title(app: Sphinx, pagename: str) -> str:
@@ -44,12 +35,12 @@ def _page_description(app: Sphinx, pagename: str) -> str:
 
 
 def _social_image_url(app: Sphinx) -> str:
-    return f"{_base_url(app)}_static/social-preview.png"
+    return f"{docs_url(app)}/_static/social-preview.png"
 
 
 def _json_ld(app: Sphinx, pagename: str) -> str:
-    base_url = _canonical_url(app, "")
-    url = _canonical_url(app, pagename)
+    base_url = canonical_url(app, "")
+    url = canonical_url(app, pagename)
     data = {
         "@context": "https://schema.org",
         "@type": "SoftwareSourceCode",
@@ -85,7 +76,7 @@ def _metadata_html(app: Sphinx, pagename: str) -> str:
 <meta name="robots" content="noindex,follow">
 """.strip()
     
-    url = _canonical_url(app, pagename)
+    url = canonical_url(app, pagename)
     title = _page_title(app, pagename)
     description = _page_description(app, pagename)
     social_image = _social_image_url(app)
@@ -328,7 +319,7 @@ def _write_llms_files(app: Sphinx, exception: Optional[Exception]) -> None:
         if title is None:
             continue
         
-        docs.append((title.astext(), _canonical_url(app, docname)))
+        docs.append((title.astext(), canonical_url(app, docname)))
     
     # Make llms.txt
     llms = [
@@ -427,7 +418,7 @@ def _write_llms_files(app: Sphinx, exception: Optional[Exception]) -> None:
         full_parts.extend([
             f"# {title.astext()}",
             "",
-            f"Source: {_canonical_url(app, docname)}",
+            f"Source: {canonical_url(app, docname)}",
             "",
             _text_from_doctree(doctree),
             "",
@@ -445,7 +436,6 @@ def _write_llms_files(app: Sphinx, exception: Optional[Exception]) -> None:
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("description", "", "html")
     app.add_config_value("project_description", "", "html")
-    app.add_config_value("docs_url", "", "html")
     app.add_config_value("repository_url", "", "html")
     app.add_config_value("changelog_url", "", "html")
     app.add_config_value("consulting_url", "", "html")
