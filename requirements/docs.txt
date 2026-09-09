@@ -1,3 +1,4 @@
 sphinx==9.1.0
 pydata-sphinx-theme==0.19.0
 sphinx-autodoc-typehints==3.6.3
+sphinx-markdown-builder==0.6.11

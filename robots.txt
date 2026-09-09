@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://finra.hawkberry.com/sitemap.xml
+Sitemap: https://finra.hawkberry.com/en/latest/sitemap.xml

@@ -32,7 +32,7 @@ Installing ``finra-py``
 
 ``finra-py`` requires **Python 3.11 or later**.
 
-Install the latest stable PyPI package using ``pip``:
+Install the package using ``pip``:
 
 .. code-block:: shell
 

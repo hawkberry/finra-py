@@ -55,7 +55,7 @@ def _changefreq(pagename: str) -> str:
     return "monthly"
 
 
-def _write_sitemap(app: Sphinx, exception: Exception | None) -> None:
+def write_sitemap(app: Sphinx, exception: Exception | None) -> None:
     if exception is not None:
         return
     
@@ -84,10 +84,14 @@ def _write_sitemap(app: Sphinx, exception: Exception | None) -> None:
         )
 
 
+#############################################################################
+# Connect custom function in Docs application setup
+
 def setup(app: Sphinx) -> dict:
-    app.connect("build-finished", _write_sitemap)
+    app.connect("build-finished", write_sitemap)
     return {
         "version": "1.0",
         "parallel_read_safe": True,
         "parallel_write_safe": True,
         }
+

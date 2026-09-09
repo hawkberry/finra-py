@@ -2,7 +2,7 @@ from sphinx.application import Sphinx
 
 
 def docs_url(app: Sphinx) -> str:
-    return app.config.html_baseurl.rstrip("/") + "/en/latest"
+    return app.config.documentation_url.rstrip("/")
 
 
 def canonical_url(app: Sphinx, pagename: str) -> str:
