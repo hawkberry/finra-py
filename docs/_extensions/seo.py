@@ -350,6 +350,29 @@ def _prepare_doctree_for_llms(doctree: nodes.document) -> None:
                     return
 
 
+def _fix_same_page_references(
+    app: Sphinx,
+    pagename: str,
+    doctree: nodes.document
+    ) -> None:
+    for node in list(doctree.findall(
+        lambda node: isinstance(node, nodes.reference)
+        )):
+        if node.get("refuri") or not node.get("refid"):
+            continue
+        
+        refid = node["refid"]
+        
+        node["refuri"] = (
+            f"{app.config.markdown_http_base.rstrip('/')}/"
+            f"{pagename}.html#{refid}"
+            )
+        
+        del node["refid"]
+        
+        node["internal"] = False
+
+
 def _markdown_from_doctree(
     app: Sphinx,
     builder: MarkdownBuilder,
@@ -358,6 +381,15 @@ def _markdown_from_doctree(
     doctree = app.env.get_doctree(pagename).deepcopy()
     
     _prepare_doctree_for_llms(doctree)
+    
+    doctree = app.env.get_and_resolve_doctree(
+        pagename,
+        builder,
+        doctree=doctree,
+        prune_toctrees=True
+        )
+    
+    _fix_same_page_references(app, pagename, doctree)
     
     builder.current_doc_name = pagename
     builder.sec_numbers = app.env.toc_secnumbers.get(pagename, {})
@@ -438,9 +470,9 @@ def write_llms_files(app: Sphinx, exception: Optional[Exception]) -> None:
     
     # Provide non-expanded pages as links to documentation pages
     llms_full.extend([
-        "## Reference Documentation",
+        "## Additional Documentation",
         "",
-        f"- [API Reference]({canonical_url(app, 'reference')}): "
+        f"- [Reference]({canonical_url(app, 'reference')}): "
         f"{app.config.llms_page_descriptions['reference']}",
         "",
         ])
@@ -468,12 +500,12 @@ def write_llms_files(app: Sphinx, exception: Optional[Exception]) -> None:
         if pagename in NO_EXPANSION_PAGES: # not expanded (see below)
             continue
         
+        _title = "Index" if pagename in ("", "index") else title
+        
         llms_full.extend([
             f"# {title}",
             "",
-            f"Source: {url}",
-            "",
-            f"Summary: {desc}",
+            f"[{_title}]({url}): {desc}",
             "",
             _markdown_from_doctree(app, markdown_builder, pagename),
             "",

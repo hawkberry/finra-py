@@ -6,7 +6,7 @@
 HTTP Client
 ===========
 
-For details on client creation and authentication see :ref:`auth`.
+For details on accessing the FINRA API, see :ref:`api_access` and see :ref:`auth`.
 
 See :py:mod:`finra.base_client` module for complete reference documentation.
 
@@ -73,7 +73,7 @@ Token Expiration
 
 Access tokens have a limited lifetime. If an API request returns a ``401 Unauthorized`` response and the dataset credentials are valid, the stored access token has likely expired. 
 
-To get a new token for an existing client call the :py:meth:`Client.refresh_token <finra.client.Client.refresh_token>` method (awaitable for asynchronous client). This will fetch a new token from the `FINRA Identity Platform <https://developer.finra.org/docs#getting_started-api_platform_basics-authorization>`__ and store it at the ``token_path``, or using the ``token_write_func`` if it was set during client creation.
+To get a new token for an existing client call the :py:meth:`Client.refresh_token() <finra.client.Client.refresh_token>` method (awaitable for asynchronous client). This will fetch a new token from the `FINRA Identity Platform <https://developer.finra.org/docs#getting_started-api_platform_basics-authorization>`__ and store it at the ``token_path``, or using the ``token_write_func`` if it was set during client creation.
 
 The client offers several read-only attributes that can be used to anticipate token expiration:
 
@@ -81,7 +81,7 @@ The client offers several read-only attributes that can be used to anticipate to
 - :py:attr:`token_expires_at <finra.base_client.BaseClient.token_expires_at>` : the expiration timestamp in UTC
 - :py:attr:`token_age <finra.base_client.BaseClient.token_age>` : the number of seconds since token creation
 
-These attributes describe a token's lifecycle, and can indicate when to proactively fetch a new token before it expires. Additionally, the :py:func:`get_client <finra.auth.get_client>` function has a ``min_expires_in`` keyword that can be used to set minimum time to expiration (in seconds) when creating a client from a stored token, and will force a new token to be fetched if the stored token expires sooner.
+These attributes describe a token's lifecycle, and can indicate when to proactively fetch a new token before it expires. Additionally, the :py:func:`get_client() <finra.auth.get_client>` function has a ``min_expires_in`` keyword that can be used to set minimum time to expiration (in seconds) when creating a client from a stored token, and will force a new token to be fetched if the stored token expires sooner.
 
 .. _data_version:
 

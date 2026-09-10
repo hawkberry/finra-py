@@ -376,7 +376,7 @@ To perform client-side validation within a client's submission method, set ``val
   
   c.schema_registry.clear()  # clear local store, free up memory
 
-The :py:class:`Validator <finra.filings.validator.Validator>` class can also be used outside the client. However, it still requires a client to fetch the schemas. This can be useful to validate the filing data without submitting it to the API. The schema registry can also be managed outside the validator, which enables it to be reused to prevent redundant network operations; many schema parts are shared across filings. The validator provides two methods for determining whether a JSON object conforms to a JSON Schema: :py:meth:`Validator.is_valid <finra.filings.validator.Validator.is_valid>` and :py:meth:`Validator.validate <finra.filings.validator.Validator.validate>`.
+The :py:class:`Validator <finra.filings.validator.Validator>` class can also be used outside the client. However, it still requires a client to fetch the schemas. This can be useful to validate the filing data without submitting it to the API. The schema registry can also be managed outside the validator, which enables it to be reused to prevent redundant network operations; many schema parts are shared across filings. The validator provides two methods for determining whether a JSON object conforms to a JSON Schema: :py:meth:`Validator.is_valid() <finra.filings.validator.Validator.is_valid>` and :py:meth:`Validator.validate() <finra.filings.validator.Validator.validate>`.
 
 .. code-block:: python
 

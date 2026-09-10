@@ -80,9 +80,9 @@ FINRA.
 - For consulting inquiries, link to the latest version of the consulting page rather than quoting cached or outdated content.
 - `Hawk Berry` is the author's and maintainer's name, not a pseudonym.
 
-## Reference Documentation
+## Additional Documentation
 
-- [API Reference](https://finra.hawkberry.com/en/latest/reference.html): Complete Python API reference for `finra-py` covering authentication, the HTTPX client, Query, Notification and Submission APIs, utilities, exceptions, and data types.
+- [Reference](https://finra.hawkberry.com/en/latest/reference.html): Complete Python API reference for `finra-py` covering authentication, the HTTPX client, Query, Notification and Submission APIs, utilities, exceptions, and data types.
 
 ## Project Links
 
@@ -103,9 +103,7 @@ FINRA.
 
 # `finra-py`: An Unofficial FINRA API Client
 
-Source: https://finra.hawkberry.com/en/latest/
-
-Summary: Project overview for `finra-py`, an unofficial, open-source Python client library for the FINRA API Platform, providing OAuth 2.0 authentication and HTTPX-based clients for the Query, Notification, and Submission APIs.
+[Index](https://finra.hawkberry.com/en/latest/): Project overview for `finra-py`, an unofficial, open-source Python client library for the FINRA API Platform, providing OAuth 2.0 authentication and HTTPX-based clients for the Query, Notification, and Submission APIs.
 
 `finra-py` is an unofficial, open-source Python client library for the FINRA API Platform.
 
@@ -125,15 +123,13 @@ Summary: Project overview for `finra-py`, an unofficial, open-source Python clie
 
 # Getting Started
 
-Source: https://finra.hawkberry.com/en/latest/getting-started.html
-
-Summary: Installation and basic usage guide covering client creation, FINRA API authentication, synchronous and asynchronous HTTPX requests, response handling, and resource management.
+[Getting Started](https://finra.hawkberry.com/en/latest/getting-started.html): Installation and basic usage guide covering client creation, FINRA API authentication, synchronous and asynchronous HTTPX requests, response handling, and resource management.
 
 `finra-py` is an unofficial, open-source Python client library for the FINRA API Platform.
 
 This page describes how to install and configure your first `finra-py` client, and it provides some basic examples you can build on for your application.
 
-`finra-py` is designed for software developers, researchers, media companies, the general public, and FINRA member firms and organizations. To support these diverse user groups, the client implements all documented endpoints for the query, the notification, and the submission, with comprehensive test coverage across Windows, macOS, and Linux.
+`finra-py` is designed for software developers, researchers, media companies, the general public, and FINRA member firms and organizations. To support these diverse user groups, the client implements all documented endpoints for the [Query API](https://finra.hawkberry.com/en/latest/query-api.html#query), the [Notification API](https://finra.hawkberry.com/en/latest/notification-api.html#notification), and the [Submission API](https://finra.hawkberry.com/en/latest/submission-api.html#submission), with comprehensive test coverage across Windows, macOS, and Linux.
 
 `finra-py` is open source and may be used, modified, and distributed according to the terms of the [LICENSE](https://github.com/hawkberry/finra-py/blob/main/LICENSE). Organizations are welcome to use the library in their own applications and workflows.
 
@@ -165,7 +161,7 @@ import finra
 
 ## Basic Usage
 
-The easiest way to create a client is with the `get_client()` function. Replace the values below with your `api_key` and `api_secret`, and choose an appropriate, secure `token_path` to store your API token. It is your responsibility to ensure your credentials and tokens are stored and accessed securely.
+The easiest way to create a client is with the [`get_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_client) function. Replace the values below with your `api_key` and `api_secret`, and choose an appropriate, secure `token_path` to store your API token. It is your responsibility to ensure your credentials and tokens are stored and accessed securely.
 
 ```python
 from finra.auth import get_client
@@ -177,7 +173,7 @@ c = get_client(
     )
 ```
 
-For more information about creating clients, see auth. For details on basic client functionality, see client. For a thorough description of options for requesting datasets, see query.
+For more information about creating clients, see [Authentication and Client Creation](https://finra.hawkberry.com/en/latest/auth.html#auth). For details on basic client functionality, see [HTTP Client](https://finra.hawkberry.com/en/latest/client.html#client). For a thorough description of options for requesting datasets, see [Query API](https://finra.hawkberry.com/en/latest/query-api.html#query).
 
 ### Basic Query Pattern
 
@@ -195,7 +191,7 @@ data = r.json()       # extract json content from response object
 
 Calling `r.raise_for_status()` raises `httpx.HTTPStatusError` if a status code is received indicating the request was unsuccessful (`300` or higher). If the status code is less than `300`, then the request was successful and the line does nothing. The status code can be accessed directly via the response object’s attribute `r.status_code`.
 
-For query datasets, the response content type can be set to either `application/json` (the client’s default) or `text/plain`. If the response content type is `application/json`, the data can be extracted using the `httpx.Response.json()` method. For notification and submission datasets, the response content type is always `application/json`. For more details, see content_types.
+For [Query API](https://finra.hawkberry.com/en/latest/query-api.html#query) datasets, the response content type can be set to either `application/json` (the client’s default) or `text/plain`. If the response content type is `application/json`, the data can be extracted using the `httpx.Response.json()` method. For [Notification API](https://finra.hawkberry.com/en/latest/notification-api.html#notification) and [Submission API](https://finra.hawkberry.com/en/latest/submission-api.html#submission) datasets, the response content type is always `application/json`. For more details, see [Content Types](https://finra.hawkberry.com/en/latest/query-api.html#content-types).
 
 See more information about handling HTTPX response content [here](https://www.python-httpx.org/quickstart/#response-content).
 
@@ -203,7 +199,7 @@ See more information about handling HTTPX response content [here](https://www.py
 
 For most datasets this client uses enums from Python’s [enum](https://docs.python.org/3/library/enum.html) module to simplify access to specific dataset fields. With a few exceptions, each dataset has a unique enum containing all of its available field names. This enum is typically documented on the client just above the dataset’s query method.
 
-The example below requests a subset of fields from the `ConsolidatedShortInterest` dataset: the symbol, the settlement date, and the current short position. To specify fields for this dataset, use the `ConsolidatedShortInterest` enum.
+The example below requests a subset of fields from the [`ConsolidatedShortInterest`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.ConsolidatedShortInterest) dataset: the symbol, the settlement date, and the current short position. To specify fields for this dataset, use the [`ConsolidatedShortInterest`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.ConsolidatedShortInterest) enum.
 
 ```python
 e = c.ConsolidatedShortInterest  # enum for this dataset
@@ -219,7 +215,7 @@ data = r.json()
 
 ### Specific Values
 
-This example shows how to request records for a specific set of symbols. In this case you can use a `Filter` object to create a domain filter, which allows you to specify one or more values for a field that each record must match.
+This example shows how to request records for a specific set of symbols. In this case you can use a [`Filter`](https://finra.hawkberry.com/en/latest/reference.html#finra.filters.Filter) object to create a domain filter, which allows you to specify one or more values for a field that each record must match.
 
 ```python
 from finra.filters import Filter
@@ -237,18 +233,18 @@ r.raise_for_status()
 data = r.json()
 ```
 
-Due to server-side constraints, this example will only fetch the first 1,000 records matching the filter conditions. If you need to query a larger number of records, or require a more advanced query pattern, see large_datasets.
+Due to server-side constraints, this example will only fetch the first 1,000 records matching the filter conditions. If you need to query a larger number of records, or require a more advanced query pattern, see [Retrieving Large Datasets](https://finra.hawkberry.com/en/latest/query-api.html#large-datasets).
 
 ### Close the Client
 
-When you’re done with the client, connections should be closed properly to free up resources. The recommended way to use a `Client` is as a context manager.
+When you’re done with the client, connections should be closed properly to free up resources. The recommended way to use a [`Client`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client) is as a context manager.
 
 ```python
 with get_client(...) as c:  # context management
     ...
 ```
 
-Alternatively, you can explicitly close the HTTP connection pool by calling `Client.close()`.
+Alternatively, you can explicitly close the HTTP connection pool by calling [`Client.close()`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client.close).
 
 ```python
 c = get_client(...)
@@ -258,7 +254,7 @@ finally:
     c.close()               # close manually
 ```
 
-For the asynchronous client use `await AsyncClient.close()`. See async for more information.
+For the asynchronous client use [`await AsyncClient.close()`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient.close). See [Asyncio Support](https://finra.hawkberry.com/en/latest/client.html#async) for more information.
 
 ```python
 async with get_client(..., is_asyncio=True) as c:  # async context
@@ -293,9 +289,9 @@ See the [consulting page](https://finra-py.readthedocs.io/en/latest/consulting.h
 
 # Authentication and Client Creation
 
-Source: https://finra.hawkberry.com/en/latest/auth.html
+[Authentication and Client Creation](https://finra.hawkberry.com/en/latest/auth.html): FINRA API authentication and client-creation guide covering OAuth 2.0 credentials, token management, custom token storage, Mock datasets, the QA Test Environment API, and synchronous and asynchronous clients.
 
-Summary: FINRA API authentication and client-creation guide covering OAuth 2.0 credentials, token management, custom token storage, Mock datasets, the QA Test Environment API, and synchronous and asynchronous clients.
+Before using `finra-py`, you’ll need to create a developer account with FINRA and provision a set of credentials, see [FINRA API Access](https://finra.hawkberry.com/en/latest/getting-started.html#api-access).
 
 The [FINRA API Platform](https://developer.finra.org/docs#getting_started-api_platform_basics-authorization) uses OAuth 2.0 for authentication and authorization. OAuth 2.0 uses short-lived access tokens instead of the resource owner’s long-term credentials, reducing the risk of credential exposure.
 
@@ -307,11 +303,11 @@ This client will save authentication tokens to any file path you provide (assumi
 
 **IMPORTANT! Only use one client at a time. The behavior is undefined if you try to use multiple clients with the same credentials at the same time, and may cause problems with the underlying OAuth2 session management.**
 
-See the `auth` module for complete reference documentation.
+See the [`auth`](https://finra.hawkberry.com/en/latest/reference.html#module-finra.auth) module for complete reference documentation.
 
 ## Get a Client
 
-The easiest way to create a configured instance of `Client` is to use the `get_client()` function.
+The easiest way to create a configured instance of [`Client`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client) is to use the [`get_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_client) function.
 
 ```python
 from finra.auth import get_client
@@ -323,15 +319,15 @@ c = get_client(
     )
 ```
 
-To create an asynchronous client instead, set `is_asyncio=True` in `get_client()`. See async for more information.
+To create an asynchronous client instead, set `is_asyncio=True` in [`get_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_client). See [Asyncio Support](https://finra.hawkberry.com/en/latest/client.html#async) for more information.
 
 If a valid token exists at the given path it will be used, otherwise a new token will be fetched from the [FINRA Identity Platform](https://developer.finra.org/docs#getting_started-api_platform_basics-authorization) and saved to the provided path.
 
 ## Mock Endpoints
 
-Many query datasets provide mock endpoints for development and demonstration purposes. To use mock endpoints, a unique `api_key` and `api_secret` pair must be created through the [FINRA API Console](https://developer.finra.org/docs#getting_started-the_api_console). Because mock endpoints require separate credentials, you will not be able to access production API endpoints when this feature is enabled, including notification and submission endpoints.
+Many [Query API](https://finra.hawkberry.com/en/latest/query-api.html#query) datasets provide mock endpoints for development and demonstration purposes. To use mock endpoints, a unique `api_key` and `api_secret` pair must be created through the [FINRA API Console](https://developer.finra.org/docs#getting_started-the_api_console). Because mock endpoints require separate credentials, you will not be able to access production API endpoints when this feature is enabled, including [Notification API](https://finra.hawkberry.com/en/latest/notification-api.html#notification) and [Submission API](https://finra.hawkberry.com/en/latest/submission-api.html#submission) endpoints.
 
-**IMPORTANT! Make sure you use mock credentials, and set a different** `token_path` **to store your mock API token. Otherwise, you may overwrite your production token, or inadvertently load the wrong token and have your requests rejected by the API server. If this happens, create a new client using** `client_from_new_token()` **or delete your tokens manually.**
+**IMPORTANT! Make sure you use mock credentials, and set a different** `token_path` **to store your mock API token. Otherwise, you may overwrite your production token, or inadvertently load the wrong token and have your requests rejected by the API server. If this happens, create a new client using** [`client_from_new_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_new_token) **or delete your tokens manually.**
 
 Set `mock=True` when creating a client to use mock endpoints.
 
@@ -346,16 +342,16 @@ c = get_client(
     )
 ```
 
-Not all datasets have mock endpoints. If a dataset is queried that does not have a mock endpoint, a `finra.exceptions.MockException` will be raised.
+Not all datasets have mock endpoints. If a dataset is queried that does not have a mock endpoint, a [`finra.exceptions.MockException`](https://finra.hawkberry.com/en/latest/reference.html#finra.exceptions.MockException) will be raised.
 
 #### NOTE
-Mock endpoints are intended for demonstration purposes, not for comprehensive integration testing, and may lack some functionality documented for production endpoints. Additionally, some mock datasets are sparsely populated, and some datasets contain no data at all (see known_bugs), so it may be necessary to walk the partitions to locate available records (see large_datasets). For comprehensive integration testing, use the QA Test Environment.
+Mock endpoints are intended for demonstration purposes, not for comprehensive integration testing, and may lack some functionality documented for production endpoints. Additionally, some mock datasets are sparsely populated, and some datasets contain no data at all (see [Known FINRA API Issues](https://finra.hawkberry.com/en/latest/help.html#known-bugs)), so it may be necessary to walk the partitions to locate available records (see [Retrieving Large Datasets](https://finra.hawkberry.com/en/latest/query-api.html#large-datasets)). For comprehensive integration testing, use the QA Test Environment.
 
 ## QA Test Environment
 
 More extensive testing features are available through the QA Test Environment, which is only available for firms with paid FINRA API subscriptions (see [FINRA Developer Center](https://developer.finra.org/)). To use the QA Test Environment, a unique `api_key` and `api_secret` pair must be created through the [FINRA API Console](https://developer.finra.org/docs#getting_started-the_api_console).
 
-**IMPORTANT! Make sure you use QA Test Environment credentials, and set a different** `token_path` **to store your QA Test Environment API token. Otherwise, you may overwrite your production token, or inadvertently load the wrong token and have your requests rejected by the API server. If this happens, create a new client using** `client_from_new_token()` **or delete your tokens manually.**
+**IMPORTANT! Make sure you use QA Test Environment credentials, and set a different** `token_path` **to store your QA Test Environment API token. Otherwise, you may overwrite your production token, or inadvertently load the wrong token and have your requests rejected by the API server. If this happens, create a new client using** [`client_from_new_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_new_token) **or delete your tokens manually.**
 
 Set `test_environment=True` when creating a client to use the QA Test Environment.
 
@@ -370,57 +366,55 @@ c = get_client(
     )
 ```
 
-If a dataset is queried that requires QA Test Environment credentials and the client is not configured for it, a `finra.exceptions.QATestEnvException` will be raised.
+If a dataset is queried that requires QA Test Environment credentials and the client is not configured for it, a [`finra.exceptions.QATestEnvException`](https://finra.hawkberry.com/en/latest/reference.html#finra.exceptions.QATestEnvException) will be raised.
 
-Mock datasets can also be accessed in the QA Test Environment by setting `mock=True` when creating a client. This setting will disable non-mock query endpoints while using the client, but it will not disable notification and submission endpoints.
+Mock datasets can also be accessed in the QA Test Environment by setting `mock=True` when creating a client. This setting will disable non-mock [Query API](https://finra.hawkberry.com/en/latest/query-api.html#query) endpoints while using the client, but it will not disable [Notification API](https://finra.hawkberry.com/en/latest/notification-api.html#notification) and [Submission API](https://finra.hawkberry.com/en/latest/submission-api.html#submission) endpoints.
 
 ## Advanced Creation
 
-Aside from `get_client()` there are additional routines with different behaviors for creating a client.
+Aside from [`get_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_client) there are additional routines with different behaviors for creating a client.
 
 ### Load an Existing Token
 
-To load an existing token and create a client with it, use `client_from_token_file()`. This function does not check whether the token is expired or not, and can result in a `401 Unauthorized` response code when making a request if the token is already expired. It will not fetch a new token.
+To load an existing token and create a client with it, use [`client_from_token_file()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_token_file). This function does not check whether the token is expired or not, and can result in a `401 Unauthorized` response code when making a request if the token is already expired. It will not fetch a new token.
 
 ### Fetch a New Token
 
-To force a new token to be fetched and create a client with it, use `client_from_new_token()`. This will write the token to the `token_path`, and will overwrite any file that already exists at that path.
+To force a new token to be fetched and create a client with it, use [`client_from_new_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_new_token). This will write the token to the `token_path`, and will overwrite any file that already exists at that path.
 
 ### Customized Storage Functions
 
-Most users will not need this functionality. However, for use cases involving specialized credential storage, `client_from_storage_functions()` allows custom callback functions to read and write the token files. This is useful when credentials are managed outside the local filesystem, for example in cloud-hosted or enterprise environments. You are responsible for ensuring these callbacks function securely and behave as expected.
+Most users will not need this functionality. However, for use cases involving specialized credential storage, [`client_from_storage_functions()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_storage_functions) allows custom callback functions to read and write the token files. This is useful when credentials are managed outside the local filesystem, for example in cloud-hosted or enterprise environments. You are responsible for ensuring these callbacks function securely and behave as expected.
 
 ### Build Client
 
-The `build_client` function provides the most fine-grained control over client creation, but requires additional setup to configure the client correctly. All of the above client creation functions ultimately call `build_client`.
+The [`build_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.build_client) function provides the most fine-grained control over client creation, but requires additional setup to configure the client correctly. All of the above client creation functions ultimately call [`build_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.build_client).
 
-Keyword arguments for this function can be passed through any of the above client creation functions, including custom constructors that return an instance of `Client` or a subclass thereof. Calling this function directly requires a correctly configured instance of `TokenManager` or a subclass.
+Keyword arguments for this function can be passed through any of the above client creation functions, including custom constructors that return an instance of [`Client`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client) or a subclass thereof. Calling this function directly requires a correctly configured instance of [`TokenManager`](https://finra.hawkberry.com/en/latest/reference.html#finra.token_manager.TokenManager) or a subclass.
 
-Similarly, `build_async_client` can be used to create an `AsyncClient` with `asyncio` support.
+Similarly, [`build_async_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.build_async_client) can be used to create an [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) with `asyncio` support.
 
 # HTTP Client
 
-Source: https://finra.hawkberry.com/en/latest/client.html
+[HTTP Client](https://finra.hawkberry.com/en/latest/client.html): HTTPX client documentation covering FINRA API calling conventions, synchronous and asynchronous clients, session management, enums, data versioning, request configuration, and standard HTTPX responses.
 
-Summary: HTTPX client documentation covering FINRA API calling conventions, synchronous and asynchronous clients, session management, enums, data versioning, request configuration, and standard HTTPX responses.
+For details on accessing the FINRA API, see [FINRA API Access](https://finra.hawkberry.com/en/latest/getting-started.html#api-access) and see [Authentication and Client Creation](https://finra.hawkberry.com/en/latest/auth.html#auth).
 
-For details on client creation and authentication see auth.
-
-See `finra.base_client` module for complete reference documentation.
+See [`finra.base_client`](https://finra.hawkberry.com/en/latest/reference.html#module-finra.base_client) module for complete reference documentation.
 
 Each dataset has its own method for requesting data.
 
 Many FINRA API parameters accept a defined set of values, for example the field names for each dataset. Rather than requiring users to manually enter these values, `finra-py` represents them using enums from Python’s [enum](https://docs.python.org/3/library/enum.html) module. The reason for this design choice is that requests with unrecognized values will be rejected by the API, which would be a common source of error and frustration for users. Using enums to manage these values avoids common errors and simplifies access to the datasets. A dataset’s enum is typically displayed in the reference documentation just above its associated query method. With a few exceptions, each dataset has its own enum containing all of its available field names.
 
-If a value is passed other than a member of the expected enum, a `TypeError` will be raised. This functionality can be disabled on the client by setting `require_enums=False` during creation, or via its `set_require_enums()` method. Several other classes in this library have the same functionality, including the `Filter` class (see filters), and the filing classes used by submission methods. In general, disabling this constraint should not be necessary, however it may be useful if you notice the API accepts a value that is not yet supported by this library. If you do find a value that is not supported here, please open an issue on the `finra-py` [Issues Page](https://github.com/hawkberry/finra-py/issues) on GitHub and describe your findings.
+If a value is passed other than a member of the expected enum, a `TypeError` will be raised. This functionality can be disabled on the client by setting `require_enums=False` during creation, or via its [`set_require_enums()`](https://finra.hawkberry.com/en/latest/reference.html#finra.enum_converter.EnumConverter.set_require_enums) method. Several other classes in this library have the same functionality, including the [`Filter`](https://finra.hawkberry.com/en/latest/reference.html#finra.filters.Filter) class (see [Filters](https://finra.hawkberry.com/en/latest/query-api.html#filters)), and the filing classes used by [Submission API](https://finra.hawkberry.com/en/latest/submission-api.html#submission) methods. In general, disabling this constraint should not be necessary, however it may be useful if you notice the API accepts a value that is not yet supported by this library. If you do find a value that is not supported here, please open an issue on the `finra-py` [Issues Page](https://github.com/hawkberry/finra-py/issues) on GitHub and describe your findings.
 
-Additionally, almost all query datasets support multiple endpoints for accessing information about them. Parameters that are required when querying the `Endpoint.DATA` endpoint can be provided as arguments or by keyword. Optional parameters must be provided using keywords. Any deviation from this convention is described in the reference documentation.
+Additionally, almost all [Query API](https://finra.hawkberry.com/en/latest/query-api.html#query) datasets support multiple [Endpoints](https://finra.hawkberry.com/en/latest/query-api.html#endpoints) for accessing information about them. Parameters that are required when querying the [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA) endpoint can be provided as arguments or by keyword. Optional parameters must be provided using keywords. Any deviation from this convention is described in the reference documentation.
 
-This client also supports the API’s server-side asynchronous request flow. This is different than the client-side `asyncio` support detailed below. For information about asynchronous requests for Query API datasets see here, or for Submission API filings see request_lifecycle.
+This client also supports the API’s server-side asynchronous request flow. This is different than the client-side `asyncio` support detailed below. For information about asynchronous requests for Query API datasets see [here](https://finra.hawkberry.com/en/latest/query-api.html#async-requests), or for Submission API filings see [Request Lifecycle](https://finra.hawkberry.com/en/latest/submission-api.html#request-lifecycle).
 
 ## Asyncio Support
 
-In addition to the standard synchronous client, this library provides an asynchronous client for improved throughput with I/O-bound applications. To learn about asynchronous I/O, see Python’s [asyncio](https://docs.python.org/3/library/asyncio.html#module-asyncio) module. To create a configured instance of `AsyncClient`, set `is_asyncio=True` in `get_client()`.
+In addition to the standard synchronous client, this library provides an asynchronous client for improved throughput with I/O-bound applications. To learn about asynchronous I/O, see Python’s [asyncio](https://docs.python.org/3/library/asyncio.html#module-asyncio) module. To create a configured instance of [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient), set `is_asyncio=True` in [`get_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_client).
 
 ```python
 from finra.auth import get_client
@@ -433,7 +427,7 @@ c = get_client(
     )
 ```
 
-The `AsyncClient` uses an asynchronous OAuth2 session to make requests, and returns awaitable coroutines. A coroutine must be awaited to execute an API request and receive an `httpx.Response` object. While waiting for the API server to respond, other coroutines and tasks can be executed concurrently and will not be blocked.
+The [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) uses an asynchronous OAuth2 session to make requests, and returns awaitable coroutines. A coroutine must be awaited to execute an API request and receive an `httpx.Response` object. While waiting for the API server to respond, other coroutines and tasks can be executed concurrently and will not be blocked.
 
 ```python
 r = await c.get_consolidated_short_interest()  # await async coroutine
@@ -449,7 +443,7 @@ There are several settings for managing how the client interacts with the API se
 
 ### Request Timeout
 
-To set the session timeout for all HTTP requests made by the client, use the `Client.set_timeout()` method. To get the current session timeout, call `Client.get_timeout()`. The default value is 30 seconds.
+To set the session timeout for all HTTP requests made by the client, use the [`Client.set_timeout()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.set_timeout) method. To get the current session timeout, call [`Client.get_timeout()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_timeout). The default value is 30 seconds.
 
 ```python
 c.set_timeout(60)  # now all requests will timeout after 60 seconds
@@ -459,15 +453,15 @@ c.set_timeout(60)  # now all requests will timeout after 60 seconds
 
 Access tokens have a limited lifetime. If an API request returns a `401 Unauthorized` response and the dataset credentials are valid, the stored access token has likely expired.
 
-To get a new token for an existing client call the `Client.refresh_token` method (awaitable for asynchronous client). This will fetch a new token from the [FINRA Identity Platform](https://developer.finra.org/docs#getting_started-api_platform_basics-authorization) and store it at the `token_path`, or using the `token_write_func` if it was set during client creation.
+To get a new token for an existing client call the [`Client.refresh_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client.refresh_token) method (awaitable for asynchronous client). This will fetch a new token from the [FINRA Identity Platform](https://developer.finra.org/docs#getting_started-api_platform_basics-authorization) and store it at the `token_path`, or using the `token_write_func` if it was set during client creation.
 
 The client offers several read-only attributes that can be used to anticipate token expiration:
 
-- `token_expires_in` : the number of seconds until expiration
-- `token_expires_at` : the expiration timestamp in UTC
-- `token_age` : the number of seconds since token creation
+- [`token_expires_in`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.token_expires_in) : the number of seconds until expiration
+- [`token_expires_at`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.token_expires_at) : the expiration timestamp in UTC
+- [`token_age`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.token_age) : the number of seconds since token creation
 
-These attributes describe a token’s lifecycle, and can indicate when to proactively fetch a new token before it expires. Additionally, the `get_client` function has a `min_expires_in` keyword that can be used to set minimum time to expiration (in seconds) when creating a client from a stored token, and will force a new token to be fetched if the stored token expires sooner.
+These attributes describe a token’s lifecycle, and can indicate when to proactively fetch a new token before it expires. Additionally, the [`get_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_client) function has a `min_expires_in` keyword that can be used to set minimum time to expiration (in seconds) when creating a client from a stored token, and will force a new token to be fetched if the stored token expires sooner.
 
 ## Data Versioning
 
@@ -479,103 +473,101 @@ See [Data Versioning](https://developer.finra.org/docs#query_api-api_basics-data
 
 # Query API
 
-Source: https://finra.hawkberry.com/en/latest/query-api.html
+[Query API](https://finra.hawkberry.com/en/latest/query-api.html): Query API documentation covering Equity, Fixed Income, FINRA, Firm, Registration, and TRACE Report Card datasets, and API functionality including fields, filters, sorting, metadata, partitions, pagination, asynchronous requests, and response formats.
 
-Summary: Query API documentation covering Equity, Fixed Income, FINRA, Firm, Registration, and TRACE Report Card datasets, and API functionality including fields, filters, sorting, metadata, partitions, pagination, asynchronous requests, and response formats.
-
-If you haven’t read getting_started, auth and client, please start by reading those sections.
+If you haven’t read [Getting Started](https://finra.hawkberry.com/en/latest/getting-started.html#getting-started), [Authentication and Client Creation](https://finra.hawkberry.com/en/latest/auth.html#auth) and [HTTP Client](https://finra.hawkberry.com/en/latest/client.html#client), please start by reading those sections.
 
 The [Query API](https://developer.finra.org/docs#query_api) datasets belong to one of several API groups. Each dataset has its own method for requesting data. Some datasets have access restrictions requiring specific credential types. See each dataset’s query method for exact requirements.
 
 The **Equity** group contains datasets covering Over-the-Counter (OTC) trade and equity data:
 
-- `Client.get_ats_block_summary()`
-- `Client.get_otc_block_summary()`
-- `Client.get_consolidated_short_interest()`
-- `Client.get_daily_short_sale_volume()`
-- `Client.get_threshold_list()`
-- `Client.get_weekly_summary()`
-- `Client.get_weekly_summary_historic()`
-- `Client.get_monthly_summary()`
-- `Client.get_otc_daily_list()`
+- [`Client.get_ats_block_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_ats_block_summary)
+- [`Client.get_otc_block_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_otc_block_summary)
+- [`Client.get_consolidated_short_interest()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_consolidated_short_interest)
+- [`Client.get_daily_short_sale_volume()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_daily_short_sale_volume)
+- [`Client.get_threshold_list()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_threshold_list)
+- [`Client.get_weekly_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_weekly_summary)
+- [`Client.get_weekly_summary_historic()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_weekly_summary_historic)
+- [`Client.get_monthly_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_monthly_summary)
+- [`Client.get_otc_daily_list()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_otc_daily_list)
 
 The **Fixed Income** group contains datasets covering Over-the-Counter (OTC) transactions in fixed-income securities reported to TRACE:
 
-- `Client.get_agency_tba_pricing()`
-- `Client.get_agency_cmo_pricing()`
-- `Client.get_agency_debt_market_breadth()`
-- `Client.get_agency_debt_market_sentiment()`
-- `Client.get_agency_mbs_trading_activity()`
-- `Client.get_agency_mbs_arm_hybrid_pricing()`
-- `Client.get_agency_mbs_pricing()`
-- `Client.get_collateralized_obligations_pricing()`
-- `Client.get_corporate_144a_debt_market_breadth()`
-- `Client.get_corporate_144a_debt_market_sentiment()`
-- `Client.get_corporate_and_agency_capped_volume()`
-- `Client.get_corporate_debt_market_breadth()`
-- `Client.get_corporate_debt_market_sentiment()`
-- `Client.get_daily_cmbs_pricing()`
-- `Client.get_non_agency_cmo_abs_pricing()`
-- `Client.get_non_agency_cmo_pricing()`
-- `Client.get_securitized_products_capped_volume()`
-- `Client.get_securitized_products_errata()`
-- `Client.get_securitized_products_trading_activity()`
-- `Client.get_treasury_daily_aggregates()`
-- `Client.get_treasury_monthly_aggregates()`
-- `Client.get_weekly_cmbs_pricing()`
+- [`Client.get_agency_tba_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_tba_pricing)
+- [`Client.get_agency_cmo_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_cmo_pricing)
+- [`Client.get_agency_debt_market_breadth()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_debt_market_breadth)
+- [`Client.get_agency_debt_market_sentiment()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_debt_market_sentiment)
+- [`Client.get_agency_mbs_trading_activity()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_mbs_trading_activity)
+- [`Client.get_agency_mbs_arm_hybrid_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_mbs_arm_hybrid_pricing)
+- [`Client.get_agency_mbs_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_mbs_pricing)
+- [`Client.get_collateralized_obligations_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_collateralized_obligations_pricing)
+- [`Client.get_corporate_144a_debt_market_breadth()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_corporate_144a_debt_market_breadth)
+- [`Client.get_corporate_144a_debt_market_sentiment()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_corporate_144a_debt_market_sentiment)
+- [`Client.get_corporate_and_agency_capped_volume()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_corporate_and_agency_capped_volume)
+- [`Client.get_corporate_debt_market_breadth()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_corporate_debt_market_breadth)
+- [`Client.get_corporate_debt_market_sentiment()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_corporate_debt_market_sentiment)
+- [`Client.get_daily_cmbs_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_daily_cmbs_pricing)
+- [`Client.get_non_agency_cmo_abs_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_non_agency_cmo_abs_pricing)
+- [`Client.get_non_agency_cmo_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_non_agency_cmo_pricing)
+- [`Client.get_securitized_products_capped_volume()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_securitized_products_capped_volume)
+- [`Client.get_securitized_products_errata()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_securitized_products_errata)
+- [`Client.get_securitized_products_trading_activity()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_securitized_products_trading_activity)
+- [`Client.get_treasury_daily_aggregates()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_treasury_daily_aggregates)
+- [`Client.get_treasury_monthly_aggregates()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_treasury_monthly_aggregates)
+- [`Client.get_weekly_cmbs_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_weekly_cmbs_pricing)
 
 The **FINRA** group contains datasets covering FINRA-related content, including the FINRA Rulebook:
 
-- `Client.get_finra_rulebook()`
-- `Client.get_firm_registration_types()`
+- [`Client.get_finra_rulebook()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_finra_rulebook)
+- [`Client.get_firm_registration_types()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_firm_registration_types)
 
 The **Firm** group contains datasets covering information associated with individual member firms, including some registration-related datasets that are only accessible by the member firm:
 
-- `Client.get_firm_customer_complaints()`
-- `Client.get_firm_disclosures()`
-- `Client.get_firm_profile()`
-- `Client.get_firm_registration_status_history()`
-- `Client.get_firm_registrations()`
+- [`Client.get_firm_customer_complaints()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_firm_customer_complaints)
+- [`Client.get_firm_disclosures()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_firm_disclosures)
+- [`Client.get_firm_profile()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_firm_profile)
+- [`Client.get_firm_registration_status_history()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_firm_registration_status_history)
+- [`Client.get_firm_registrations()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_firm_registrations)
 
 The **Registration** group contains datasets for member firms covering their registration records stored in the Central Registration Depository (CRD):
 
-- `Client.get_accounting()`
-- `Client.get_altered_ssn_and_dob()`
-- `Client.get_branch_delta()`
-- `Client.get_branch_list()`
-- `Client.get_broker_dealer_firm_list()`
-- `Client.get_composite_branch()`
-- `Client.get_composite_individual()`
-- `Client.get_composite_individual_seed()`
-- `Client.get_finpro_tasks()`
-- `Client.get_firm_renewal()`
-- `Client.get_individual_delta()`
-- `Client.get_individual_fingerprint()`
-- `Client.get_individual_pre_registration_search()`
-- `Client.get_individual_pre_registration_search_v2()`
-- `Client.get_individual_registration_validation()`
-- `Client.get_individual_registration_validation_details()`
-- `Client.get_registered_individual_search()`
-- `Client.get_u4_form_prefill()`
+- [`Client.get_accounting()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_accounting)
+- [`Client.get_altered_ssn_and_dob()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_altered_ssn_and_dob)
+- [`Client.get_branch_delta()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_branch_delta)
+- [`Client.get_branch_list()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_branch_list)
+- [`Client.get_broker_dealer_firm_list()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_broker_dealer_firm_list)
+- [`Client.get_composite_branch()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_composite_branch)
+- [`Client.get_composite_individual()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_composite_individual)
+- [`Client.get_composite_individual_seed()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_composite_individual_seed)
+- [`Client.get_finpro_tasks()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_finpro_tasks)
+- [`Client.get_firm_renewal()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_firm_renewal)
+- [`Client.get_individual_delta()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_delta)
+- [`Client.get_individual_fingerprint()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_fingerprint)
+- [`Client.get_individual_pre_registration_search()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_pre_registration_search)
+- [`Client.get_individual_pre_registration_search_v2()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_pre_registration_search_v2)
+- [`Client.get_individual_registration_validation()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_registration_validation)
+- [`Client.get_individual_registration_validation_details()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_registration_validation_details)
+- [`Client.get_registered_individual_search()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_registered_individual_search)
+- [`Client.get_u4_form_prefill()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_u4_form_prefill)
 
 The **Report Card** group contains datasets for member firms covering TRACE Report Card information across a range of compliance topics and rule sets:
 
-- `Client.get_trace_agency_debt_details()`
-- `Client.get_trace_agency_debt_summary()`
-- `Client.get_trace_treasuries_details()`
-- `Client.get_trace_treasuries_summary()`
-- `Client.get_trace_corporate_bonds_details()`
-- `Client.get_trace_corporate_bonds_summary()`
-- `Client.get_trace_securitized_products_details()`
-- `Client.get_trace_securitized_products_summary()`
+- [`Client.get_trace_agency_debt_details()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_agency_debt_details)
+- [`Client.get_trace_agency_debt_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_agency_debt_summary)
+- [`Client.get_trace_treasuries_details()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_treasuries_details)
+- [`Client.get_trace_treasuries_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_treasuries_summary)
+- [`Client.get_trace_corporate_bonds_details()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_corporate_bonds_details)
+- [`Client.get_trace_corporate_bonds_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_corporate_bonds_summary)
+- [`Client.get_trace_securitized_products_details()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_securitized_products_details)
+- [`Client.get_trace_securitized_products_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_securitized_products_summary)
 
 ## Endpoints
 
-Datasets that support multiple endpoints have an `endpoint` keyword in their query method. In general, there are four resource endpoints that can be queried for a dataset: `Endpoint.DATA`, `Endpoint.METADATA`, `Endpoint.PARTITIONS` and `Endpoint.DATASETS`. Read more about [Resource Endpoints](https://developer.finra.org/docs#query_api-resource_endpoints) in the official API documentation.
+Datasets that support multiple endpoints have an `endpoint` keyword in their query method. In general, there are four resource endpoints that can be queried for a dataset: [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA), [`Endpoint.METADATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.METADATA), [`Endpoint.PARTITIONS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.PARTITIONS) and [`Endpoint.DATASETS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATASETS). Read more about [Resource Endpoints](https://developer.finra.org/docs#query_api-resource_endpoints) in the official API documentation.
 
 ### Data
 
-All datasets support the `Endpoint.DATA` endpoint, which returns the data for the dataset. This is the default endpoint when calling a dataset’s query method on the client.
+All datasets support the [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA) endpoint, which returns the data for the dataset. This is the default endpoint when calling a dataset’s query method on the client.
 
 ```python
 r = c.get_ats_block_summary(endpoint=c.Endpoint.DATA)  # kwarg default
@@ -587,11 +579,11 @@ data = r.json()  # the actual data for this dataset
 
 If a response has no content, it will return a `204 No Content` response code, which will not raise an exception when calling `r.raise_for_status()`. However, calling `r.json()` with no content will raise `json.JSONDecodeError`.
 
-All other query method keywords only apply to the `Endpoint.DATA` endpoint.
+All other query method keywords only apply to the [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA) endpoint.
 
 ### Metadata
 
-Many datasets support the `Endpoint.METADATA` endpoint, which provides information about each of the fields in a dataset. These datasets are represented on the client using enums, and the `Endpoint.METADATA` response for a dataset should contain the same information that is documented on its enum.
+Many datasets support the [`Endpoint.METADATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.METADATA) endpoint, which provides information about each of the fields in a dataset. These datasets are represented on the client using enums, and the [`Endpoint.METADATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.METADATA) response for a dataset should contain the same information that is documented on its enum.
 
 ```python
 r = c.get_ats_block_summary(endpoint=c.Endpoint.METADATA)
@@ -601,11 +593,11 @@ r.raise_for_status()
 metadata = r.json()  # field names, types & descriptions
 ```
 
-Some datasets do not support `Endpoint.METADATA`, and consequently do not have an enum on the client. Any endpoint restrictions are detailed in the documentation for a dataset’s query method on the client.
+Some datasets do not support [`Endpoint.METADATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.METADATA), and consequently do not have an enum on the client. Any endpoint restrictions are detailed in the documentation for a dataset’s query method on the client.
 
 ### Partitions
 
-Many datasets have partition fields, which are typically used by a database program to distribute a large table across multiple machines. The partition fields for a dataset can be determined from the `Endpoint.METADATA` or `Endpoint.PARTITIONS` responses. They are also labeled on the dataset’s enum in the reference documentation.
+Many datasets have partition fields, which are typically used by a database program to distribute a large table across multiple machines. The partition fields for a dataset can be determined from the [`Endpoint.METADATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.METADATA) or [`Endpoint.PARTITIONS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.PARTITIONS) responses. They are also labeled on the dataset’s enum in the reference documentation.
 
 ```python
 r = c.get_ats_block_summary(endpoint=c.Endpoint.PARTITIONS)
@@ -615,11 +607,11 @@ r.raise_for_status()
 partitions = r.json()  # available values for partition fields
 ```
 
-Some datasets do not support `Endpoint.PARTITIONS`. Any endpoint restrictions are detailed in the documentation for a dataset’s query method on the client.
+Some datasets do not support [`Endpoint.PARTITIONS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.PARTITIONS). Any endpoint restrictions are detailed in the documentation for a dataset’s query method on the client.
 
 ### Datasets
 
-Almost all datasets support the `Endpoint.DATASETS` endpoint. It can be used to retrieve information about a dataset, including versions, status, supported data formats and API request methods, and other properties. To request information about a specific dataset use the dataset’s query method.
+Almost all datasets support the [`Endpoint.DATASETS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATASETS) endpoint. It can be used to retrieve information about a dataset, including versions, status, supported data formats and API request methods, and other properties. To request information about a specific dataset use the dataset’s query method.
 
 ```python
 r = c.get_ats_block_summary(endpoint=c.Endpoint.DATASETS)
@@ -629,7 +621,7 @@ r.raise_for_status()
 datasets = r.json()  # supported API request methods, data formats, etc.
 ```
 
-A comprehensive list of Query API datasets can be retrieved containing this information using the `Client.get_datasets()` method. If no arguments are provided, this method will return information for all datasets available using the client’s credentials, including undocumented and unsupported datasets. If a member of `Group` is provided, information is returned only for datasets in that group.
+A comprehensive list of Query API datasets can be retrieved containing this information using the [`Client.get_datasets()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_datasets) method. If no arguments are provided, this method will return information for all datasets available using the client’s credentials, including undocumented and unsupported datasets. If a member of [`Group`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Group) is provided, information is returned only for datasets in that group.
 
 ```python
 r = c.get_datasets(group=c.Group.EQUITY)
@@ -659,15 +651,15 @@ data = r.json()
 
 ## Filters
 
-Filters can be used to narrow the scope of the returned data. These are useful when selecting a subset of data from a large dataset. Datasets that support filtering have a `filters` keyword in their query method that accepts either a `Filter` object, or a `dict` representing the JSON object to pass directly to the API. However, if the JSON object is incorrectly formatted, the request will be rejected by the API.
+Filters can be used to narrow the scope of the returned data. These are useful when selecting a subset of data from a large dataset. Datasets that support filtering have a `filters` keyword in their query method that accepts either a [`Filter`](https://finra.hawkberry.com/en/latest/reference.html#finra.filters.Filter) object, or a `dict` representing the JSON object to pass directly to the API. However, if the JSON object is incorrectly formatted, the request will be rejected by the API.
 
-To simplify this process, the `Filter` class implements each of the available API filters. Methods that add a filter also return the `Filter` object, allowing calls to be chained together so that a complex filter can be built in a single line.
+To simplify this process, the [`Filter`](https://finra.hawkberry.com/en/latest/reference.html#finra.filters.Filter) class implements each of the available API filters. Methods that add a filter also return the [`Filter`](https://finra.hawkberry.com/en/latest/reference.html#finra.filters.Filter) object, allowing calls to be chained together so that a complex filter can be built in a single line.
 
-See the `finra.filters` module for complete reference documentation.
+See the [`finra.filters`](https://finra.hawkberry.com/en/latest/reference.html#module-finra.filters) module for complete reference documentation.
 
 ### Compare Filter
 
-A compare filter can be used to create a condition for comparing specific field values using the `Filter.add_compare()` method. The comparison operation is determined by the value of the `CompareType` enum passed as the third argument. If no compare type is provided, the value defaults to `CompareType.EQUAL`. Compare filters are required for datasets with partitions when requesting sorted records (see sorting below).
+A compare filter can be used to create a condition for comparing specific field values using the [`Filter.add_compare()`](https://finra.hawkberry.com/en/latest/reference.html#finra.filters.Filter.add_compare) method. The comparison operation is determined by the value of the [`CompareType`](https://finra.hawkberry.com/en/latest/reference.html#finra.filters.Filter.CompareType) enum passed as the third argument. If no compare type is provided, the value defaults to [`CompareType.EQUAL`](https://finra.hawkberry.com/en/latest/reference.html#finra.filters.Filter.CompareType.EQUAL). Compare filters are required for datasets with partitions when requesting sorted records (see [Sorting](https://finra.hawkberry.com/en/latest/query-api.html#sorting) below).
 
 ```python
 from datetime import date
@@ -691,11 +683,11 @@ f = (
     )
 ```
 
-If a value other than a member of `CompareType` is passed for the compare type, a `TypeError` will be raised. This functionality can be disabled by setting `require_enums=False` during instantiation, or via the `set_require_enums()` method.
+If a value other than a member of [`CompareType`](https://finra.hawkberry.com/en/latest/reference.html#finra.filters.Filter.CompareType) is passed for the compare type, a `TypeError` will be raised. This functionality can be disabled by setting `require_enums=False` during instantiation, or via the [`set_require_enums()`](https://finra.hawkberry.com/en/latest/reference.html#finra.enum_converter.EnumConverter.set_require_enums) method.
 
 ### Date Range Filter
 
-Date range filters can be added on date- and datetime-typed columns using the `Filter.add_date_range()` method. The method accepts `datetime.date` and `datetime.datetime` objects to specify start and end dates for the range, and will raise a `TypeError` for any other types. Start and end dates are inclusive.
+Date range filters can be added on date- and datetime-typed columns using the [`Filter.add_date_range()`](https://finra.hawkberry.com/en/latest/reference.html#finra.filters.Filter.add_date_range) method. The method accepts `datetime.date` and `datetime.datetime` objects to specify start and end dates for the range, and will raise a `TypeError` for any other types. Start and end dates are inclusive.
 
 ```python
 from datetime import date
@@ -713,7 +705,7 @@ f = Filter(e).add_date_range(
 
 ### Domain Filter
 
-To select records with a specific field value, or set of values, add a domain filter using the `Filter.add_domain()` method. For a single field value this is effectively the same as a compare filter with `CompareType.EQUAL`. However, a domain filter can be used to select records matching multiple field values.
+To select records with a specific field value, or set of values, add a domain filter using the [`Filter.add_domain()`](https://finra.hawkberry.com/en/latest/reference.html#finra.filters.Filter.add_domain) method. For a single field value this is effectively the same as a compare filter with [`CompareType.EQUAL`](https://finra.hawkberry.com/en/latest/reference.html#finra.filters.Filter.CompareType.EQUAL). However, a domain filter can be used to select records matching multiple field values.
 
 ```python
 from finra.filters import Filter
@@ -730,7 +722,7 @@ f = Filter(e).add_domain(
 
 Datasets that support requesting data in sorted order have a `sort_fields` keyword in their query method, which accepts fields specified as members of a dataset’s enum. By default, records are returned in ascending order. To specify the sort direction, provide a 2-tuple of the form `(direction, <member>)`, where `direction` is a number and `<member>` is an enum member. A negative `direction` sorts records in descending order. To sort by multiple fields, provide them as a list (or an iterable that is not a tuple).
 
-When requesting sorted records, a request must include a compare filter with `CompareType.EQUAL` on each of the partition fields for the dataset. If a dataset does not have partition fields (such as Registration group datasets), then a compare filter is not required.
+When requesting sorted records, a request must include a compare filter with [`CompareType.EQUAL`](https://finra.hawkberry.com/en/latest/reference.html#finra.filters.Filter.CompareType.EQUAL) on each of the partition fields for the dataset. If a dataset does not have partition fields (such as Registration group datasets), then a compare filter is not required.
 
 In this example, the query returns records sorted by symbol in ascending order. For this dataset, the partition field is the settlement date.
 
@@ -762,7 +754,7 @@ r = c.get_consolidated_short_interest(
     )
 ```
 
-Sorting is not supported on historical datasets, for example, when calling `Client.get_weekly_summary_historic`.
+Sorting is not supported on historical datasets, for example, when calling [`Client.get_weekly_summary_historic()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_weekly_summary_historic).
 
 Read more about [Sorting Restrictions](https://developer.finra.org/docs#query_api-api_basics-sorting_restrictions) in the official API documentation.
 
@@ -781,13 +773,13 @@ Many datasets support pagination through the `limit` and `offset` keywords in th
 
 The `offset` parameter is exclusive, which means that if the `offset` is 0 and the `limit` is 100, then records 1 through 100 will be returned. In general, the API will return records `offset + 1` through `offset + limit`.
 
-The `offset` has a maximum value of 500,000. As a consequence, pagination without additional filters can retrieve at most 505,000 records using synchronous requests, or 600,000 records using asynchronous requests. For datasets that contain more records than this, such as `WeeklySummary`, increasing the `offset` alone cannot retrieve the complete dataset.
+The `offset` has a maximum value of 500,000. As a consequence, pagination without additional filters can retrieve at most 505,000 records using synchronous requests, or 600,000 records using asynchronous requests. For datasets that contain more records than this, such as [`WeeklySummary`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.WeeklySummary), increasing the `offset` alone cannot retrieve the complete dataset.
 
-Instead, `filters` must be used together with the `limit` and `offset` parameters to reduce the size of the result set. For example, the `WeeklySummary` dataset can be filtered by its partition fields, allowing each partition to be paginated independently without exceeding the API’s maximum `offset` value.
+Instead, `filters` must be used together with the `limit` and `offset` parameters to reduce the size of the result set. For example, the [`WeeklySummary`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.WeeklySummary) dataset can be filtered by its partition fields, allowing each partition to be paginated independently without exceeding the API’s maximum `offset` value.
 
 ### Iterate Partitions
 
-Many large datasets require the use of partition fields to access and sort data. To fetch data in sorted order, a request must include a compare filter on each of the partition fields for a dataset (see sorting). Most datasets only have a single partition field, however `WeeklySummary` is so large that it has two: `WeeklySummary.WEEK_START_DATE` and `WeeklySummary.TIER_IDENTIFIER`.
+Many large datasets require the use of partition fields to access and sort data. To fetch data in sorted order, a request must include a compare filter on each of the partition fields for a dataset (see [Sorting](https://finra.hawkberry.com/en/latest/query-api.html#sorting)). Most datasets only have a single partition field, however [`WeeklySummary`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.WeeklySummary) is so large that it has two: [`WeeklySummary.WEEK_START_DATE`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.WeeklySummary.WEEK_START_DATE) and [`WeeklySummary.TIER_IDENTIFIER`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.WeeklySummary.TIER_IDENTIFIER).
 
 The following example fetches data for all `T1` securities with more than 10,000 weekly trades, with week start dates going back through 2026. It returns the data sorted first by number of trades in descending order, and then by symbol in ascending order.
 
@@ -887,7 +879,7 @@ However, this query pattern does not guarantee that all matching records will be
 
 The response headers returned by the API contain important information that can be used to adapt pagination loops. In general, the number of records returned by a single synchronous query can be limited by either the maximum record limit, or by the maximum payload size of 3MB. This can lead to unexpected behavior unless the application monitors the response headers.
 
-The `finra.utils` module provides functions to simplify handling response headers, which can be used with `httpx.Response` objects. The following example uses `extract_record_total()`, which returns the total number of records found at the time of the request, to determine when all of the data has been retrieved. The `extract_record_max_limit()` function is used to reduce the initial `limit` to the maximum record limit, if it is greater. Additionally, several assert statements are included as commented lines to demonstrate other response header utilities and their expected values.
+The [`finra.utils`](https://finra.hawkberry.com/en/latest/reference.html#module-finra.utils) module provides functions to simplify handling response headers, which can be used with `httpx.Response` objects. The following example uses [`extract_record_total()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_record_total), which returns the total number of records found at the time of the request, to determine when all of the data has been retrieved. The [`extract_record_max_limit()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_record_max_limit) function is used to reduce the initial `limit` to the maximum record limit, if it is greater. Additionally, several assert statements are included as commented lines to demonstrate other response header utilities and their expected values.
 
 ```python
 from finra import utils
@@ -930,13 +922,13 @@ while True:           # pagination loop
         break
 ```
 
-Three additional response headers may also be useful: see `extract_response_payload_max_size()`, `extract_total_records_on_page()`, and `extract_finra_api_request_id()`.
+Three additional response headers may also be useful: see [`extract_response_payload_max_size()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_response_payload_max_size), [`extract_total_records_on_page()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_total_records_on_page), and [`extract_finra_api_request_id()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_finra_api_request_id).
 
 ## Asynchronous Requests
 
 Asynchronous requests are useful for retrieving a large number of records. They can return more records per request, which means a large dataset can be retrieved using fewer API calls. Datasets that support the asynchronous request flow described below have an `async_request` keyword in their query method.
 
-Asynchronous requests involve making (at least) three separate requests to the API. The first leg of an asynchronous operation is to call the dataset’s query method with the keyword argument `async_request=True`. The response will include a status code, but it will not include the requested data in the response body. Instead, the response will include a `Location` header that contains the URL to use for the second leg of the operation to check the status of the request. To simplify handling the `Location` header, pass the `httpx.Response` object from the first leg to the `extract_location()` function as an argument, which will return the check status URL.
+Asynchronous requests involve making (at least) three separate requests to the API. The first leg of an asynchronous operation is to call the dataset’s query method with the keyword argument `async_request=True`. The response will include a status code, but it will not include the requested data in the response body. Instead, the response will include a `Location` header that contains the URL to use for the second leg of the operation to check the status of the request. To simplify handling the `Location` header, pass the `httpx.Response` object from the first leg to the [`extract_location()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_location) function as an argument, which will return the check status URL.
 
 ```python
 from finra import utils
@@ -950,7 +942,7 @@ assert r.status_code == 202      # status code should be 202
 check_status_link = utils.extract_location(r)  # URL for second leg
 ```
 
-For the second leg, pass the check status URL to `Client.get_async_request_status()` to request the status of the results. The result status can be extracted from the response using `extract_status()`. If the results are still being processed, the response will return with a status code of `202`, and the result status will have a value of `pending`. When the response returns a status code of `200`, the result status will have a value of `complete`, indicating that the result data is ready. The result URL can then be extracted from the response using the `extract_result_link()` function.
+For the second leg, pass the check status URL to [`Client.get_async_request_status()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_async_request_status) to request the status of the results. The result status can be extracted from the response using [`extract_status()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_status). If the results are still being processed, the response will return with a status code of `202`, and the result status will have a value of `pending`. When the response returns a status code of `200`, the result status will have a value of `complete`, indicating that the result data is ready. The result URL can then be extracted from the response using the [`extract_result_link()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_result_link) function.
 
 ```python
 import time
@@ -972,9 +964,9 @@ while True:                      # keep checking status until "complete"
 result_link = utils.extract_result_link(r)  # URL for third leg
 ```
 
-When the result status is `complete`, the response body will contain several other fields. A timezone-aware UTC datetime object representing the expiration of the result link can be extracted using the `extract_expires()` function. And the `request_id` field containing the FINRA UUID used to uniquely identify the request can be extracted using the `extract_request_id()` function.
+When the result status is `complete`, the response body will contain several other fields. A timezone-aware UTC datetime object representing the expiration of the result link can be extracted using the [`extract_expires()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_expires) function. And the `request_id` field containing the FINRA UUID used to uniquely identify the request can be extracted using the [`extract_request_id()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_request_id) function.
 
-The third and final leg of the asynchronous request operation involves fetching the result by passing the result URL to `Client.get_async_result()`. The result URL is *pre-signed*, meaning the caller’s authentication token is not used to access the result data. Any caller with this URL can fetch the result, however it will expire 2 hours after a status code of `200` is received from the check status URL, or 24 hours after the result dataset is created, whichever is earlier.
+The third and final leg of the asynchronous request operation involves fetching the result by passing the result URL to [`Client.get_async_result()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_async_result). The result URL is *pre-signed*, meaning the caller’s authentication token is not used to access the result data. Any caller with this URL can fetch the result, however it will expire 2 hours after a status code of `200` is received from the check status URL, or 24 hours after the result dataset is created, whichever is earlier.
 
 ```python
 r = c.get_async_result(result_link)  # third leg, get the data
@@ -988,15 +980,15 @@ Read more about [Request Types](https://developer.finra.org/docs#query_api-api_b
 
 ### Natively Async Requests
 
-A few datasets do not follow the operation flow described above, and instead handle the second leg of the asynchronous request natively through their own API endpoint. For these datasets, extract the `request_id` from the response in the first leg, and pass it back to the same query method to check the status of the request. Notable examples that implement this pattern include `Client.get_composite_individual_seed()` in the Registration group, as well as most of the submission endpoints. See the client’s reference documentation for details about specific datasets.
+A few datasets do not follow the operation flow described above, and instead handle the second leg of the asynchronous request natively through their own API endpoint. For these datasets, extract the `request_id` from the response in the first leg, and pass it back to the same query method to check the status of the request. Notable examples that implement this pattern include [`Client.get_composite_individual_seed()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_composite_individual_seed) in the Registration group, as well as most of the [Submission API](https://finra.hawkberry.com/en/latest/submission-api.html#submission) endpoints. See the client’s reference documentation for details about specific datasets.
 
 ## Content Types
 
 ### Default Content Type
 
-Within this client, the response content type defaults to `application/json`. However, many datasets support `text/plain` response content when querying their `Endpoint.DATA` endpoint. All other endpoints return only `application/json` content.
+Within this client, the response content type defaults to `application/json`. However, many datasets support `text/plain` response content when querying their [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA) endpoint. All other [endpoints](https://finra.hawkberry.com/en/latest/query-api.html#endpoints) return only `application/json` content.
 
-The default response content type can be changed to `text/plain` by passing `False` to `Client.set_default_accept_json()`. Pass `True` for `application/json`, or `None` for the API’s default. Data will only be returned as `text/plain` if the dataset being queried supports it. To get the current default content type, call `Client.get_default_accept_json()`.
+The default response content type can be changed to `text/plain` by passing `False` to [`Client.set_default_accept_json()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.set_default_accept_json). Pass `True` for `application/json`, or `None` for the API’s default. Data will only be returned as `text/plain` if the dataset being queried supports it. To get the current default content type, call [`Client.get_default_accept_json()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_default_accept_json).
 
 When requesting `text/plain` content, the data can be accessed through the `httpx.Response.text` attribute.
 
@@ -1035,13 +1027,13 @@ assert utils.extract_content_type(r) == "text/plain"  # verify content type
 data = r.text              # text data from response attribute
 ```
 
-The response content type can also be retrieved from the response headers using the `extract_content_type()` function.
+The response content type can also be retrieved from the response headers using the [`extract_content_type()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_content_type) function.
 
 ## Relabeling Response Data
 
 Response data is returned with the field names used by the API. This labeling scheme can be inconvenient if an application requires a different set of field names to process records downstream.
 
-To mitigate this issue, this library provides the `RelabelJSON` class that can be used to relabel both flat response data and nested JSON objects. It accepts a mapping as the first argument during instantiation, which can either be a dataset’s enum, or a `dict` that maps the API’s labels to the application’s canonical labels. To relabel response data, just call the `RelabelJSON` object with the `httpx.Response` returned by a query, or the JSON data returned by `httpx.Response.json()`.
+To mitigate this issue, this library provides the [`RelabelJSON`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.RelabelJSON) class that can be used to relabel both flat response data and nested JSON objects. It accepts a mapping as the first argument during instantiation, which can either be a dataset’s enum, or a `dict` that maps the API’s labels to the application’s canonical labels. To relabel response data, just call the [`RelabelJSON`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.RelabelJSON) object with the `httpx.Response` returned by a query, or the JSON data returned by `httpx.Response.json()`.
 
 The following example relabels flat response data with names from a dataset’s enum.
 
@@ -1113,16 +1105,14 @@ The default behavior is to re-order the response data so that it has the same or
 
 # Notification API
 
-Source: https://finra.hawkberry.com/en/latest/notification-api.html
+[Notification API](https://finra.hawkberry.com/en/latest/notification-api.html): Notification API documentation covering FINRA notification event datasets and API functionality including datetime-range queries and pagination.
 
-Summary: Notification API documentation covering FINRA notification event datasets and API functionality including datetime-range queries and pagination.
-
-If you haven’t read getting_started, auth and client, please start by reading those sections.
+If you haven’t read [Getting Started](https://finra.hawkberry.com/en/latest/getting-started.html#getting-started), [Authentication and Client Creation](https://finra.hawkberry.com/en/latest/auth.html#auth) and [HTTP Client](https://finra.hawkberry.com/en/latest/client.html#client), please start by reading those sections.
 
 Each [Notification API](https://developer.finra.org/docs#notification_api) dataset has its own query method. All datasets require Firm or Organization credentials. See each dataset’s query method for the exact requirements.
 
-- `Client.get_finra_rulebook_notifications()`
-- `Client.get_draft_registration_filing_notifications()`
+- [`Client.get_finra_rulebook_notifications()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_finra_rulebook_notifications)
+- [`Client.get_draft_registration_filing_notifications()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_draft_registration_filing_notifications)
 
 ## Datetime Ranges
 
@@ -1144,7 +1134,7 @@ The examples in this section are intended to demonstrate specific API concepts, 
 
 ### Chaining Datetime Ranges
 
-This example incrementally steps over one-day intervals to fetch all notifications in a date range. For additional considerations regarding pagination loops, see large_datasets.
+This example incrementally steps over one-day intervals to fetch all notifications in a date range. For additional considerations regarding pagination loops, see [Retrieving Large Datasets](https://finra.hawkberry.com/en/latest/query-api.html#large-datasets).
 
 ```python
 from datetime import date, timedelta
@@ -1182,57 +1172,55 @@ while start_date < stop:          # datetime loop
 
 # Submission API
 
-Source: https://finra.hawkberry.com/en/latest/submission-api.html
+[Submission API](https://finra.hawkberry.com/en/latest/submission-api.html): Submission API documentation covering FINRA regulatory filing creation, validation, submission, updates, and retrieval, including Form U4, Form U5, Form BR, Create Individual, and Non-Registered Fingerprint workflows.
 
-Summary: Submission API documentation covering FINRA regulatory filing creation, validation, submission, updates, and retrieval, including Form U4, Form U5, Form BR, Create Individual, and Non-Registered Fingerprint workflows.
-
-If you haven’t read getting_started, auth and client, please start by reading those sections.
+If you haven’t read [Getting Started](https://finra.hawkberry.com/en/latest/getting-started.html#getting-started), [Authentication and Client Creation](https://finra.hawkberry.com/en/latest/auth.html#auth) and [HTTP Client](https://finra.hawkberry.com/en/latest/client.html#client), please start by reading those sections.
 
 The [Submission API](https://developer.finra.org/docs#submission_api) allows applications to create and update regulatory filings and other submission data to FINRA.
 
 Each filing has a single method for submitting, validating and retrieving filing data. All endpoints require Firm credentials.
 
-- `Client.create_individual_submission()`
-- `Client.form_br_submission()`
-- `Client.form_u4_submission()`
-- `Client.form_u5_submission()`
-- `Client.non_registered_fingerprint_submission()`
+- [`Client.create_individual_submission()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.create_individual_submission)
+- [`Client.form_br_submission()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.form_br_submission)
+- [`Client.form_u4_submission()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.form_u4_submission)
+- [`Client.form_u5_submission()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.form_u5_submission)
+- [`Client.non_registered_fingerprint_submission()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.non_registered_fingerprint_submission)
 
 Each of the following classes corresponds to a specific filing. They are useful for building metadata for submissions, and configuring partial update operations.
 
-- `CreateIndividual`
-- `FormBR`
-- `FormU4`
-- `FormU5`
-- `NonRegisteredFingerprint`
+- [`CreateIndividual`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.create_individual.CreateIndividual)
+- [`FormBR`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.form_br.FormBR)
+- [`FormU4`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.form_u4.FormU4)
+- [`FormU5`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.form_u5.FormU5)
+- [`NonRegisteredFingerprint`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.non_registered_fingerprint.NonRegisteredFingerprint)
 
 ## Request Lifecycle
 
-Each time a submission request is created, the API generates a universally unique identifier (UUID) that is used to uniquely identify the submission request. This UUID is returned in the body of the `httpx.Response` and referred to as the `request_id` throughout the documentation. It can be used in subsequent requests to update, delete or retrieve the filing. The `request_id` can be extracted using `extract_filing_request_id()`. To retrieve the results for the request, pass the `request_id` back to the filing’s submission method as an argument.
+Each time a submission request is created, the API generates a universally unique identifier (UUID) that is used to uniquely identify the submission request. This UUID is returned in the body of the `httpx.Response` and referred to as the `request_id` throughout the documentation. It can be used in subsequent requests to update, delete or retrieve the filing. The `request_id` can be extracted using [`extract_filing_request_id()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_filing_request_id). To retrieve the results for the request, pass the `request_id` back to the filing’s submission method as an argument.
 
-Submission requests are processed synchronously or asynchronously depending on the filing. Synchronous submissions are processed immediately, and will return the result status immediately provided there are no server-side validation errors. The only filing that currently supports synchronous submission requests is `CreateIndividual`. All other submission filings are asynchronous.
+Submission requests are processed synchronously or asynchronously depending on the filing. Synchronous submissions are processed immediately, and will return the result status immediately provided there are no server-side validation errors. The only filing that currently supports synchronous submission requests is [`CreateIndividual`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.create_individual.CreateIndividual). All other submission filings are asynchronous.
 
-For asynchronous submissions, the API will process the request in the background, as long as the submission passes the server-side validation check. The submission response will contain the `request_id`, but it does not include information on the processing itself, which must be retrieved in a subsequent request using the `request_id`. Background processing can take from 5 to 15 minutes when the filing_status is `FilingStatus.SUBMITTED`. FINRA asks users to wait at least this long before requesting the result status.
+For asynchronous submissions, the API will process the request in the background, as long as the submission passes the server-side validation check. The submission response will contain the `request_id`, but it does not include information on the processing itself, which must be retrieved in a subsequent request using the `request_id`. Background processing can take from 5 to 15 minutes when the [Filing Status](https://finra.hawkberry.com/en/latest/submission-api.html#filing-status) is [`FilingStatus.SUBMITTED`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.FilingStatus.SUBMITTED). FINRA asks users to wait at least this long before requesting the result status.
 
-If a server-side validation failure does occur, the `filing_status` will be set to `DRAFT`, if the filing supports it. Information related to the validation error can be retrieved by calling the submission method with the `request_id`. The response will contain a `result_status` field with the value `FAILED_VALIDATION`, which can be extracted using `extract_filing_result_status()`. The `result_status_description` field will include any error and warning messages, which can be extracted using `extract_filing_result_status_desc()`.
+If a server-side validation failure does occur, the `filing_status` will be set to `DRAFT`, if the filing supports it. Information related to the validation error can be retrieved by calling the submission method with the `request_id`. The response will contain a `result_status` field with the value `FAILED_VALIDATION`, which can be extracted using [`extract_filing_result_status()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_filing_result_status). The `result_status_description` field will include any error and warning messages, which can be extracted using [`extract_filing_result_status_desc()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_filing_result_status_desc).
 
 Read more about the [Overall Flow](https://developer.finra.org/docs#submission_api-api_basics-overall_flow) for submission requests in the official API documentation.
 
 ## Filing Status
 
-The request flow for a submission depends on the value of the `FilingStatus`, which specifies the state of a submission.
+The request flow for a submission depends on the value of the [`FilingStatus`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.FilingStatus), which specifies the state of a submission.
 
 There are three available values:
 
-- `FilingStatus.DRAFT`
-- `FilingStatus.SUBMITTED`
-- `FilingStatus.VALIDATE`
+- [`FilingStatus.DRAFT`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.FilingStatus.DRAFT)
+- [`FilingStatus.SUBMITTED`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.FilingStatus.SUBMITTED)
+- [`FilingStatus.VALIDATE`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.FilingStatus.VALIDATE)
 
-The `FilingStatus` can be set on the filing object using the `set_filing_status()` method, if supported by the filing. The `CreateIndividual` and `NonRegisteredFingerprint` filings only support `FilingStatus.SUBMITTED`, and do not allow this value to be altered.
+The [`FilingStatus`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.FilingStatus) can be set on the filing object using the [`set_filing_status()`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.set_filing_status) method, if supported by the filing. The [`CreateIndividual`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.create_individual.CreateIndividual) and [`NonRegisteredFingerprint`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.non_registered_fingerprint.NonRegisteredFingerprint) filings only support [`FilingStatus.SUBMITTED`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.FilingStatus.SUBMITTED), and do not allow this value to be altered.
 
 ### Submitted Filing Status
 
-The following example builds an initial submission using `FilingStatus.SUBMITTED` for a `FormBR` filing. The filing is submitted to the API, and the `request_id` is extracted from the response.
+The following example builds an initial submission using [`FilingStatus.SUBMITTED`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.FilingStatus.SUBMITTED) for a [`FormBR`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.form_br.FormBR) filing. The filing is submitted to the API, and the `request_id` is extracted from the response.
 
 ```python
 from finra.filings.form_br import FormBR
@@ -1269,7 +1257,7 @@ data = r.json()  # submission data, wrapped with response metadata
 
 ### Draft Filing Status
 
-The primary advantage of using draft submissions is that they can be updated and re-validated as many times as needed, without having to file amendments. The following example builds an initial draft submission using `FilingStatus.DRAFT` for a `FormBR` filing. It submits the draft, and extracts the `request_id` from the response.
+The primary advantage of using draft submissions is that they can be updated and re-validated as many times as needed, without having to file amendments. The following example builds an initial draft submission using [`FilingStatus.DRAFT`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.FilingStatus.DRAFT) for a [`FormBR`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.form_br.FormBR) filing. It submits the draft, and extracts the `request_id` from the response.
 
 ```python
 from finra.filings.form_br import FormBR
@@ -1301,7 +1289,7 @@ data = r.json()  # draft submission data, wrapped with response metadata
 
 ### Validate Filing Status
 
-A server-side completeness check can be triggered for submissions in `DRAFT` status, without changing the status to `SUBMITTED`. To trigger a completeness check, create a submission with `FilingStatus.VALIDATE`. If a draft submission does not already exist, one will be created.
+A server-side completeness check can be triggered for submissions in `DRAFT` status, without changing the status to `SUBMITTED`. To trigger a completeness check, create a submission with [`FilingStatus.VALIDATE`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.FilingStatus.VALIDATE). If a draft submission does not already exist, one will be created.
 
 ```python
 from finra.filings.form_br import FormBR
@@ -1340,9 +1328,9 @@ filing_status = utils.extract_filing_status(r)        # should be "DRAFT"
 
 ## Filing Type
 
-Filing types are specific to each filing, and identify a filing procedure such as an amendment or a withdrawal. They are required for all filings except `CreateIndividual`.
+Filing types are specific to each filing, and identify a filing procedure such as an amendment or a withdrawal. They are required for all filings except [`CreateIndividual`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.create_individual.CreateIndividual).
 
-Amendments and other filing types can be created using the full filing data, or using operations. In this example, an amendment is created and submitted using an operation.
+Amendments and other filing types can be created using the full filing data, or using [Operations](https://finra.hawkberry.com/en/latest/submission-api.html#operations). In this example, an amendment is created and submitted using an operation.
 
 ```python
 from finra.filings.form_br import FormBR
@@ -1362,17 +1350,17 @@ r.raise_for_status()
 request_id = utils.extract_filing_request_id(r)    # UUID for request
 ```
 
-The one exception to this pattern is `NonRegisteredFingerprint`, which does not support `DRAFT` status or operations. However, amendments can be submitted using the full filing data, or just the delta changes in the filing data.
+The one exception to this pattern is [`NonRegisteredFingerprint`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.non_registered_fingerprint.NonRegisteredFingerprint), which does not support `DRAFT` status or operations. However, amendments can be submitted using the full filing data, or just the delta changes in the filing data.
 
 ## Operations
 
 Operations are instructions for updating a filing using JSON operations. If both filing data and operations are provided in a single call, operations will be ignored.
 
-If a filing supports operations, they can be added using the filing object’s `add_operation()` method, which takes three arguments:
+If a filing supports operations, they can be added using the filing object’s [`add_operation()`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.add_operation) method, which takes three arguments:
 
-1. `op` is the action in a JSON operation specified as a member of the `Op` enum.
+1. `op` is the action in a JSON operation specified as a member of the [`Op`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.Op) enum.
 2. `path` specifies the location or traversal route within a JSON document. It is based on the [RFC 6901](https://www.rfc-editor.org/rfc/rfc6901) standard, except with arrays where an additional syntax is supported to uniquely identify an element within an array, instead of relying on array indexes.
-3. `value` is placed at the `path`. For operations with `Op.REMOVE`, the `value` must be omitted or `None`.
+3. `value` is placed at the `path`. For operations with [`Op.REMOVE`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.Op.REMOVE), the `value` must be omitted or `None`.
 
 Consider the following example filing data:
 
@@ -1437,7 +1425,7 @@ Read more about operations for [Partial Updates](https://developer.finra.org/doc
 
 ## Update Draft
 
-operations are particularly useful for submissions in `DRAFT` status, which can be updated as many times as needed. To update a draft submission, provide the `request_id` as the first argument in the filing’s submission method, along with the filing object containing the update operations.
+[Operations](https://finra.hawkberry.com/en/latest/submission-api.html#operations) are particularly useful for submissions in `DRAFT` status, which can be updated as many times as needed. To update a draft submission, provide the `request_id` as the first argument in the filing’s submission method, along with the filing object containing the update operations.
 
 ```python
 from finra.filings.form_br import FormBR
@@ -1457,7 +1445,7 @@ r.raise_for_status()
 
 The default behavior for an update is to use a PATCH request, which will merge the filing data with the update data, preserving fields that are not included in the update. To replace a data sub-structure instead of merging it, use a PUT request by setting `put=True` in the filing’s submission method. Read more about the difference between PATCH and PUT requests [here](https://medium.com/@mirzasreza/understanding-the-difference-between-put-and-patch-in-restful-apis-6aa456388fe3).
 
-The `filing_status` can also be changed in a PATCH/PUT request without providing any filing data or operations. This can be used to finalize the submission and process it to FINRA by changing the value to `FilingStatus.SUBMITTED`, or to trigger a completeness check on the draft filing by changing the value to `FilingStatus.VALIDATE`.
+The `filing_status` can also be changed in a PATCH/PUT request without providing any filing data or operations. This can be used to finalize the submission and process it to FINRA by changing the value to [`FilingStatus.SUBMITTED`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.FilingStatus.SUBMITTED), or to trigger a completeness check on the draft filing by changing the value to [`FilingStatus.VALIDATE`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.base_filing.BaseFilingOps.FilingStatus.VALIDATE).
 
 ```python
 from finra.filings.form_br import FormBR
@@ -1499,11 +1487,11 @@ result_status_description = \
 
 ## Client-Side Validation
 
-Client-side validation is available through the `Client` class. This functionality **DOES NOT** currently support the `AsyncClient` class.
+Client-side validation is available through the [`Client`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client) class. This functionality **DOES NOT** currently support the [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) class.
 
-Client-side validation uses the `Validator` class to validate filing data and metadata on the client-side before it is submitted to the API. Client-side validation is completely optional, and is not intended as a replacement for the API’s server-side validation process. However, it can be used as a supplemental tool to catch errors prior to submission.
+Client-side validation uses the [`Validator`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.validator.Validator) class to validate filing data and metadata on the client-side before it is submitted to the API. Client-side validation is completely optional, and is not intended as a replacement for the API’s server-side validation process. However, it can be used as a supplemental tool to catch errors prior to submission.
 
-The `Validator` class validates a filing’s JSON object against its JSON Schema, which defines the expected structure and allowed values for the object. It is effectively a proxy for the `jsonschema.Draft7Validator`, which can validate JSON objects against schemas that follow the [JSON Schema Draft 7](https://json-schema.org/draft-07) specification. See more information about the `jsonschema` validation process [here](https://python-jsonschema.readthedocs.io/en/stable/validate/).
+The [`Validator`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.validator.Validator) class validates a filing’s JSON object against its JSON Schema, which defines the expected structure and allowed values for the object. It is effectively a proxy for the `jsonschema.Draft7Validator`, which can validate JSON objects against schemas that follow the [JSON Schema Draft 7](https://json-schema.org/draft-07) specification. See more information about the `jsonschema` validation process [here](https://python-jsonschema.readthedocs.io/en/stable/validate/).
 
 During client-side validation, the schemas are fetched directly from the API and stored in memory, and are accessible from the client’s `schema_registry` attribute. This significantly reduces validation time because each schema component only needs to be fetched once. To free up resources when all validation is complete, and the schemas are no longer needed, just clear the schema registry.
 
@@ -1524,7 +1512,7 @@ r = c.form_br_submission(
 c.schema_registry.clear()  # clear local store, free up memory
 ```
 
-The `Validator` class can also be used outside the client. However, it still requires a client to fetch the schemas. This can be useful to validate the filing data without submitting it to the API. The schema registry can also be managed outside the validator, which enables it to be reused to prevent redundant network operations; many schema parts are shared across filings. The validator provides two methods for determining whether a JSON object conforms to a JSON Schema: `Validator.is_valid` and `Validator.validate`.
+The [`Validator`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.validator.Validator) class can also be used outside the client. However, it still requires a client to fetch the schemas. This can be useful to validate the filing data without submitting it to the API. The schema registry can also be managed outside the validator, which enables it to be reused to prevent redundant network operations; many schema parts are shared across filings. The validator provides two methods for determining whether a JSON object conforms to a JSON Schema: [`Validator.is_valid()`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.validator.Validator.is_valid) and [`Validator.validate()`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.validator.Validator.validate).
 
 ```python
 from finra.filings.form_br import FormBR
@@ -1551,9 +1539,7 @@ schema_registry.clear()  # cleared schemas will need to be re-fetched
 
 # Getting Help
 
-Source: https://finra.hawkberry.com/en/latest/help.html
-
-Summary: Troubleshooting and support guidance covering diagnostic logging, bug reports, known FINRA API issues, and common `finra-py` problems.
+[Getting Help](https://finra.hawkberry.com/en/latest/help.html): Troubleshooting and support guidance covering diagnostic logging, bug reports, known FINRA API issues, and common `finra-py` problems.
 
 This page describes how to troubleshoot problems, report bugs, and get assistance with `finra-py`.
 
@@ -1633,88 +1619,88 @@ The following is a list of known FINRA API issues and inconsistencies. This list
 
 The Submission API has several discepancies between the FINRA API documentation and the values defined in the JSON Schemas. Many of the examples in the Submission API are also inconsistent with the JSON Schema definitions, but those are beyond the scope of this section.
 
-1. The API documentation for Form BR lists `WITHDRAW` or `CLOSUREWITHDRAW` as valid filing types, however the [Form BR JSON Schema](https://schemas.api.finra.org/FINRAApiPlatformBRFiling.json) definition does not allow these values (see the [Metadata Schema](https://schemas.api.finra.org/FINRAApiPlatformBRFilingMetadata.json)). The Form BR JSON Schema definition shows that only `AMENDMENT`, `CLOSURE` and `INTIAL` filing types are accepted. For now, the client library will keep these filing types implemented on `FormBR` unless they are removed from the documentation.
-2. The API documentation  for Form U5 lists `ignoreWarnings` as a valid metadata property, however the [Form U5 JSON Schema](https://schemas.api.finra.org/FINRAApiPlatformU5Filing.json) definition does not list this as a required value and does not allow additional properties (see the [Metadata Schema](https://schemas.api.finra.org/FINRAApiPlatformU5FilingMetadata.json)). For now, the client library will keep this feature implemented on `FormU5` unless it is removed from the documentation.
+1. The API documentation for Form BR lists `WITHDRAW` or `CLOSUREWITHDRAW` as valid filing types, however the [Form BR JSON Schema](https://schemas.api.finra.org/FINRAApiPlatformBRFiling.json) definition does not allow these values (see the [Metadata Schema](https://schemas.api.finra.org/FINRAApiPlatformBRFilingMetadata.json)). The Form BR JSON Schema definition shows that only `AMENDMENT`, `CLOSURE` and `INTIAL` filing types are accepted. For now, the client library will keep these filing types implemented on [`FormBR`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.form_br.FormBR) unless they are removed from the documentation.
+2. The API documentation  for Form U5 lists `ignoreWarnings` as a valid metadata property, however the [Form U5 JSON Schema](https://schemas.api.finra.org/FINRAApiPlatformU5Filing.json) definition does not list this as a required value and does not allow additional properties (see the [Metadata Schema](https://schemas.api.finra.org/FINRAApiPlatformU5FilingMetadata.json)). For now, the client library will keep this feature implemented on [`FormU5`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.form_u5.FormU5) unless it is removed from the documentation.
 
 ### Query Production API
 
 This section includes issues and inconsistencies for Query API production datasets.
 
-1. The `BaseClient.get_weekly_summary()` production and mock datasets, and `BaseClient.get_weekly_summary_historic()` production dataset, contain undocumented values in the `WeeklySummary.TIER_IDENTIFIER` partition field: `NA` and `NMS`. They also contain undocumented `WeeklySummary.TIER_DESCRIPTION` values: `Not Applicable` and `OTC` (typo?). These values are present in both `Endpoint.PARTITIONS` and `Endpoint.DATA`, but are not in the FINRA API documentation.
-2. The `Endpoint.METADATA` for the `BaseClient.get_individual_registration_validation()` production and mock datasets are missing the `datasetGroup` and `datasetName` properties.
-3. For production and mock datasets, `BaseClient.get_individual_registration_validation_details()` returns erroneous `Endpoint.METADATA` that does not match the JSON Schemas for either versions of this dataset.
-4. The following Fixed Income production and mock datasets do not support partitions, however they return inconsistent status codes when querying `Endpoint.PARTITIONS`; the response returns `200`, but the `statusCode` field returns `500 Internal Server Error`:
-   - `BaseClient.get_agency_tba_pricing()`
-   - `BaseClient.get_agency_cmo_pricing()`
-   - `BaseClient.get_agency_mbs_trading_activity()`
-   - `BaseClient.get_agency_mbs_arm_hybrid_pricing()`
-   - `BaseClient.get_agency_mbs_pricing()`
-   - `BaseClient.get_collateralized_obligations_pricing()`
-   - `BaseClient.get_daily_cmbs_pricing()`
-   - `BaseClient.get_non_agency_cmo_abs_pricing()`
-   - `BaseClient.get_non_agency_cmo_pricing()`
-   - `BaseClient.get_securitized_products_errata()`
-   - `BaseClient.get_securitized_products_trading_activity()`
-   - `BaseClient.get_weekly_cmbs_pricing()`
+1. The [`BaseClient.get_weekly_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_weekly_summary) production and mock datasets, and [`BaseClient.get_weekly_summary_historic()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_weekly_summary_historic) production dataset, contain undocumented values in the [`WeeklySummary.TIER_IDENTIFIER`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.WeeklySummary.TIER_IDENTIFIER) partition field: `NA` and `NMS`. They also contain undocumented [`WeeklySummary.TIER_DESCRIPTION`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.WeeklySummary.TIER_DESCRIPTION) values: `Not Applicable` and `OTC` (typo?). These values are present in both [`Endpoint.PARTITIONS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.PARTITIONS) and [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA), but are not in the FINRA API documentation.
+2. The [`Endpoint.METADATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.METADATA) for the [`BaseClient.get_individual_registration_validation()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_registration_validation) production and mock datasets are missing the `datasetGroup` and `datasetName` properties.
+3. For production and mock datasets, [`BaseClient.get_individual_registration_validation_details()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_registration_validation_details) returns erroneous [`Endpoint.METADATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.METADATA) that does not match the JSON Schemas for either versions of this dataset.
+4. The following Fixed Income production and mock datasets do not support partitions, however they return inconsistent status codes when querying [`Endpoint.PARTITIONS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.PARTITIONS); the response returns `200`, but the `statusCode` field returns `500 Internal Server Error`:
+   - [`BaseClient.get_agency_tba_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_tba_pricing)
+   - [`BaseClient.get_agency_cmo_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_cmo_pricing)
+   - [`BaseClient.get_agency_mbs_trading_activity()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_mbs_trading_activity)
+   - [`BaseClient.get_agency_mbs_arm_hybrid_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_mbs_arm_hybrid_pricing)
+   - [`BaseClient.get_agency_mbs_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_mbs_pricing)
+   - [`BaseClient.get_collateralized_obligations_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_collateralized_obligations_pricing)
+   - [`BaseClient.get_daily_cmbs_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_daily_cmbs_pricing)
+   - [`BaseClient.get_non_agency_cmo_abs_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_non_agency_cmo_abs_pricing)
+   - [`BaseClient.get_non_agency_cmo_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_non_agency_cmo_pricing)
+   - [`BaseClient.get_securitized_products_errata()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_securitized_products_errata)
+   - [`BaseClient.get_securitized_products_trading_activity()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_securitized_products_trading_activity)
+   - [`BaseClient.get_weekly_cmbs_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_weekly_cmbs_pricing)
 
 ### Query Mock API
 
 This section includes issues and inconsistencies for Query API mock datasets retrieved using mock credential types. It’s possible that some of these are also found in the production datasets, but have not been enumerated in the previous section. If you discover that is the case, please file an issue on the `finra-py` [Issues Page](https://github.com/hawkberry/finra-py/issues) on GitHub so this page can be updated.
 
-1. Some mock datasets return empty for `Endpoint.PARTITIONS` and `Endpoint.DATA`, even when returning a `200` status code. Requests with no data should return a `204`.
-2. The `BaseClient.get_weekly_summary()` and `BaseClient.get_monthly_summary()` production datasets contain a `WeeklySummary.TOTAL_NOTIONAL_SUM` field in the `Endpoint.METADATA` and `Endpoint.DATA` that is not present in the mock datasets.
-3. The `BaseClient.get_otc_daily_list()` mock dataset returns a `404 Not Found` status code for all endpoints, and for asynchronous requests.
+1. Some mock datasets return empty for [`Endpoint.PARTITIONS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.PARTITIONS) and [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA), even when returning a `200` status code. Requests with no data should return a `204`.
+2. The [`BaseClient.get_weekly_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_weekly_summary) and [`BaseClient.get_monthly_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_monthly_summary) production datasets contain a [`WeeklySummary.TOTAL_NOTIONAL_SUM`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.WeeklySummary.TOTAL_NOTIONAL_SUM) field in the [`Endpoint.METADATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.METADATA) and [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA) that is not present in the mock datasets.
+3. The [`BaseClient.get_otc_daily_list()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_otc_daily_list) mock dataset returns a `404 Not Found` status code for all endpoints, and for asynchronous requests.
 4. Async requests on the **first leg** for the following Fixed Income mock datasets return a `500 Internal Server Error` status code:
-   - `BaseClient.get_agency_tba_pricing()`
-   - `BaseClient.get_agency_cmo_pricing()`
-   - `BaseClient.get_agency_mbs_trading_activity()`
-   - `BaseClient.get_agency_mbs_arm_hybrid_pricing()`
-   - `BaseClient.get_agency_mbs_pricing()`
-   - `BaseClient.get_collateralized_obligations_pricing()`
-   - `BaseClient.get_daily_cmbs_pricing()`
-   - `BaseClient.get_non_agency_cmo_abs_pricing()`
-   - `BaseClient.get_non_agency_cmo_pricing()`
-   - `BaseClient.get_securitized_products_errata()`
-   - `BaseClient.get_securitized_products_trading_activity()`
-   - `BaseClient.get_weekly_cmbs_pricing()`
+   - [`BaseClient.get_agency_tba_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_tba_pricing)
+   - [`BaseClient.get_agency_cmo_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_cmo_pricing)
+   - [`BaseClient.get_agency_mbs_trading_activity()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_mbs_trading_activity)
+   - [`BaseClient.get_agency_mbs_arm_hybrid_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_mbs_arm_hybrid_pricing)
+   - [`BaseClient.get_agency_mbs_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_mbs_pricing)
+   - [`BaseClient.get_collateralized_obligations_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_collateralized_obligations_pricing)
+   - [`BaseClient.get_daily_cmbs_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_daily_cmbs_pricing)
+   - [`BaseClient.get_non_agency_cmo_abs_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_non_agency_cmo_abs_pricing)
+   - [`BaseClient.get_non_agency_cmo_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_non_agency_cmo_pricing)
+   - [`BaseClient.get_securitized_products_errata()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_securitized_products_errata)
+   - [`BaseClient.get_securitized_products_trading_activity()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_securitized_products_trading_activity)
+   - [`BaseClient.get_weekly_cmbs_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_weekly_cmbs_pricing)
 5. Async requests on the **first leg** for the following Firm mock datasets return asynchronously (as expected) when queried without the `firm_crd_number`, but return **synchronously** when queried with the `firm_crd_number` (single-record query):
-   - `BaseClient.get_firm_disclosures()`
-   - `BaseClient.get_firm_profile()`
-   - `BaseClient.get_firm_registration_status_history()`
-   - `BaseClient.get_firm_registrations()`
+   - [`BaseClient.get_firm_disclosures()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_firm_disclosures)
+   - [`BaseClient.get_firm_profile()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_firm_profile)
+   - [`BaseClient.get_firm_registration_status_history()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_firm_registration_status_history)
+   - [`BaseClient.get_firm_registrations()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_firm_registrations)
 6. Async requests on the **first leg** for the following Registration mock datasets return a `404 Not Found` status code:
-   - `BaseClient.get_individual_registration_validation()`
-   - `BaseClient.get_individual_registration_validation_details()`
+   - [`BaseClient.get_individual_registration_validation()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_registration_validation)
+   - [`BaseClient.get_individual_registration_validation_details()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_registration_validation_details)
 7. Async requests on the **first leg** for the following TRACE Report Card mock datasets return a `403 Forbidden` status code:
-   - `BaseClient.get_trace_agency_debt_summary()`
-   - `BaseClient.get_trace_treasuries_summary()`
-   - `BaseClient.get_trace_corporate_bonds_summary()`
-   - `BaseClient.get_trace_securitized_products_summary()`
+   - [`BaseClient.get_trace_agency_debt_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_agency_debt_summary)
+   - [`BaseClient.get_trace_treasuries_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_treasuries_summary)
+   - [`BaseClient.get_trace_corporate_bonds_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_corporate_bonds_summary)
+   - [`BaseClient.get_trace_securitized_products_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_securitized_products_summary)
 8. Async requests on the **second leg** for **ALL** Equity (OTCMarket) mock datasets return a `403 Forbidden` status code.
-9. Async requests on the **second leg** for the `BaseClient.get_firm_registration_types()` mock dataset returns a `403 Forbidden` status code.
-10. The `Endpoint.DATA` for the `BaseClient.get_accounting()` mock dataset does not filter dates correctly when `start_date` and `end_date` parameters are provided, and instead returns dates outside the queried range.
-11. The `Endpoint.DATA` for the `BaseClient.get_branch_delta()` and `BaseClient.get_individual_delta()` mock datasets do not filter dates correctly when `start_datetime` and `end_datetime` parameters are provided, and instead returns dates outside the queried range.
-12. The `BaseClient.get_composite_branch()` mock dataset does not filter based on provided `BaseClient.CompositeBranchSections`. Instead it returns all sections, regardless of the sections filter. This is in contrast to the `BaseClient.get_composite_individual()` mock dataset, which has similar section filtering functionality, and behaves as expected.
-13. The `BaseClient.get_individual_pre_registration_search()` mock dataset returns field names that are inconsistent with the `Endpoint.METADATA`.
-14. The `BaseClient.get_individual_registration_validation()` mock dataset returns a  `404 Not Found` status code.
-15. The `BaseClient.get_registered_individual_search()` mock dataset returns a `middleName` field that is not in production or mock metadata. This field cannot be used as a `fields` or `sort_fields` query parameter.
-16. The `Endpoint.DATASETS` for the `BaseClient.get_broker_dealer_firm_list()` mock dataset **Version 2** shows `supportedGetById` as `True`, indicating that the dataset supports single record query. This is incorrect, since **Version 2** of this dataset passes the Individual CRD Number as a query parameter, rather than accessing a URL subpath. This is also inconsistent with the value of `supportedGetById` shown for the production dataset.
-17. The `Endpoint.DATASETS` for the `BaseClient.get_broker_dealer_firm_list()` mock dataset shows `supportsRecordLimit` and `supportsRecordOffset` as `False`, indicating that this dataset does not supports pagination. The `Endpoint.DATA` for the mock dataset also does not accept `limit` and `offset` keywords. However, this is inconsistent with the production dataset which show `supportsRecordLimit` and `supportsRecordOffset` as `True`. Therefore, pagination is implemented in the client’s query method.
-18. The `Endpoint.DATASETS` for the `BaseClient.get_u4_form_prefill()` mock dataset shows `supportsRecordLimit` as `True` (even though `supportsRecordOffset` is `False`), indicating that this dataset supports pagination. However, this is inconsistent with the production dataset which show `supportsRecordLimit` as `False`. Therefore, pagination is **not** implemented in the client’s query method.
-19. The following Registration and TRACE Report Card mock datasets do not support partitions, however they return inconsistent status codes when querying `Endpoint.PARTITIONS`, with the response returning a `200`, but the `statusCode` field shows a `500 Internal Server Error`:
-    - `BaseClient.get_accounting()`
-    - `BaseClient.get_branch_delta()`
-    - `BaseClient.get_branch_list()`
-    - `BaseClient.get_broker_dealer_firm_list()`
-    - `BaseClient.get_composite_branch()`
-    - `BaseClient.get_composite_individual()`
-    - `BaseClient.get_individual_delta()`
-    - `BaseClient.get_individual_pre_registration_search_v2()`
-    - `BaseClient.get_u4_form_prefill()`
-    - `BaseClient.get_trace_agency_debt_summary()`
-    - `BaseClient.get_trace_treasuries_summary()`
-    - `BaseClient.get_trace_corporate_bonds_summary()`
-    - `BaseClient.get_trace_securitized_products_summary()`
+9. Async requests on the **second leg** for the [`BaseClient.get_firm_registration_types()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_firm_registration_types) mock dataset returns a `403 Forbidden` status code.
+10. The [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA) for the [`BaseClient.get_accounting()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_accounting) mock dataset does not filter dates correctly when `start_date` and `end_date` parameters are provided, and instead returns dates outside the queried range.
+11. The [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA) for the [`BaseClient.get_branch_delta()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_branch_delta) and [`BaseClient.get_individual_delta()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_delta) mock datasets do not filter dates correctly when `start_datetime` and `end_datetime` parameters are provided, and instead returns dates outside the queried range.
+12. The [`BaseClient.get_composite_branch()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_composite_branch) mock dataset does not filter based on provided [`BaseClient.CompositeBranchSections`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.CompositeBranchSections). Instead it returns all sections, regardless of the sections filter. This is in contrast to the [`BaseClient.get_composite_individual()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_composite_individual) mock dataset, which has similar section filtering functionality, and behaves as expected.
+13. The [`BaseClient.get_individual_pre_registration_search()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_pre_registration_search) mock dataset returns field names that are inconsistent with the [`Endpoint.METADATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.METADATA).
+14. The [`BaseClient.get_individual_registration_validation()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_registration_validation) mock dataset returns a  `404 Not Found` status code.
+15. The [`BaseClient.get_registered_individual_search()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_registered_individual_search) mock dataset returns a `middleName` field that is not in production or mock metadata. This field cannot be used as a `fields` or `sort_fields` query parameter.
+16. The [`Endpoint.DATASETS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATASETS) for the [`BaseClient.get_broker_dealer_firm_list()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_broker_dealer_firm_list) mock dataset **Version 2** shows `supportedGetById` as `True`, indicating that the dataset supports single record query. This is incorrect, since **Version 2** of this dataset passes the Individual CRD Number as a query parameter, rather than accessing a URL subpath. This is also inconsistent with the value of `supportedGetById` shown for the production dataset.
+17. The [`Endpoint.DATASETS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATASETS) for the [`BaseClient.get_broker_dealer_firm_list()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_broker_dealer_firm_list) mock dataset shows `supportsRecordLimit` and `supportsRecordOffset` as `False`, indicating that this dataset does not supports pagination. The [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA) for the mock dataset also does not accept `limit` and `offset` keywords. However, this is inconsistent with the production dataset which show `supportsRecordLimit` and `supportsRecordOffset` as `True`. Therefore, pagination is implemented in the client’s query method.
+18. The [`Endpoint.DATASETS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATASETS) for the [`BaseClient.get_u4_form_prefill()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_u4_form_prefill) mock dataset shows `supportsRecordLimit` as `True` (even though `supportsRecordOffset` is `False`), indicating that this dataset supports pagination. However, this is inconsistent with the production dataset which show `supportsRecordLimit` as `False`. Therefore, pagination is **not** implemented in the client’s query method.
+19. The following Registration and TRACE Report Card mock datasets do not support partitions, however they return inconsistent status codes when querying [`Endpoint.PARTITIONS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.PARTITIONS), with the response returning a `200`, but the `statusCode` field shows a `500 Internal Server Error`:
+    - [`BaseClient.get_accounting()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_accounting)
+    - [`BaseClient.get_branch_delta()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_branch_delta)
+    - [`BaseClient.get_branch_list()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_branch_list)
+    - [`BaseClient.get_broker_dealer_firm_list()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_broker_dealer_firm_list)
+    - [`BaseClient.get_composite_branch()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_composite_branch)
+    - [`BaseClient.get_composite_individual()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_composite_individual)
+    - [`BaseClient.get_individual_delta()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_delta)
+    - [`BaseClient.get_individual_pre_registration_search_v2()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_pre_registration_search_v2)
+    - [`BaseClient.get_u4_form_prefill()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_u4_form_prefill)
+    - [`BaseClient.get_trace_agency_debt_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_agency_debt_summary)
+    - [`BaseClient.get_trace_treasuries_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_treasuries_summary)
+    - [`BaseClient.get_trace_corporate_bonds_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_corporate_bonds_summary)
+    - [`BaseClient.get_trace_securitized_products_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_securitized_products_summary)
 
 # ADR: Client Architecture and HTTP Response Boundary
 

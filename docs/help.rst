@@ -110,26 +110,26 @@ Query Production API
 
 This section includes issues and inconsistencies for Query API production datasets.
 
-#. The :py:class:`BaseClient.get_weekly_summary() <finra.base_client.BaseClient.get_weekly_summary>` production and mock datasets, and :py:class:`BaseClient.get_weekly_summary_historic() <finra.base_client.BaseClient.get_weekly_summary_historic>` production dataset, contain undocumented values in the :py:attr:`WeeklySummary.TIER_IDENTIFIER <finra.base_client.BaseClient.WeeklySummary.TIER_IDENTIFIER>` partition field: ``NA`` and ``NMS``. They also contain undocumented :py:attr:`WeeklySummary.TIER_DESCRIPTION <finra.base_client.BaseClient.WeeklySummary.TIER_DESCRIPTION>` values: ``Not Applicable`` and ``OTC`` (typo?). These values are present in both :py:attr:`Endpoint.PARTITIONS <finra.base_client.BaseClient.Endpoint.PARTITIONS>` and :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>`, but are not in the FINRA API documentation.
+#. The :py:meth:`BaseClient.get_weekly_summary() <finra.base_client.BaseClient.get_weekly_summary>` production and mock datasets, and :py:meth:`BaseClient.get_weekly_summary_historic() <finra.base_client.BaseClient.get_weekly_summary_historic>` production dataset, contain undocumented values in the :py:attr:`WeeklySummary.TIER_IDENTIFIER <finra.base_client.BaseClient.WeeklySummary.TIER_IDENTIFIER>` partition field: ``NA`` and ``NMS``. They also contain undocumented :py:attr:`WeeklySummary.TIER_DESCRIPTION <finra.base_client.BaseClient.WeeklySummary.TIER_DESCRIPTION>` values: ``Not Applicable`` and ``OTC`` (typo?). These values are present in both :py:attr:`Endpoint.PARTITIONS <finra.base_client.BaseClient.Endpoint.PARTITIONS>` and :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>`, but are not in the FINRA API documentation.
    
-#. The :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>` for the :py:class:`BaseClient.get_individual_registration_validation() <finra.base_client.BaseClient.get_individual_registration_validation>` production and mock datasets are missing the ``datasetGroup`` and ``datasetName`` properties.
+#. The :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>` for the :py:meth:`BaseClient.get_individual_registration_validation() <finra.base_client.BaseClient.get_individual_registration_validation>` production and mock datasets are missing the ``datasetGroup`` and ``datasetName`` properties.
    
-#. For production and mock datasets, :py:class:`BaseClient.get_individual_registration_validation_details() <finra.base_client.BaseClient.get_individual_registration_validation_details>` returns erroneous :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>` that does not match the JSON Schemas for either versions of this dataset.
+#. For production and mock datasets, :py:meth:`BaseClient.get_individual_registration_validation_details() <finra.base_client.BaseClient.get_individual_registration_validation_details>` returns erroneous :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>` that does not match the JSON Schemas for either versions of this dataset.
    
 #. The following Fixed Income production and mock datasets do not support partitions, however they return inconsistent status codes when querying :py:attr:`Endpoint.PARTITIONS <finra.base_client.BaseClient.Endpoint.PARTITIONS>`; the response returns ``200``, but the ``statusCode`` field returns ``500 Internal Server Error``:
    
-   - :py:class:`BaseClient.get_agency_tba_pricing() <finra.base_client.BaseClient.get_agency_tba_pricing>`
-   - :py:class:`BaseClient.get_agency_cmo_pricing() <finra.base_client.BaseClient.get_agency_cmo_pricing>`
-   - :py:class:`BaseClient.get_agency_mbs_trading_activity() <finra.base_client.BaseClient.get_agency_mbs_trading_activity>`
-   - :py:class:`BaseClient.get_agency_mbs_arm_hybrid_pricing() <finra.base_client.BaseClient.get_agency_mbs_arm_hybrid_pricing>`
-   - :py:class:`BaseClient.get_agency_mbs_pricing() <finra.base_client.BaseClient.get_agency_mbs_pricing>`
-   - :py:class:`BaseClient.get_collateralized_obligations_pricing() <finra.base_client.BaseClient.get_collateralized_obligations_pricing>`
-   - :py:class:`BaseClient.get_daily_cmbs_pricing() <finra.base_client.BaseClient.get_daily_cmbs_pricing>`
-   - :py:class:`BaseClient.get_non_agency_cmo_abs_pricing() <finra.base_client.BaseClient.get_non_agency_cmo_abs_pricing>`
-   - :py:class:`BaseClient.get_non_agency_cmo_pricing() <finra.base_client.BaseClient.get_non_agency_cmo_pricing>`
-   - :py:class:`BaseClient.get_securitized_products_errata() <finra.base_client.BaseClient.get_securitized_products_errata>`
-   - :py:class:`BaseClient.get_securitized_products_trading_activity() <finra.base_client.BaseClient.get_securitized_products_trading_activity>`
-   - :py:class:`BaseClient.get_weekly_cmbs_pricing() <finra.base_client.BaseClient.get_weekly_cmbs_pricing>`
+   - :py:meth:`BaseClient.get_agency_tba_pricing() <finra.base_client.BaseClient.get_agency_tba_pricing>`
+   - :py:meth:`BaseClient.get_agency_cmo_pricing() <finra.base_client.BaseClient.get_agency_cmo_pricing>`
+   - :py:meth:`BaseClient.get_agency_mbs_trading_activity() <finra.base_client.BaseClient.get_agency_mbs_trading_activity>`
+   - :py:meth:`BaseClient.get_agency_mbs_arm_hybrid_pricing() <finra.base_client.BaseClient.get_agency_mbs_arm_hybrid_pricing>`
+   - :py:meth:`BaseClient.get_agency_mbs_pricing() <finra.base_client.BaseClient.get_agency_mbs_pricing>`
+   - :py:meth:`BaseClient.get_collateralized_obligations_pricing() <finra.base_client.BaseClient.get_collateralized_obligations_pricing>`
+   - :py:meth:`BaseClient.get_daily_cmbs_pricing() <finra.base_client.BaseClient.get_daily_cmbs_pricing>`
+   - :py:meth:`BaseClient.get_non_agency_cmo_abs_pricing() <finra.base_client.BaseClient.get_non_agency_cmo_abs_pricing>`
+   - :py:meth:`BaseClient.get_non_agency_cmo_pricing() <finra.base_client.BaseClient.get_non_agency_cmo_pricing>`
+   - :py:meth:`BaseClient.get_securitized_products_errata() <finra.base_client.BaseClient.get_securitized_products_errata>`
+   - :py:meth:`BaseClient.get_securitized_products_trading_activity() <finra.base_client.BaseClient.get_securitized_products_trading_activity>`
+   - :py:meth:`BaseClient.get_weekly_cmbs_pricing() <finra.base_client.BaseClient.get_weekly_cmbs_pricing>`
    
 --------------
 Query Mock API
@@ -139,80 +139,80 @@ This section includes issues and inconsistencies for Query API mock datasets ret
 
 #. Some mock datasets return empty for :py:attr:`Endpoint.PARTITIONS <finra.base_client.BaseClient.Endpoint.PARTITIONS>` and :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>`, even when returning a ``200`` status code. Requests with no data should return a ``204``.
    
-#. The :py:class:`BaseClient.get_weekly_summary() <finra.base_client.BaseClient.get_weekly_summary>` and :py:class:`BaseClient.get_monthly_summary() <finra.base_client.BaseClient.get_monthly_summary>` production datasets contain a :py:attr:`WeeklySummary.TOTAL_NOTIONAL_SUM <finra.base_client.BaseClient.WeeklySummary.TOTAL_NOTIONAL_SUM>` field in the :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>` and :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>` that is not present in the mock datasets.
+#. The :py:meth:`BaseClient.get_weekly_summary() <finra.base_client.BaseClient.get_weekly_summary>` and :py:meth:`BaseClient.get_monthly_summary() <finra.base_client.BaseClient.get_monthly_summary>` production datasets contain a :py:attr:`WeeklySummary.TOTAL_NOTIONAL_SUM <finra.base_client.BaseClient.WeeklySummary.TOTAL_NOTIONAL_SUM>` field in the :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>` and :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>` that is not present in the mock datasets.
    
 #. The :py:meth:`BaseClient.get_otc_daily_list() <finra.base_client.BaseClient.get_otc_daily_list>` mock dataset returns a ``404 Not Found`` status code for all endpoints, and for asynchronous requests.
    
 #. Async requests on the **first leg** for the following Fixed Income mock datasets return a ``500 Internal Server Error`` status code:
    
-   - :py:class:`BaseClient.get_agency_tba_pricing() <finra.base_client.BaseClient.get_agency_tba_pricing>`
-   - :py:class:`BaseClient.get_agency_cmo_pricing() <finra.base_client.BaseClient.get_agency_cmo_pricing>`
-   - :py:class:`BaseClient.get_agency_mbs_trading_activity() <finra.base_client.BaseClient.get_agency_mbs_trading_activity>`
-   - :py:class:`BaseClient.get_agency_mbs_arm_hybrid_pricing() <finra.base_client.BaseClient.get_agency_mbs_arm_hybrid_pricing>`
-   - :py:class:`BaseClient.get_agency_mbs_pricing() <finra.base_client.BaseClient.get_agency_mbs_pricing>`
-   - :py:class:`BaseClient.get_collateralized_obligations_pricing() <finra.base_client.BaseClient.get_collateralized_obligations_pricing>`
-   - :py:class:`BaseClient.get_daily_cmbs_pricing() <finra.base_client.BaseClient.get_daily_cmbs_pricing>`
-   - :py:class:`BaseClient.get_non_agency_cmo_abs_pricing() <finra.base_client.BaseClient.get_non_agency_cmo_abs_pricing>`
-   - :py:class:`BaseClient.get_non_agency_cmo_pricing() <finra.base_client.BaseClient.get_non_agency_cmo_pricing>`
-   - :py:class:`BaseClient.get_securitized_products_errata() <finra.base_client.BaseClient.get_securitized_products_errata>`
-   - :py:class:`BaseClient.get_securitized_products_trading_activity() <finra.base_client.BaseClient.get_securitized_products_trading_activity>`
-   - :py:class:`BaseClient.get_weekly_cmbs_pricing() <finra.base_client.BaseClient.get_weekly_cmbs_pricing>`
+   - :py:meth:`BaseClient.get_agency_tba_pricing() <finra.base_client.BaseClient.get_agency_tba_pricing>`
+   - :py:meth:`BaseClient.get_agency_cmo_pricing() <finra.base_client.BaseClient.get_agency_cmo_pricing>`
+   - :py:meth:`BaseClient.get_agency_mbs_trading_activity() <finra.base_client.BaseClient.get_agency_mbs_trading_activity>`
+   - :py:meth:`BaseClient.get_agency_mbs_arm_hybrid_pricing() <finra.base_client.BaseClient.get_agency_mbs_arm_hybrid_pricing>`
+   - :py:meth:`BaseClient.get_agency_mbs_pricing() <finra.base_client.BaseClient.get_agency_mbs_pricing>`
+   - :py:meth:`BaseClient.get_collateralized_obligations_pricing() <finra.base_client.BaseClient.get_collateralized_obligations_pricing>`
+   - :py:meth:`BaseClient.get_daily_cmbs_pricing() <finra.base_client.BaseClient.get_daily_cmbs_pricing>`
+   - :py:meth:`BaseClient.get_non_agency_cmo_abs_pricing() <finra.base_client.BaseClient.get_non_agency_cmo_abs_pricing>`
+   - :py:meth:`BaseClient.get_non_agency_cmo_pricing() <finra.base_client.BaseClient.get_non_agency_cmo_pricing>`
+   - :py:meth:`BaseClient.get_securitized_products_errata() <finra.base_client.BaseClient.get_securitized_products_errata>`
+   - :py:meth:`BaseClient.get_securitized_products_trading_activity() <finra.base_client.BaseClient.get_securitized_products_trading_activity>`
+   - :py:meth:`BaseClient.get_weekly_cmbs_pricing() <finra.base_client.BaseClient.get_weekly_cmbs_pricing>`
    
 #. Async requests on the **first leg** for the following Firm mock datasets return asynchronously (as expected) when queried without the ``firm_crd_number``, but return **synchronously** when queried with the ``firm_crd_number`` (single-record query):
    
-   - :py:class:`BaseClient.get_firm_disclosures() <finra.base_client.BaseClient.get_firm_disclosures>`
-   - :py:class:`BaseClient.get_firm_profile() <finra.base_client.BaseClient.get_firm_profile>`
-   - :py:class:`BaseClient.get_firm_registration_status_history() <finra.base_client.BaseClient.get_firm_registration_status_history>`
-   - :py:class:`BaseClient.get_firm_registrations() <finra.base_client.BaseClient.get_firm_registrations>`
+   - :py:meth:`BaseClient.get_firm_disclosures() <finra.base_client.BaseClient.get_firm_disclosures>`
+   - :py:meth:`BaseClient.get_firm_profile() <finra.base_client.BaseClient.get_firm_profile>`
+   - :py:meth:`BaseClient.get_firm_registration_status_history() <finra.base_client.BaseClient.get_firm_registration_status_history>`
+   - :py:meth:`BaseClient.get_firm_registrations() <finra.base_client.BaseClient.get_firm_registrations>`
    
 #. Async requests on the **first leg** for the following Registration mock datasets return a ``404 Not Found`` status code:
    
-   - :py:class:`BaseClient.get_individual_registration_validation() <finra.base_client.BaseClient.get_individual_registration_validation>`
-   - :py:class:`BaseClient.get_individual_registration_validation_details() <finra.base_client.BaseClient.get_individual_registration_validation_details>`
+   - :py:meth:`BaseClient.get_individual_registration_validation() <finra.base_client.BaseClient.get_individual_registration_validation>`
+   - :py:meth:`BaseClient.get_individual_registration_validation_details() <finra.base_client.BaseClient.get_individual_registration_validation_details>`
    
 #. Async requests on the **first leg** for the following TRACE Report Card mock datasets return a ``403 Forbidden`` status code:
    
-   - :py:class:`BaseClient.get_trace_agency_debt_summary() <finra.base_client.BaseClient.get_trace_agency_debt_summary>`
-   - :py:class:`BaseClient.get_trace_treasuries_summary() <finra.base_client.BaseClient.get_trace_treasuries_summary>`
-   - :py:class:`BaseClient.get_trace_corporate_bonds_summary() <finra.base_client.BaseClient.get_trace_corporate_bonds_summary>`
-   - :py:class:`BaseClient.get_trace_securitized_products_summary() <finra.base_client.BaseClient.get_trace_securitized_products_summary>`
+   - :py:meth:`BaseClient.get_trace_agency_debt_summary() <finra.base_client.BaseClient.get_trace_agency_debt_summary>`
+   - :py:meth:`BaseClient.get_trace_treasuries_summary() <finra.base_client.BaseClient.get_trace_treasuries_summary>`
+   - :py:meth:`BaseClient.get_trace_corporate_bonds_summary() <finra.base_client.BaseClient.get_trace_corporate_bonds_summary>`
+   - :py:meth:`BaseClient.get_trace_securitized_products_summary() <finra.base_client.BaseClient.get_trace_securitized_products_summary>`
    
 #. Async requests on the **second leg** for **ALL** Equity (OTCMarket) mock datasets return a ``403 Forbidden`` status code.
    
-#. Async requests on the **second leg** for the :py:class:`BaseClient.get_firm_registration_types() <finra.base_client.BaseClient.get_firm_registration_types>` mock dataset returns a ``403 Forbidden`` status code.
+#. Async requests on the **second leg** for the :py:meth:`BaseClient.get_firm_registration_types() <finra.base_client.BaseClient.get_firm_registration_types>` mock dataset returns a ``403 Forbidden`` status code.
    
-#. The :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>` for the :py:class:`BaseClient.get_accounting() <finra.base_client.BaseClient.get_accounting>` mock dataset does not filter dates correctly when ``start_date`` and ``end_date`` parameters are provided, and instead returns dates outside the queried range.
+#. The :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>` for the :py:meth:`BaseClient.get_accounting() <finra.base_client.BaseClient.get_accounting>` mock dataset does not filter dates correctly when ``start_date`` and ``end_date`` parameters are provided, and instead returns dates outside the queried range.
    
-#. The :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>` for the :py:class:`BaseClient.get_branch_delta() <finra.base_client.BaseClient.get_branch_delta>` and :py:class:`BaseClient.get_individual_delta() <finra.base_client.BaseClient.get_individual_delta>` mock datasets do not filter dates correctly when ``start_datetime`` and ``end_datetime`` parameters are provided, and instead returns dates outside the queried range.
+#. The :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>` for the :py:meth:`BaseClient.get_branch_delta() <finra.base_client.BaseClient.get_branch_delta>` and :py:meth:`BaseClient.get_individual_delta() <finra.base_client.BaseClient.get_individual_delta>` mock datasets do not filter dates correctly when ``start_datetime`` and ``end_datetime`` parameters are provided, and instead returns dates outside the queried range.
    
-#. The :py:class:`BaseClient.get_composite_branch() <finra.base_client.BaseClient.get_composite_branch>` mock dataset does not filter based on provided :py:class:`BaseClient.CompositeBranchSections <finra.base_client.BaseClient.CompositeBranchSections>`. Instead it returns all sections, regardless of the sections filter. This is in contrast to the :py:class:`BaseClient.get_composite_individual() <finra.base_client.BaseClient.get_composite_individual>` mock dataset, which has similar section filtering functionality, and behaves as expected.
+#. The :py:meth:`BaseClient.get_composite_branch() <finra.base_client.BaseClient.get_composite_branch>` mock dataset does not filter based on provided :py:class:`BaseClient.CompositeBranchSections <finra.base_client.BaseClient.CompositeBranchSections>`. Instead it returns all sections, regardless of the sections filter. This is in contrast to the :py:meth:`BaseClient.get_composite_individual() <finra.base_client.BaseClient.get_composite_individual>` mock dataset, which has similar section filtering functionality, and behaves as expected.
    
-#. The :py:class:`BaseClient.get_individual_pre_registration_search() <finra.base_client.BaseClient.get_individual_pre_registration_search>` mock dataset returns field names that are inconsistent with the :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>`.
+#. The :py:meth:`BaseClient.get_individual_pre_registration_search() <finra.base_client.BaseClient.get_individual_pre_registration_search>` mock dataset returns field names that are inconsistent with the :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>`.
    
-#. The :py:class:`BaseClient.get_individual_registration_validation() <finra.base_client.BaseClient.get_individual_registration_validation>` mock dataset returns a  ``404 Not Found`` status code.
+#. The :py:meth:`BaseClient.get_individual_registration_validation() <finra.base_client.BaseClient.get_individual_registration_validation>` mock dataset returns a  ``404 Not Found`` status code.
    
-#. The :py:class:`BaseClient.get_registered_individual_search() <finra.base_client.BaseClient.get_registered_individual_search>` mock dataset returns a ``middleName`` field that is not in production or mock metadata. This field cannot be used as a ``fields`` or ``sort_fields`` query parameter.
+#. The :py:meth:`BaseClient.get_registered_individual_search() <finra.base_client.BaseClient.get_registered_individual_search>` mock dataset returns a ``middleName`` field that is not in production or mock metadata. This field cannot be used as a ``fields`` or ``sort_fields`` query parameter.
    
-#. The :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` for the :py:class:`BaseClient.get_broker_dealer_firm_list() <finra.base_client.BaseClient.get_broker_dealer_firm_list>` mock dataset **Version 2** shows ``supportedGetById`` as ``True``, indicating that the dataset supports single record query. This is incorrect, since **Version 2** of this dataset passes the Individual CRD Number as a query parameter, rather than accessing a URL subpath. This is also inconsistent with the value of ``supportedGetById`` shown for the production dataset.
+#. The :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` for the :py:meth:`BaseClient.get_broker_dealer_firm_list() <finra.base_client.BaseClient.get_broker_dealer_firm_list>` mock dataset **Version 2** shows ``supportedGetById`` as ``True``, indicating that the dataset supports single record query. This is incorrect, since **Version 2** of this dataset passes the Individual CRD Number as a query parameter, rather than accessing a URL subpath. This is also inconsistent with the value of ``supportedGetById`` shown for the production dataset.
    
-#. The :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` for the :py:class:`BaseClient.get_broker_dealer_firm_list() <finra.base_client.BaseClient.get_broker_dealer_firm_list>` mock dataset shows ``supportsRecordLimit`` and ``supportsRecordOffset`` as ``False``, indicating that this dataset does not supports pagination. The :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>` for the mock dataset also does not accept ``limit`` and ``offset`` keywords. However, this is inconsistent with the production dataset which show ``supportsRecordLimit`` and ``supportsRecordOffset`` as ``True``. Therefore, pagination is implemented in the client's query method.
+#. The :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` for the :py:meth:`BaseClient.get_broker_dealer_firm_list() <finra.base_client.BaseClient.get_broker_dealer_firm_list>` mock dataset shows ``supportsRecordLimit`` and ``supportsRecordOffset`` as ``False``, indicating that this dataset does not supports pagination. The :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>` for the mock dataset also does not accept ``limit`` and ``offset`` keywords. However, this is inconsistent with the production dataset which show ``supportsRecordLimit`` and ``supportsRecordOffset`` as ``True``. Therefore, pagination is implemented in the client's query method.
    
-#. The :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` for the :py:class:`BaseClient.get_u4_form_prefill() <finra.base_client.BaseClient.get_u4_form_prefill>` mock dataset shows ``supportsRecordLimit`` as ``True`` (even though ``supportsRecordOffset`` is ``False``), indicating that this dataset supports pagination. However, this is inconsistent with the production dataset which show ``supportsRecordLimit`` as ``False``. Therefore, pagination is **not** implemented in the client's query method.
+#. The :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` for the :py:meth:`BaseClient.get_u4_form_prefill() <finra.base_client.BaseClient.get_u4_form_prefill>` mock dataset shows ``supportsRecordLimit`` as ``True`` (even though ``supportsRecordOffset`` is ``False``), indicating that this dataset supports pagination. However, this is inconsistent with the production dataset which show ``supportsRecordLimit`` as ``False``. Therefore, pagination is **not** implemented in the client's query method.
    
 #. The following Registration and TRACE Report Card mock datasets do not support partitions, however they return inconsistent status codes when querying :py:attr:`Endpoint.PARTITIONS <finra.base_client.BaseClient.Endpoint.PARTITIONS>`, with the response returning a ``200``, but the ``statusCode`` field shows a ``500 Internal Server Error``:
    
-   - :py:class:`BaseClient.get_accounting() <finra.base_client.BaseClient.get_accounting>`
-   - :py:class:`BaseClient.get_branch_delta() <finra.base_client.BaseClient.get_branch_delta>`
-   - :py:class:`BaseClient.get_branch_list() <finra.base_client.BaseClient.get_branch_list>`
-   - :py:class:`BaseClient.get_broker_dealer_firm_list() <finra.base_client.BaseClient.get_broker_dealer_firm_list>`
-   - :py:class:`BaseClient.get_composite_branch() <finra.base_client.BaseClient.get_composite_branch>`
-   - :py:class:`BaseClient.get_composite_individual() <finra.base_client.BaseClient.get_composite_individual>`
-   - :py:class:`BaseClient.get_individual_delta() <finra.base_client.BaseClient.get_individual_delta>`
-   - :py:class:`BaseClient.get_individual_pre_registration_search_v2() <finra.base_client.BaseClient.get_individual_pre_registration_search_v2>`
-   - :py:class:`BaseClient.get_u4_form_prefill() <finra.base_client.BaseClient.get_u4_form_prefill>`
-   - :py:class:`BaseClient.get_trace_agency_debt_summary() <finra.base_client.BaseClient.get_trace_agency_debt_summary>`
-   - :py:class:`BaseClient.get_trace_treasuries_summary() <finra.base_client.BaseClient.get_trace_treasuries_summary>`
-   - :py:class:`BaseClient.get_trace_corporate_bonds_summary() <finra.base_client.BaseClient.get_trace_corporate_bonds_summary>`
-   - :py:class:`BaseClient.get_trace_securitized_products_summary() <finra.base_client.BaseClient.get_trace_securitized_products_summary>`
+   - :py:meth:`BaseClient.get_accounting() <finra.base_client.BaseClient.get_accounting>`
+   - :py:meth:`BaseClient.get_branch_delta() <finra.base_client.BaseClient.get_branch_delta>`
+   - :py:meth:`BaseClient.get_branch_list() <finra.base_client.BaseClient.get_branch_list>`
+   - :py:meth:`BaseClient.get_broker_dealer_firm_list() <finra.base_client.BaseClient.get_broker_dealer_firm_list>`
+   - :py:meth:`BaseClient.get_composite_branch() <finra.base_client.BaseClient.get_composite_branch>`
+   - :py:meth:`BaseClient.get_composite_individual() <finra.base_client.BaseClient.get_composite_individual>`
+   - :py:meth:`BaseClient.get_individual_delta() <finra.base_client.BaseClient.get_individual_delta>`
+   - :py:meth:`BaseClient.get_individual_pre_registration_search_v2() <finra.base_client.BaseClient.get_individual_pre_registration_search_v2>`
+   - :py:meth:`BaseClient.get_u4_form_prefill() <finra.base_client.BaseClient.get_u4_form_prefill>`
+   - :py:meth:`BaseClient.get_trace_agency_debt_summary() <finra.base_client.BaseClient.get_trace_agency_debt_summary>`
+   - :py:meth:`BaseClient.get_trace_treasuries_summary() <finra.base_client.BaseClient.get_trace_treasuries_summary>`
+   - :py:meth:`BaseClient.get_trace_corporate_bonds_summary() <finra.base_client.BaseClient.get_trace_corporate_bonds_summary>`
+   - :py:meth:`BaseClient.get_trace_securitized_products_summary() <finra.base_client.BaseClient.get_trace_securitized_products_summary>`
    
 

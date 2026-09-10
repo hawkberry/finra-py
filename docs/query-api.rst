@@ -315,7 +315,7 @@ Similarly, this example sorts by multiple fields: first by change percent in des
       sort_fields=[(-1, e.CHANGE_PERCENT), e.SYMBOL]        # multi-field sort
       )
 
-Sorting is not supported on historical datasets, for example, when calling :py:meth:`Client.get_weekly_summary_historic <finra.base_client.BaseClient.get_weekly_summary_historic>`.
+Sorting is not supported on historical datasets, for example, when calling :py:meth:`Client.get_weekly_summary_historic() <finra.base_client.BaseClient.get_weekly_summary_historic>`.
 
 Read more about `Sorting Restrictions <https://developer.finra.org/docs#query_api-api_basics-sorting_restrictions>`__ in the official API documentation.
 

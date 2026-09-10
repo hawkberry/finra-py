@@ -16,6 +16,8 @@ This page describes how to install and configure your first ``finra-py`` client,
 
 You can read the official FINRA API documentation `here <https://developer.finra.org/docs>`__.
 
+.. _api_access:
+
 ++++++++++++++++
 FINRA API Access
 ++++++++++++++++

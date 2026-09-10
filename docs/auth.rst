@@ -6,6 +6,8 @@
 Authentication and Client Creation
 ==================================
 
+Before using ``finra-py``, you'll need to create a developer account with FINRA and provision a set of credentials, see :ref:`api_access`.
+
 The `FINRA API Platform <https://developer.finra.org/docs#getting_started-api_platform_basics-authorization>`__ uses OAuth 2.0 for authentication and authorization. OAuth 2.0 uses short-lived access tokens instead of the resource owner’s long-term credentials, reducing the risk of credential exposure.
 
 Internally, ``finra-py`` uses `Authlib's HTTPX integration <https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html>`__ to perform requests and implement the OAuth 2.0 standard. This OAuth2 session securely manages the credentials and ``token_path`` you provide, which are never stored directly on the ``finra-py`` client.
@@ -117,9 +119,9 @@ Most users will not need this functionality. However, for use cases involving sp
 Build Client
 ------------
 
-The :py:func:`build_client <finra.auth.build_client>` function provides the most fine-grained control over client creation, but requires additional setup to configure the client correctly. All of the above client creation functions ultimately call :py:func:`build_client <finra.auth.build_client>`.
+The :py:func:`build_client() <finra.auth.build_client>` function provides the most fine-grained control over client creation, but requires additional setup to configure the client correctly. All of the above client creation functions ultimately call :py:func:`build_client() <finra.auth.build_client>`.
 
 Keyword arguments for this function can be passed through any of the above client creation functions, including custom constructors that return an instance of :py:class:`Client <finra.client.Client>` or a subclass thereof. Calling this function directly requires a correctly configured instance of :py:class:`TokenManager <finra.token_manager.TokenManager>` or a subclass.
 
-Similarly, :py:func:`build_async_client <finra.auth.build_async_client>` can be used to create an :py:class:`AsyncClient <finra.async_client.AsyncClient>` with ``asyncio`` support.
+Similarly, :py:func:`build_async_client() <finra.auth.build_async_client>` can be used to create an :py:class:`AsyncClient <finra.async_client.AsyncClient>` with ``asyncio`` support.
 
