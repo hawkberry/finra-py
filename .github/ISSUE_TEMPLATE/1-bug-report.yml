@@ -1,15 +1,15 @@
 name: Bug Report
-description: Report a bug
-title: ""
+description: File a bug report
+title: "[Bug]: "
 labels:
   - bug
+assignees:
+  - hawkberry
 body:
   - type: markdown
     attributes:
       value: |
-        Please read the [Bug Reporting guidelines](https://finra.hawkberry.com/en/latest/help.html) before submitting a bug.
-
-        Please follow the guidelines above, or your bug report may be closed if it cannot be investigated effectively.
+        Please read the [Bug Reporting guidelines](https://finra.hawkberry.com/en/latest/help.html) before submitting a bug, and follow the guidelines above so it can be investigated effectively.
 
   - type: textarea
     id: environment
@@ -62,3 +62,10 @@ body:
       label: Error/Exception Log
       description: |
         See the [Bug Reporting facility](https://finra.hawkberry.com/en/latest/help.html)
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details
+      description: How can we get in touch with you if we need more info?
+      placeholder: Your contact info (optional)
