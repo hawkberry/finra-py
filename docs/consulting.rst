@@ -52,7 +52,7 @@ Bug reports and feature requests should be submitted through the ``finra-py`` `I
   </p>
   <script>
     (function () {
-      const user = "finra";
+      const user = "consulting";
       const domain = "hawkberry.com";
       const email = user + "@" + domain;
       const btn = document.getElementById("email-btn");
