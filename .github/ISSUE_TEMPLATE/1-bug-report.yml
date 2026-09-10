@@ -59,13 +59,13 @@ body:
   - type: textarea
     id: error-log
     attributes:
-      label: Error/Exception Log
+      label: Error/Exception Log (optional)
       description: |
         See the [Bug Reporting facility](https://finra.hawkberry.com/en/latest/help.html)
 
   - type: input
     id: contact
     attributes:
-      label: Contact Details
+      label: Contact Details (optional)
       description: How can we get in touch with you if we need more info?
-      placeholder: Your contact info (optional)
+      placeholder: Your contact info
