@@ -20,7 +20,7 @@
 .. image:: https://img.shields.io/pypi/l/finra-py.svg
    :target: https://github.com/hawkberry/finra-py/blob/main/LICENSE
 
-.. image:: https://img.shields.io/badge/Support-blue
+.. image:: https://img.shields.io/badge/open%20source-support-blue
    :target: https://support.hawkberry.com/
 
 +++++++++++++++++++++

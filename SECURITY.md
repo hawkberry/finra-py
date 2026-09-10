@@ -15,14 +15,16 @@ https://github.com/hawkberry/finra-py/security
 If that is unavailable, use the contact email listed on the `finra-py`
 [PyPI project page](https://pypi.org/project/finra-py/).
 
+We will acknowledge receipt and review the report as soon as possible.
+
 Please include the following information:
 
 ### Describe Your Environment
 
-Python version:
-Operating system:
-finra-py version:
-Other relevant details:
+- Python version:
+- Operating system:
+- finra-py version:
+- Other relevant details:
 
 ### Steps to Reproduce the Vulnerability
 
@@ -45,8 +47,6 @@ Describe what actually happens.
 ### Error/Exception Log
 
 See the [Bug Reporting facility](https://finra.hawkberry.com/en/latest/help.html) for guidance on providing error and exception information.
-
-We will acknowledge receipt and review the report as soon as possible.
 
 ## Scope
 
