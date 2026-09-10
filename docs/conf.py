@@ -240,6 +240,8 @@ html_baseurl = urlunsplit((parts.scheme, parts.netloc, "", "", "")) + "/"
 
 html_css_files = ["custom.css"]
 
+html_extra_path = ["robots.txt"]
+
 html_favicon = "_static/favicon.ico"
 
 html_sidebars = {

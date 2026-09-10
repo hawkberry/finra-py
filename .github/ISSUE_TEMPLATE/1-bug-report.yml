@@ -9,7 +9,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Please read the [Bug Reporting guidelines](https://finra.hawkberry.com/en/latest/help.html) before submitting a bug, and follow the guidelines above so it can be investigated effectively.
+        Please read and follow the [Bug Reporting](https://finra.hawkberry.com/en/latest/help.html) guidelines for submitting a bug, so your report can be investigated effectively.
 
   - type: textarea
     id: environment
@@ -61,7 +61,8 @@ body:
     attributes:
       label: Error/Exception Log (optional)
       description: |
-        See the [Bug Reporting facility](https://finra.hawkberry.com/en/latest/help.html)
+        Please attach redacted logs as a file.
+        See [Bug Reporting](https://finra.hawkberry.com/en/latest/help.html) for guidance on how to generate redacted logs.
 
   - type: input
     id: contact
