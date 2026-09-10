@@ -18,7 +18,7 @@ body:
       placeholder: |
         Python version:
         Operating system:
-        finra-py version:
+        `finra-py` version:
         Other relevant details:
     validations:
       required: true
@@ -36,7 +36,7 @@ body:
     attributes:
       label: Code to Reproduce the Bug
       description: |
-        Please provide a minimal example that reproduces the bug. If possible, isolate the issue to a small, self-contained script that uses only finra-py.
+        Please provide a minimal example that reproduces the bug. If possible, isolate the issue to a small, self-contained script that uses only `finra-py`.
 
         IMPORTANT: Sanitize your code before sharing it. NEVER share API credentials or the contents of your token file. Replace all sensitive values with placeholders.
     validations:

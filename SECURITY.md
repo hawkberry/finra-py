@@ -1,4 +1,4 @@
-# Security Policy for finra-py
+# Security Policy for `finra-py`
 
 ## Supported Versions
 
@@ -23,7 +23,7 @@ Please include the following information:
 
 - Python version:
 - Operating system:
-- finra-py version:
+- `finra-py` version:
 - Other relevant details:
 
 ### Steps to Reproduce the Vulnerability
