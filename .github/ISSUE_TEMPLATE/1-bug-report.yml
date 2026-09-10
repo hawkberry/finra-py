@@ -16,9 +16,9 @@ body:
     attributes:
       label: Describe Your Environment
       placeholder: |
+        `finra-py` version:
         Python version:
         Operating system:
-        `finra-py` version:
         Other relevant details:
     validations:
       required: true
