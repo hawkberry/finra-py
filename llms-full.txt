@@ -105,6 +105,8 @@ FINRA.
 
 Source: https://finra.hawkberry.com/en/latest/
 
+Summary: Project overview for `finra-py`, an unofficial, open-source Python client library for the FINRA API Platform, providing OAuth 2.0 authentication and HTTPX-based clients for the Query, Notification, and Submission APIs.
+
 `finra-py` is an unofficial, open-source Python client library for the FINRA API Platform.
 
 ## Project Links
@@ -124,6 +126,8 @@ Source: https://finra.hawkberry.com/en/latest/
 # Getting Started
 
 Source: https://finra.hawkberry.com/en/latest/getting-started.html
+
+Summary: Installation and basic usage guide covering client creation, FINRA API authentication, synchronous and asynchronous HTTPX requests, response handling, and resource management.
 
 `finra-py` is an unofficial, open-source Python client library for the FINRA API Platform.
 
@@ -291,6 +295,8 @@ See the [consulting page](https://finra-py.readthedocs.io/en/latest/consulting.h
 
 Source: https://finra.hawkberry.com/en/latest/auth.html
 
+Summary: FINRA API authentication and client-creation guide covering OAuth 2.0 credentials, token management, custom token storage, Mock datasets, the QA Test Environment API, and synchronous and asynchronous clients.
+
 The [FINRA API Platform](https://developer.finra.org/docs#getting_started-api_platform_basics-authorization) uses OAuth 2.0 for authentication and authorization. OAuth 2.0 uses short-lived access tokens instead of the resource owner’s long-term credentials, reducing the risk of credential exposure.
 
 Internally, `finra-py` uses [Authlib’s HTTPX integration](https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html) to perform requests and implement the OAuth 2.0 standard. This OAuth2 session securely manages the credentials and `token_path` you provide, which are never stored directly on the `finra-py` client.
@@ -396,6 +402,8 @@ Similarly, `build_async_client` can be used to create an `AsyncClient` with `asy
 
 Source: https://finra.hawkberry.com/en/latest/client.html
 
+Summary: HTTPX client documentation covering FINRA API calling conventions, synchronous and asynchronous clients, session management, enums, data versioning, request configuration, and standard HTTPX responses.
+
 For details on client creation and authentication see auth.
 
 See `finra.base_client` module for complete reference documentation.
@@ -472,6 +480,8 @@ See [Data Versioning](https://developer.finra.org/docs#query_api-api_basics-data
 # Query API
 
 Source: https://finra.hawkberry.com/en/latest/query-api.html
+
+Summary: Query API documentation covering Equity, Fixed Income, FINRA, Firm, Registration, and TRACE Report Card datasets, and API functionality including fields, filters, sorting, metadata, partitions, pagination, asynchronous requests, and response formats.
 
 If you haven’t read getting_started, auth and client, please start by reading those sections.
 
@@ -1105,6 +1115,8 @@ The default behavior is to re-order the response data so that it has the same or
 
 Source: https://finra.hawkberry.com/en/latest/notification-api.html
 
+Summary: Notification API documentation covering FINRA notification event datasets and API functionality including datetime-range queries and pagination.
+
 If you haven’t read getting_started, auth and client, please start by reading those sections.
 
 Each [Notification API](https://developer.finra.org/docs#notification_api) dataset has its own query method. All datasets require Firm or Organization credentials. See each dataset’s query method for the exact requirements.
@@ -1171,6 +1183,8 @@ while start_date < stop:          # datetime loop
 # Submission API
 
 Source: https://finra.hawkberry.com/en/latest/submission-api.html
+
+Summary: Submission API documentation covering FINRA regulatory filing creation, validation, submission, updates, and retrieval, including Form U4, Form U5, Form BR, Create Individual, and Non-Registered Fingerprint workflows.
 
 If you haven’t read getting_started, auth and client, please start by reading those sections.
 
@@ -1538,6 +1552,8 @@ schema_registry.clear()  # cleared schemas will need to be re-fetched
 # Getting Help
 
 Source: https://finra.hawkberry.com/en/latest/help.html
+
+Summary: Troubleshooting and support guidance covering diagnostic logging, bug reports, known FINRA API issues, and common `finra-py` problems.
 
 This page describes how to troubleshoot problems, report bugs, and get assistance with `finra-py`.
 

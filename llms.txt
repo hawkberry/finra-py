@@ -82,7 +82,7 @@ FINRA.
 
 ## Documentation
 
-- [`finra-py`: An Unofficial FINRA API Client](https://finra.hawkberry.com/en/latest/): Project overview for `finra-py`, an unofficial, open-source Python client library for the FINRA API Platform, providing OAuth 2.0 authentication and HTTPX-based clients for the Query, Notification, and Submission APIs.
+- [Index](https://finra.hawkberry.com/en/latest/): Project overview for `finra-py`, an unofficial, open-source Python client library for the FINRA API Platform, providing OAuth 2.0 authentication and HTTPX-based clients for the Query, Notification, and Submission APIs.
 - [Getting Started](https://finra.hawkberry.com/en/latest/getting-started.html): Installation and basic usage guide covering client creation, FINRA API authentication, synchronous and asynchronous HTTPX requests, response handling, and resource management.
 - [Authentication and Client Creation](https://finra.hawkberry.com/en/latest/auth.html): FINRA API authentication and client-creation guide covering OAuth 2.0 credentials, token management, custom token storage, Mock datasets, the QA Test Environment API, and synchronous and asynchronous clients.
 - [HTTP Client](https://finra.hawkberry.com/en/latest/client.html): HTTPX client documentation covering FINRA API calling conventions, synchronous and asynchronous clients, session management, enums, data versioning, request configuration, and standard HTTPX responses.

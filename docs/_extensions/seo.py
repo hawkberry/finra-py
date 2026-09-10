@@ -408,8 +408,13 @@ def write_llms_files(app: Sphinx, exception: Optional[Exception]) -> None:
         "## Documentation",
         "",
         ])
-    for _, title, url, desc in docs:
+    
+    for pagename, title, url, desc in docs:
+        if pagename in ("", "index"):
+            title = "Index"
+        
         llms.append(f"- [{title}]({url}): {desc}")
+    
     llms.append("")
     
     # Project links
@@ -444,10 +449,6 @@ def write_llms_files(app: Sphinx, exception: Optional[Exception]) -> None:
     llms_full.extend(_project_links(app))
     
     # Expanded docs pages: convert to .rst to .md, and add to llms-full.txt
-    NO_EXPANSION_PAGES = (
-        "reference",
-        )
-    
     class LLMMarkdownTranslator(MarkdownTranslator):
         def visit_target(self, node: nodes.target) -> None:
             pass
@@ -458,7 +459,12 @@ def write_llms_files(app: Sphinx, exception: Optional[Exception]) -> None:
     markdown_builder = LLMMarkdownBuilder(app, app.env)
     markdown_builder.init()
     markdown_builder.prepare_writing(app.env.found_docs)
-    for pagename, title, url, _ in docs:
+    
+    NO_EXPANSION_PAGES = (
+        "reference",
+        )
+    
+    for pagename, title, url, desc in docs:
         if pagename in NO_EXPANSION_PAGES: # not expanded (see below)
             continue
         
@@ -466,6 +472,8 @@ def write_llms_files(app: Sphinx, exception: Optional[Exception]) -> None:
             f"# {title}",
             "",
             f"Source: {url}",
+            "",
+            f"Summary: {desc}",
             "",
             _markdown_from_doctree(app, markdown_builder, pagename),
             "",
