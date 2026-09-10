@@ -5061,4 +5061,3 @@ class BaseClient(EnumConverter, ABC):
                     "NonRegisteredFingerprint"),
         filing_name="Non-Registered Fingerprint"
         )
-
