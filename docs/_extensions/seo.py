@@ -125,6 +125,9 @@ def add_metadata(
     
     context.setdefault("metatags", "")
     context["metatags"] += _metadata_html(app, pagename)
+    
+    if pagename.startswith("_modules/"):
+        context["pageurl"] = None
 
 
 #############################################################################
