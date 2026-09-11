@@ -236,8 +236,6 @@ templates_path = ["_templates"]
 
 parts = urlsplit(documentation_url.rstrip("/"))
 
-html_baseurl = urlunsplit((parts.scheme, parts.netloc, "", "", "")) + "/"
-
 html_css_files = ["custom.css"]
 
 html_extra_path = ["robots.txt"]
