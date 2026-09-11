@@ -234,8 +234,6 @@ templates_path = ["_templates"]
 # -- Options for HTML output ------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-parts = urlsplit(documentation_url.rstrip("/"))
-
 html_css_files = ["custom.css"]
 
 html_extra_path = ["robots.txt"]
