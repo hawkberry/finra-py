@@ -75,16 +75,17 @@ def _json_ld(app: Sphinx, pagename: str) -> str:
 
 
 def _metadata_html(app: Sphinx, pagename: str) -> str:
+    url = canonical_url(app, pagename)
+    title = _page_title(app, pagename)
+    
     if pagename.startswith("_modules/"): # source code pages
-        title = _page_title(app, pagename)
         escaped_description = escape(title, quote=True)
         return f"""
 <meta name="description" content="{escaped_description}">
 <meta name="robots" content="noindex,follow">
+<link rel="canonical" href="{url}">
 """.strip()
     
-    url = canonical_url(app, pagename)
-    title = _page_title(app, pagename)
     description = _page_description(app, pagename)
     social_image = _social_image_url(app)
     
