@@ -435,7 +435,7 @@ class TestDefaultTokenWriterConstructor(unittest.TestCase):
         self.token_path.touch()
         token_path = self.token_path.joinpath(TOKEN_PATH).joinpath(TOKEN_PATH)
         with self.assertRaises(
-            (FileNotFoundError FileExistsError)
+            (FileNotFoundError, FileExistsError)
             if os.name == 'nt'
             else NotADirectoryError
             ): # different exception behavior on Windows
