@@ -2,6 +2,7 @@ import asyncio
 import inspect
 import json
 import logging
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -433,7 +434,9 @@ class TestDefaultTokenWriterConstructor(unittest.TestCase):
     def test_path_parent_not_a_directory_error(self):
         self.token_path.touch()
         token_path = self.token_path.joinpath(TOKEN_PATH).joinpath(TOKEN_PATH)
-        with self.assertRaises(NotADirectoryError):
+        with self.assertRaises(
+            FileNotFoundError if os.name == 'nt' else NotADirectoryError
+            ): # different exception behavior on Windows
             getattr(auth, '__token_writer')(token_path)
         
     @no_duplicates
