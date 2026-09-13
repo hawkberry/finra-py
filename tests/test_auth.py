@@ -435,12 +435,19 @@ class TestDefaultTokenWriterConstructor(unittest.TestCase):
         self.token_path.touch()
         token_path = self.token_path.joinpath(TOKEN_PATH).joinpath(TOKEN_PATH)
         with self.assertRaises(
-            FileNotFoundError if os.name == 'nt' else NotADirectoryError
+            (FileNotFoundError FileExistsError)
+            if os.name == 'nt'
+            else NotADirectoryError
             ): # different exception behavior on Windows
             getattr(auth, '__token_writer')(token_path)
         
     @no_duplicates
     def test_path_permission_error(self):
+        if os.name == "nt":
+            self.skipTest(
+                "Directory permission bits are not enforced by chmod on "
+                "Windows"
+                )
         test = Path(self.tmpdir.name, 'test1')
         test.mkdir()
         test.chmod(0o600)

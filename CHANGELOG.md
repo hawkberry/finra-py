@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [1.2.1] - 2026-09-13
 
 ### Added
 - `automatic_refresh` keyword argument for [`build_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.build_client) and [`build_async_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.build_async_client) accepting a boolean, which configures the underlying [`authlib` OAuth 2.0 client](https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html) to automatically refresh when the token expires.
