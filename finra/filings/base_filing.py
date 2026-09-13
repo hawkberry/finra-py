@@ -11,9 +11,9 @@ from ..exceptions import _type_error
 
 
 __all__ = [
+    "FilingDictType",
     "BaseFiling",
     "BaseFilingOps",
-    "FilingDictType",
     ]
 
 

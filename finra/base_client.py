@@ -3,7 +3,6 @@ from __future__ import annotations
 import inspect
 import json
 import logging
-import time
 from abc import ABC, abstractmethod
 from datetime import date, datetime, timedelta
 from enum import Enum, EnumType
@@ -35,9 +34,10 @@ from .token_manager import TokenManager
 
 
 __all__ = [
-    "BaseClient",
+    "get_logger",
     "FieldsType",
     "SortFieldsType",
+    "BaseClient",
     ]
 
 
@@ -595,15 +595,13 @@ class BaseClient(EnumConverter, ABC):
     ##########################################################################
     # SESSION MANAGEMENT
     
-    def _set_token(self, token: dict[str, Any]) -> None:
+    def _set_token(self, token: dict[str, Any], *args, **kwds) -> Any:
         register_redactions(token)
         if self._token_manager is None:
             raise ValueError("Token Manager not set")
         
-        self._token_manager.created_timestamp = int(time.time())
-        self._token_manager.update_token(token)
-        get_logger().info("Retrieved and stored new token")
-        
+        return self._token_manager.update_token(token, *args, **kwds)
+    
     def get_timeout(self) -> Optional[float]:
         """
         Get the session timeout for all requests made by this client

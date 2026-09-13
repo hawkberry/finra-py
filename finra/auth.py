@@ -21,12 +21,13 @@ from .token_manager import TokenManager
 
 
 __all__ = [
-    "build_async_client",
-    "build_client",
+    "get_logger",
+    "get_client",
+    "client_from_token_file",
     "client_from_new_token",
     "client_from_storage_functions",
-    "client_from_token_file",
-    "get_client",
+    "build_async_client",
+    "build_client",
     ]
 
 
@@ -61,9 +62,9 @@ def _add_auth_params_docs(func: Callable, *params: str) -> None:
         elif p == "token_write_func":
             _params.append("""
 :param token_write_func: Callable that writes the token to the token path. This
-    function is called by the OAuth2 session to update the token. It must
+    function is called by the OAuth2 session to write a token. It must
     accept the token as the first positional argument, as well as any
-    additional positional and keyword arguments.
+    additional positional and keyword arguments passed by the OAuth2 session.
     Example: ``token_write_func(token, *args, **kwds)``.
 """)
         elif p == "token_manager":
@@ -77,22 +78,6 @@ def _add_auth_params_docs(func: Callable, *params: str) -> None:
     :py:class:`AsyncClient <finra.async_client.AsyncClient>`, this option must
     be set to ``True``.
 """)
-        elif p == "client_cls":
-            _params.append("""
-:param client_cls: Class (or constructor) that returns a synchronous client.
-    Default: :py:class:`Client <finra.client.Client>`
-""")
-        elif p == "async_client_cls":
-            _params.append("""
-:param async_client_cls: Class (or constructor) that returns an asynchronous
-    client. Default: :py:class:`AsyncClient <finra.async_client.AsyncClient>`
-""")
-        elif p == "leeway":
-            _params.append("""
-:param leeway: Time allowed when checking if a token is expired, useful for
-    ensuring that tokens are not prematurely considered invalid due to minor
-    timing discrepancies
-""")
         elif p == "mock":
             _params.append("""
 :param mock: Option to use Mock API datasets. This requires Mock API
@@ -102,6 +87,27 @@ def _add_auth_params_docs(func: Callable, *params: str) -> None:
             _params.append("""
 :param test_environment: Option to use the QA Test Environment. This requires
     QA Test Environment credentials.
+""")
+        elif p == "leeway":
+            _params.append("""
+:param leeway: Time allowed when checking if a token is expired, useful for
+    ensuring that tokens are not prematurely considered invalid due to minor
+    timing discrepancies
+""")
+        elif p == "automatic_refresh":
+            _params.append("""
+:param automatic_refresh: Option to enable automatic token refreshing by the
+    OAuth2 session
+""")
+        elif p == "client_cls":
+            _params.append("""
+:param client_cls: Class (or constructor) that returns a synchronous client.
+    Default: :py:class:`Client <finra.client.Client>`
+""")
+        elif p == "async_client_cls":
+            _params.append("""
+:param async_client_cls: Class (or constructor) that returns an asynchronous
+    client. Default: :py:class:`AsyncClient <finra.async_client.AsyncClient>`
 """)
         elif p == "min_expires_in":
             _params.append("""
@@ -136,11 +142,12 @@ def _add_auth_params_docs(func: Callable, *params: str) -> None:
 ##############################################################################
 # CONFIG / UTILS
 
-# FINRA Identify Platform authentication URL
+#: FINRA Identify Platform production OAuth 2.0 authentication URL
 _PROD_TOKEN_ENDPOINT = (
     "https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token"
     )
 
+#: FINRA Identify Platform QA Test Environment OAuth 2.0 authentication URL
 _TEST_TOKEN_ENDPOINT = (
     "https://ews-qaint.fip.qa.finra.org/fip/rest/ews/oauth2/access_token"
     )
@@ -148,24 +155,25 @@ _TEST_TOKEN_ENDPOINT = (
 
 # Constructor for default token write function
 def __token_writer(token_path: str | Path) -> Callable:
-    p = Path(token_path).parent
-    if not p.exists():
-        p.mkdir()
-    if not p.is_dir():
-        raise NotADirectoryError(f"Token path parent is not a directory: {p}")
+    Path(token_path).parent.mkdir(parents=True, exist_ok=True)
     
-    def token_write_func(token: dict[str, Any], *args, **kwargs) -> None:
-        get_logger().info("Updating token to file %s", token_path)
+    def token_write_func(
+        token: dict[str, Any],
+        *args: Any,
+        **kwds: Any
+        ) -> None:
         with open(token_path, "w") as f:
             json.dump(token, f)
+        get_logger().info("New token written to file %s", token_path)
     
     return token_write_func
 
 
 # Constructor for default token read function
 def __token_reader(token_path: str | Path) -> Callable:
+    
     def token_read_func() -> dict[str, Any]:
-        get_logger().info("Loading token from file %s", token_path)
+        get_logger().info("Reading token from file %s", token_path)
         with open(token_path, "r") as f:
             return json.load(f)
     
@@ -180,10 +188,11 @@ def build_client(
     api_secret: str,
     token_manager: TokenManager,
     *,
-    client_cls: Optional[Callable]=None,
-    leeway: float=300.0,
     mock: bool=False,
     test_environment: bool=False,
+    leeway: float=300.0,
+    automatic_refresh: bool=False,
+    client_cls: Optional[Callable]=None,
     **kwds
     ) -> Client:
     """
@@ -197,13 +206,19 @@ def build_client(
     else:
         token_endpoint = _PROD_TOKEN_ENDPOINT
     
+    if automatic_refresh:
+        metadata = {"grant_type": "client_credentials"}
+    else:
+        metadata = {}
+    
     session = OAuth2Client(
         api_key,
         api_secret,
         token=token_manager.token,
         token_endpoint=token_endpoint,
         update_token=token_manager.update_token,
-        leeway=leeway
+        leeway=leeway,
+        **metadata
         )
     
     client = (client_cls or Client)(
@@ -227,8 +242,8 @@ def build_client(
 
 _add_auth_params_docs(
     build_client,
-    "api_key", "api_secret", "token_manager", "client_cls", "leeway",
-    "mock", "test_environment", "kwds"
+    "api_key", "api_secret", "token_manager", "mock", "test_environment",
+    "leeway", "automatic_refresh", "client_cls", "kwds"
     )
 
 
@@ -237,10 +252,11 @@ def build_async_client(
     api_secret: str,
     token_manager: TokenManager,
     *,
-    async_client_cls: Optional[Callable]=None,
-    leeway: float=300.0,
     mock: bool=False,
     test_environment: bool=False,
+    leeway: float=300.0,
+    automatic_refresh: bool=False,
+    async_client_cls: Optional[Callable]=None,
     **kwds
     ) -> AsyncClient:
     """
@@ -250,13 +266,18 @@ def build_async_client(
     async-oauth-2-0>`__
     session and :py:class:`TokenManager <finra.token_manager.TokenManager>`
     """
+    async def update_token(token: dict[str, Any], *args, **kwds) -> None:
+        token_manager.update_token(token, *args, **kwds)
+    
     if test_environment:
         token_endpoint = _TEST_TOKEN_ENDPOINT
     else:
         token_endpoint = _PROD_TOKEN_ENDPOINT
     
-    async def update_token(token: dict[str, Any], *args, **kwds) -> None:
-        token_manager.update_token(token, *args, **kwds)
+    if automatic_refresh:
+        metadata = {"grant_type": "client_credentials"}
+    else:
+        metadata = {}
     
     session = AsyncOAuth2Client(
         api_key,
@@ -264,7 +285,8 @@ def build_async_client(
         token=token_manager.token,
         token_endpoint=token_endpoint,
         update_token=update_token,
-        leeway=leeway
+        leeway=leeway,
+        **metadata
         )
     
     client = (async_client_cls or AsyncClient)(
@@ -288,8 +310,8 @@ def build_async_client(
 
 _add_auth_params_docs(
     build_async_client,
-    "api_key", "api_secret", "token_manager", "async_client_cls", "leeway",
-    "mock", "test_environment", "kwds"
+    "api_key", "api_secret", "token_manager", "mock", "test_environment",
+    "leeway", "automatic_refresh", "async_client_cls", "kwds"
     )
 
 
@@ -314,7 +336,6 @@ def client_from_storage_functions(
     will not need this functionality.
     """
     wrapped_token = token_read_func() # read wrapped token from storage
-    
     token_manager = TokenManager.from_wrapped_token(
         wrapped_token,
         token_write_func
@@ -403,7 +424,7 @@ def client_from_new_token(
     Fetch a new token from the `FINRA Identity Platform
     <https://developer.finra.org/docs#
     getting_started-api_platform_basics-authorization>`__
-    and build a client. Any existing token file will be overwritten
+    and build a client. Any existing token file will be overwritten.
     """
     if token_write_func is None:
         if token_path is None:
@@ -417,8 +438,12 @@ def client_from_new_token(
         token_endpoint = _TEST_TOKEN_ENDPOINT
     else:
         token_endpoint = _PROD_TOKEN_ENDPOINT
-    session = OAuth2Client(api_key, api_secret, token_endpoint=token_endpoint)
     
+    session = OAuth2Client(
+        api_key,
+        api_secret,
+        token_endpoint=token_endpoint
+        )
     token = session.fetch_token(grant_type="client_credentials")
     
     # Don't emit token details in debug logs
@@ -529,7 +554,7 @@ def get_client(
                 return c
             
             logger.info("Token has expired, proactively creating a new one")
-        
+    
     # Fetch a new token from the authorization server
     c = client_from_new_token(
         api_key,

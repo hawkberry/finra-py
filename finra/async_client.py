@@ -104,16 +104,21 @@ class AsyncClient(BaseClient):
             timeout=self._session.timeout
             )
         
-    async def refresh_token(self) -> None:
+    async def refresh_token(self, *args: Any, **kwds: Any) -> Any:
         """
         Fetch a new token from the `FINRA Identity Platform
         <https://developer.finra.org/docs#
-        getting_started-api_platform_basics-authorization>`__
-        """
-        self._set_token(
-            await self._session.fetch_token(grant_type="client_credentials")
-            )
+        getting_started-api_platform_basics-authorization>`__.
         
+        :param args: Arguments passed to the ``token_write_func``
+        :param kwds: Keyword arguments passed to the ``token_write_func``
+        :return: The value returned by ``token_write_func``
+        """
+        return self._set_token(
+            await self._session.fetch_token(grant_type="client_credentials"),
+            *args, **kwds
+            )
+    
     async def close(self) -> None:
         """
         Close the `AsyncOAuth2Client

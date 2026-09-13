@@ -104,15 +104,20 @@ class Client(BaseClient):
     
     def _set_resource_session(self) -> None:
         self._resource_session = httpx.Client(timeout=self._session.timeout)
-    
-    def refresh_token(self) -> None:
+        
+    def refresh_token(self, *args: Any, **kwds: Any) -> Any:
         """
         Fetch a new token from the `FINRA Identity Platform
         <https://developer.finra.org/docs#
-        getting_started-api_platform_basics-authorization>`__
+        getting_started-api_platform_basics-authorization>`__.
+        
+        :param args: Arguments passed to the ``token_write_func``
+        :param kwds: Keyword arguments passed to the ``token_write_func``
+        :return: The value returned by ``token_write_func``
         """
-        self._set_token(
-            self._session.fetch_token(grant_type="client_credentials")
+        return self._set_token(
+            self._session.fetch_token(grant_type="client_credentials"),
+            *args, **kwds
             )
     
     def close(self) -> None:
@@ -124,7 +129,7 @@ class Client(BaseClient):
         self._session.close()
         if getattr(self, "_resource_session", None):
             self._resource_session.close()
-    
+        
     def __enter__(self) -> Self:
         """Enter context to automatically close client on exit"""
         return self

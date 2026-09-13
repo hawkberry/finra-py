@@ -73,7 +73,11 @@ Token Expiration
 
 Access tokens have a limited lifetime. If an API request returns a ``401 Unauthorized`` response and the dataset credentials are valid, the stored access token has likely expired. 
 
-To get a new token for an existing client call the :py:meth:`Client.refresh_token() <finra.client.Client.refresh_token>` method (awaitable for asynchronous client). This will fetch a new token from the `FINRA Identity Platform <https://developer.finra.org/docs#getting_started-api_platform_basics-authorization>`__ and store it at the ``token_path``, or using the ``token_write_func`` if it was set during client creation.
+There are two options for managing token expiration without creating a new client. The first option is likely the easiest and best solution for most users. It uses the OAuth 2.0 session to automatically fetch a new token from the `FINRA Identity Platform <https://developer.finra.org/docs#getting_started-api_platform_basics-authorization>`__ when the existing token has expired. This will fetch a new token and store it at the ``token_path``, or using the ``token_write_func`` if it was set during client creation. To enable this option, set ``automatic_refresh=True`` when creating a client using any of the functions from the :py:mod:`auth <finra.auth>` module.
+
+Automatic refreshing is convenient, but it offers less control over the timing of the token fetch, and less flexibility for customizing token write operations. You can still use a custom ``token_write_func``, but any value returned by that function during a write operation cannot be propagated to the caller.
+
+The second option involves manually fetching a new token by calling the :py:meth:`Client.refresh_token() <finra.client.Client.refresh_token>` or :py:meth:`AsyncClient.refresh_token() <finra.async_client.AsyncClient.refresh_token>` methods. Manually refreshing a client's token is always available, even if automatic refreshing is enabled.
 
 The client offers several read-only attributes that can be used to anticipate token expiration:
 

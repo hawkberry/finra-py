@@ -5143,15 +5143,16 @@ class _TestClientBase:
             API_KEY, self.mock_session, token_manager=token_manager
             )
         
-        client.refresh_token()
+        client.refresh_token('args', kwds='kwds')
         
         self.mock_session.fetch_token.assert_called_once()
         
         session_call = self.mock_register_redactions.mock_calls[-1]
         self.assertEqual(session_call[1], (new_token,))
         
-        self.assertEqual(token_manager.created_timestamp, NOW)
-        token_manager.update_token.assert_called_once_with(new_token)
+        token_manager.update_token.assert_called_once_with(
+            new_token, 'args', kwds='kwds'
+            )
         
     @no_duplicates
     def test_refresh_token_no_token_manager(self):

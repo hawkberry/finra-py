@@ -176,9 +176,10 @@ class TestBuildClient(unittest.TestCase):
             API_KEY,
             API_SECRET,
             token_manager,
-            leeway=123,
             mock='mock',
             test_environment='test_environment',
+            leeway=123,
+            automatic_refresh=True,
             timeout='timeout',
             accept_json='accept_json',
             require_enums='require_enums'
@@ -200,7 +201,7 @@ class TestBuildClient(unittest.TestCase):
         session.assert_called_once_with(
             API_KEY, API_SECRET, token=self.token,
             token_endpoint=auth._TEST_TOKEN_ENDPOINT,
-            update_token=ANY, leeway=123
+            update_token=ANY, leeway=123, grant_type="client_credentials"
             )
         
     @no_duplicates
@@ -307,9 +308,10 @@ class TestBuildAsyncClient(unittest.TestCase):
             API_KEY,
             API_SECRET,
             token_manager,
-            leeway=123,
             mock='mock',
             test_environment='test_environment',
+            leeway=123,
+            automatic_refresh=True,
             timeout='timeout',
             accept_json='accept_json',
             require_enums='require_enums'
@@ -331,7 +333,7 @@ class TestBuildAsyncClient(unittest.TestCase):
         session.assert_called_once_with(
             API_KEY, API_SECRET, token=self.token,
             token_endpoint=auth._TEST_TOKEN_ENDPOINT,
-            update_token=ANY, leeway=123
+            update_token=ANY, leeway=123, grant_type="client_credentials"
             )
         
     @no_duplicates
@@ -421,27 +423,38 @@ class TestDefaultTokenWriterConstructor(unittest.TestCase):
         self.tmpdir.cleanup()
         
     @no_duplicates
-    @patch('finra.auth.Path')
-    def test_path_parent_not_a_dir(self, path):
-        path.return_value = path
-        path.parent = path
-        path.exists.return_value = True
-        path.is_dir.return_value = False
-        path.__str__.return_value = 'test_path'
+    def test_path_parent_file_exists_error(self):
+        self.token_path.touch()
+        token_path = self.token_path.joinpath(TOKEN_PATH)
+        with self.assertRaises(FileExistsError):
+            getattr(auth, '__token_writer')(token_path)
         
-        with self.assertRaisesRegex(
-            NotADirectoryError,
-            "Token path parent is not a directory: test_path"
-            ):
-            getattr(auth, '__token_writer')(self.token_path)
+    @no_duplicates
+    def test_path_parent_not_a_directory_error(self):
+        self.token_path.touch()
+        token_path = self.token_path.joinpath(TOKEN_PATH).joinpath(TOKEN_PATH)
+        with self.assertRaises(NotADirectoryError):
+            getattr(auth, '__token_writer')(token_path)
+        
+    @no_duplicates
+    def test_path_permission_error(self):
+        test = Path(self.tmpdir.name, 'test1')
+        test.mkdir()
+        test.chmod(0o600)
+        token_path = Path(test, 'test2', TOKEN_PATH)
+        with self.assertRaises(PermissionError):
+            getattr(auth, '__token_writer')(token_path)
+        
+    @no_duplicates
+    def test_path_type_error(self):
+        with self.assertRaises(TypeError):
+            getattr(auth, '__token_writer')(123)
         
     @no_duplicates
     @patch('finra.auth.Path')
     def test_path_parent_make_dir(self, path):
         path.return_value = path
         path.parent = path
-        path.exists.return_value = False
-        path.is_dir.return_value = True
         
         getattr(auth, '__token_writer')(self.token_path)
         
@@ -460,6 +473,7 @@ class TestClientFromStorageFunctions(unittest.TestCase):
     @patch('finra.auth.Client')
     @patch('finra.auth.OAuth2Client', new_callable=MockOAuth2Client)
     @patch('finra.auth.register_redactions')
+    @patch('time.time', Mock(return_value=TOKEN_CREATED_TIMESTAMP))
     def test_token_write_func(self, register_redactions, session, client):
         session.return_value = session
         
@@ -525,9 +539,10 @@ class TestClientFromStorageFunctions(unittest.TestCase):
             API_SECRET,
             token_read_func,
             token_write_func,
-            leeway=123,
             mock='mock',
             test_environment='test_environment',
+            leeway=123,
+            automatic_refresh=True,
             timeout='timeout',
             accept_json='accept_json',
             require_enums='require_enums'
@@ -549,7 +564,7 @@ class TestClientFromStorageFunctions(unittest.TestCase):
         session.assert_called_once_with(
             API_KEY, API_SECRET, token=self.token,
             token_endpoint=auth._TEST_TOKEN_ENDPOINT,
-            update_token=ANY, leeway=123
+            update_token=ANY, leeway=123, grant_type="client_credentials"
             )
         
         register_redactions.assert_called_once_with(self.token)
@@ -574,9 +589,10 @@ class TestClientFromStorageFunctions(unittest.TestCase):
             token_read_func,
             token_write_func,
             is_asyncio=True,
-            leeway=123,
             mock='mock',
             test_environment='test_environment',
+            leeway=123,
+            automatic_refresh=True,
             timeout='timeout',
             accept_json='accept_json',
             require_enums='require_enums'
@@ -598,7 +614,7 @@ class TestClientFromStorageFunctions(unittest.TestCase):
         session.assert_called_once_with(
             API_KEY, API_SECRET, token=self.token,
             token_endpoint=auth._TEST_TOKEN_ENDPOINT,
-            update_token=ANY, leeway=123
+            update_token=ANY, leeway=123, grant_type="client_credentials"
             )
         
         register_redactions.assert_called_once_with(self.token)
@@ -664,6 +680,7 @@ class TestClientFromTokenFile(unittest.TestCase):
     @no_duplicates
     @patch('finra.auth.Client')
     @patch('finra.auth.OAuth2Client', new_callable=MockOAuth2Client)
+    @patch('time.time', Mock(return_value=TOKEN_CREATED_TIMESTAMP))
     def test_update_token(self, session, client):
         self.write_token()
         
@@ -698,9 +715,10 @@ class TestClientFromTokenFile(unittest.TestCase):
             API_KEY,
             API_SECRET,
             self.token_path,
-            leeway=123,
             mock='mock',
             test_environment='test_environment',
+            leeway=123,
+            automatic_refresh=True,
             timeout='timeout',
             accept_json='accept_json',
             require_enums='require_enums'
@@ -722,7 +740,7 @@ class TestClientFromTokenFile(unittest.TestCase):
         session.assert_called_once_with(
             API_KEY, API_SECRET, token=self.token,
             token_endpoint=auth._TEST_TOKEN_ENDPOINT,
-            update_token=ANY, leeway=123
+            update_token=ANY, leeway=123, grant_type="client_credentials"
             )
 
 

@@ -8,10 +8,10 @@ from httpx import Response, codes
 
 
 __all__ = [
-    "RedactFileHandler",
-    "RedactStreamHandler",
     "register_redactions",
     "register_redactions_from_response",
+    "RedactFileHandler",
+    "RedactStreamHandler",
     ]
 
 

@@ -10,7 +10,10 @@ from . import base_client
 from .log_redactor import RedactFileHandler, RedactStreamHandler
 
 
-__all__ = ["enable_bug_report_logging"]
+__all__ = [
+    "get_logger",
+    "enable_bug_report_logging",
+    ]
 
 
 def get_logger() -> logging.Logger:

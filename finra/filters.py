@@ -10,7 +10,7 @@ from .enum_converter import _add_require_enums_docs, E, EnumConverter, EnumStr
 from .exceptions import _type_error
 
 
-__all__ = ["Filter", "FiltersDictType"]
+__all__ = ["FiltersDictType", "Filter"]
 
 
 #: Type of object returned by :py:meth:`Filter.build`
