@@ -120,7 +120,7 @@ Project Links
 * `Consulting <https://finra.hawkberry.com/en/latest/consulting.html>`__
 * `Support <https://support.hawkberry.com/>`__
 
-----
+++++
 
 **Disclaimer**
 
