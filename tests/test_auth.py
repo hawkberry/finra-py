@@ -88,17 +88,20 @@ class TestTokenManager(unittest.TestCase):
     def test_update_token(self):
         token = {'token': '1', 'created_timestamp': TOKEN_CREATED_TIMESTAMP}
         
-        updated = [False]
+        written = [False]
         def token_write_func(token, *args, **kwds):
-            updated[0] = True
+            written[0] = True
+            return "updated"
         
         token_manager = TokenManager.from_wrapped_token(
             token, token_write_func
             )
         new_token = {'token': '2'}
-        token_manager.update_token(new_token)
-        self.assertTrue(updated[0])
+        return_value = token_manager.update_token(new_token)
+        
+        self.assertTrue(written[0])
         self.assertEqual(new_token, token_manager.token)
+        self.assertEqual(return_value, "updated")
         
     @no_duplicates
     def test_from_wrapped_token(self):
@@ -443,11 +446,12 @@ class TestDefaultTokenWriterConstructor(unittest.TestCase):
         
     @no_duplicates
     def test_path_permission_error(self):
-        if os.name == "nt":
+        if os.name == "nt": # different permission behavior on Windows
             self.skipTest(
                 "Directory permission bits are not enforced by chmod on "
                 "Windows"
                 )
+        
         test = Path(self.tmpdir.name, 'test1')
         test.mkdir()
         test.chmod(0o600)
@@ -495,6 +499,7 @@ class TestClientFromStorageFunctions(unittest.TestCase):
         written = []
         def token_write_func(token):
             written.append(token)
+            return "updated"
         
         c = auth.client_from_storage_functions(
             API_KEY,
@@ -526,9 +531,10 @@ class TestClientFromStorageFunctions(unittest.TestCase):
         session_call = session.mock_calls[0]
         update_token = session_call[2]['update_token'] # token manager method
         
-        update_token(self.token)
+        return_value = update_token(self.token)
         
         self.assertEqual([self.wrapped_token], written)
+        self.assertEqual(return_value, "updated")
         
     @no_duplicates
     @patch('finra.auth.Client')

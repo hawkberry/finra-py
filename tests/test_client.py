@@ -5138,12 +5138,13 @@ class _TestClientBase:
         self.mock_session.fetch_token = self.mock_cls(return_value=new_token)
         
         token_manager = MagicMock()
+        token_manager.update_token.return_value = "updated"
         
         client = self.client_cls(
             API_KEY, self.mock_session, token_manager=token_manager
             )
         
-        client.refresh_token('args', kwds='kwds')
+        return_value = client.refresh_token('args', kwds='kwds')
         
         self.mock_session.fetch_token.assert_called_once()
         
@@ -5153,6 +5154,7 @@ class _TestClientBase:
         token_manager.update_token.assert_called_once_with(
             new_token, 'args', kwds='kwds'
             )
+        self.assertEqual(return_value, "updated")
         
     @no_duplicates
     def test_refresh_token_no_token_manager(self):
