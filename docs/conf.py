@@ -240,6 +240,8 @@ html_extra_path = ["robots.txt"]
 
 html_favicon = "_static/favicon.ico"
 
+html_show_sourcelink = False
+
 html_sidebars = {
     "**": ["sidebar-collapse", "sidebar-nav-bs", "page-toc"],
     }
