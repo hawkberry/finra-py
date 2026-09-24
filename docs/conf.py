@@ -56,6 +56,8 @@ license_url = config["tool"]["finra-py"]["license_url"]
 
 pypi_url = config["tool"]["finra-py"]["pypi_url"]
 
+rss_url = config["tool"]["finra-py"]["rss_url"]
+
 
 # Metadata
 page_descriptions = {
@@ -112,6 +114,11 @@ page_descriptions = {
         "FINRA API consulting for member firms and developers, covering "
         "API integrations, Web EFT migrations, regulatory filing workflows, "
         "and FINRA data systems."
+        ),
+    "finra-changelog": (
+        "Unofficial changelog for the FINRA API and related documentation, "
+        "tracking dataset, documentation, and API changes by type and "
+        "priority."
         ),
     }
 
@@ -171,6 +178,11 @@ llms_page_descriptions = {
         "Complete Python API reference for `finra-py` covering "
         "authentication, the HTTPX client, Query, Notification and "
         "Submission APIs, utilities, exceptions, and data types."
+        ),
+    "finra-changelog": (
+        "Unofficial FINRA API changelog tracking changes to datasets and "
+        "related documentation by change `kind`, documentation "
+        "`section_type`, and `priority`, with RSS and weekly email updates."
         ),
     }
 

@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
-from xml.etree.ElementTree import Element, SubElement, ElementTree
+from typing import Optional
+from xml.etree.ElementTree import Element, SubElement, ElementTree, indent
 
 from sphinx.application import Sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
@@ -55,7 +56,7 @@ def _changefreq(pagename: str) -> str:
     return "monthly"
 
 
-def write_sitemap(app: Sphinx, exception: Exception | None) -> None:
+def write_sitemap(app: Sphinx, exception: Optional[Exception]) -> None:
     if exception is not None:
         return
     
@@ -75,6 +76,8 @@ def write_sitemap(app: Sphinx, exception: Exception | None) -> None:
         SubElement(url, "lastmod").text = _lastmod(app, pagename)
         SubElement(url, "changefreq").text = _changefreq(pagename)
         SubElement(url, "priority").text = _priority(pagename)
+    
+    indent(root, space="  ")
     
     output = Path(app.outdir) / "sitemap.xml"
     ElementTree(root).write(

@@ -66,6 +66,7 @@ branch = true
 [tool.finra-py]
 license_url = "https://github.com/hawkberry/finra-py/blob/main/LICENSE"
 pypi_url = "https://pypi.org/project/finra-py/"
+rss_url = "https://raw.githubusercontent.com/hawkberry/finra-py/main/changes.rss"
 
 [[tool.mypy.overrides]]
 module = "referencing"
