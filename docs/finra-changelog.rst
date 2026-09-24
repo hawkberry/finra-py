@@ -16,7 +16,7 @@ To receive a weekly digest of ``HIGH`` priority changes, and occasional ``finra-
 
 To receive changes of all priority levels, including ``LOW`` priority messages, subscribe to the RSS feed and filter categories based on your own requirements:
 
-* `RSS Feed <https://raw.githubusercontent.com/hawkberry/finra-py/main/changelog.rss>`__
+* `RSS Feed <https://raw.githubusercontent.com/hawkberry/finra-py/main/finra-changelog.rss>`__
 
 Changes are categorized based on the ``kind`` of change and the documentation ``section_type``, and each combination of categories is assigned a fixed message ``priority``. These fields are provided for category-based filtering in the RSS feed.
 
@@ -73,33 +73,6 @@ Changelog
 +++++++++
 
 .. BEGIN_FINRA_DOCUMENTATION_CHANGES
-
-.. _finra_docs_2026_09:
-
-September 2026
---------------
-
-September 24, 2026
-~~~~~~~~~~~~~~~~~~
-
-* **HIGH** — Query API > TRACE Report Cards > TRACE Foreign Sovereign Debt Summary: Section added
-* **HIGH** — Query API > TRACE Report Cards > TRACE Treasuries Execution Time Difference Summary: Section added
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Detail > Dataset Details: Table removed — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Summary > Dataset Details: Table removed — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Detail > Dataset Details: Table removed — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Summary > Dataset Details: Table removed — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Detail > Dataset Details: Table removed — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Summary > Dataset Details: Table removed — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Detail > Dataset Details: Table removed — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Summary > Dataset Details: Table removed — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Detail > Dataset Details: Table added — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Summary > Dataset Details: Table added — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Detail > Dataset Details: Table added — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Summary > Dataset Details: Table added — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Detail > Dataset Details: Table added — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Summary > Dataset Details: Table added — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Detail > Dataset Details: Table added — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
-* **MEDIUM** — Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Summary > Dataset Details: Table added — Table ; Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
 
 .. END_FINRA_DOCUMENTATION_CHANGES
 

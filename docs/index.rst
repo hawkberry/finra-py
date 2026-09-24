@@ -45,7 +45,6 @@ Table of Contents
    notification-api
    submission-api
    help
-   finra-changelog
    reference
 
 .. rubric:: Disclaimer
