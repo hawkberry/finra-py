@@ -12,7 +12,7 @@ See the :ref:`changelog` below for a complete record of ``HIGH`` and ``MEDIUM`` 
 
 To receive a weekly digest of ``HIGH`` priority changes, and occasional ``finra-py`` related articles, subscribe by email:
 
-* Weekly Digest (coming soon) 
+* Weekly Digest (coming soon)
 
 To receive changes of all priority levels, including ``LOW`` priority messages, subscribe to the RSS feed and filter categories based on your own requirements:
 
