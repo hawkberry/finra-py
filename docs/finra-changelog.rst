@@ -83,88 +83,87 @@ September 25, 2026
 ~~~~~~~~~~~~~~~~~~
 
 * **HIGH — Section added**
-
   | Path: Query API > TRACE Report Cards > TRACE Foreign Sovereign Debt Summary
+
 * **HIGH — Section added**
-
   | Path: Query API > TRACE Report Cards > TRACE Treasuries Execution Time Difference Summary
-* **MEDIUM — Table removed**
 
+* **MEDIUM — Table removed**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Detail > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM — Table removed**
 
+* **MEDIUM — Table removed**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Summary > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM — Table removed**
 
+* **MEDIUM — Table removed**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Detail > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM — Table removed**
 
+* **MEDIUM — Table removed**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Summary > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM — Table removed**
 
+* **MEDIUM — Table removed**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Detail > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM — Table removed**
 
+* **MEDIUM — Table removed**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Summary > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM — Table removed**
 
+* **MEDIUM — Table removed**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Detail > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM — Table removed**
 
+* **MEDIUM — Table removed**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Summary > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
-* **MEDIUM — Table added**
 
+* **MEDIUM — Table added**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Detail > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
-* **MEDIUM — Table added**
 
+* **MEDIUM — Table added**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Summary > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
-* **MEDIUM — Table added**
 
+* **MEDIUM — Table added**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Detail > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
-* **MEDIUM — Table added**
 
+* **MEDIUM — Table added**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Summary > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
-* **MEDIUM — Table added**
 
+* **MEDIUM — Table added**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Detail > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
-* **MEDIUM — Table added**
 
+* **MEDIUM — Table added**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Summary > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
-* **MEDIUM — Table added**
 
+* **MEDIUM — Table added**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Detail > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
-* **MEDIUM — Table added**
 
+* **MEDIUM — Table added**
   | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Summary > Dataset Details
   | Table: <no title>
   | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
