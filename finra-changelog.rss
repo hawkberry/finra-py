@@ -6,7 +6,7 @@
     <description>Unofficial changelog for the FINRA API and documentation.</description>
     <item>
       <title>Section added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Treasuries Execution Time Difference Summary &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=section_added &lt;br /&gt;section_type=dataset</description>
+      <description>priority=HIGH &lt;br /&gt;kind=section_added &lt;br /&gt;section_type=dataset &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Treasuries Execution Time Difference Summary</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -17,7 +17,7 @@
     </item>
     <item>
       <title>Section added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Foreign Sovereign Debt Summary &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=section_added &lt;br /&gt;section_type=dataset</description>
+      <description>priority=HIGH &lt;br /&gt;kind=section_added &lt;br /&gt;section_type=dataset &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Foreign Sovereign Debt Summary</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -28,7 +28,7 @@
     </item>
     <item>
       <title>Table column added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Securitized Products Summary &gt; Dataset Details &lt;br /&gt;Table: Available Parameters &lt;br /&gt;Column: Permitted Values &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Securitized Products Summary &gt; Dataset Details &lt;br /&gt;Table: Available Parameters &lt;br /&gt;Column: Permitted Values</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -39,7 +39,7 @@
     </item>
     <item>
       <title>Table column added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Securitized Products Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Column: Permitted Values &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Securitized Products Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Column: Permitted Values</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -50,7 +50,7 @@
     </item>
     <item>
       <title>Table column added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Corporate Bonds Summary &gt; Dataset Details &lt;br /&gt;Table: (no title) &lt;br /&gt;Column: Permitted Values &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Corporate Bonds Summary &gt; Dataset Details &lt;br /&gt;Table: (no title) &lt;br /&gt;Column: Permitted Values</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -61,7 +61,7 @@
     </item>
     <item>
       <title>Table column added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Corporate Bonds Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Column: Permitted Values &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Corporate Bonds Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Column: Permitted Values</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -72,7 +72,7 @@
     </item>
     <item>
       <title>Table column added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card for Agency Debt Summary &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Column: Permitted Values &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card for Agency Debt Summary &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Column: Permitted Values</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -83,7 +83,7 @@
     </item>
     <item>
       <title>Table column added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card for Agency Debt Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Column: Permitted Values &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card for Agency Debt Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Column: Permitted Values</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -94,7 +94,7 @@
     </item>
     <item>
       <title>Table column added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card Treasuries Summary &gt; Dataset Details &lt;br /&gt;Table: Available Parameters &lt;br /&gt;Column: Permitted Values &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card Treasuries Summary &gt; Dataset Details &lt;br /&gt;Table: Available Parameters &lt;br /&gt;Column: Permitted Values</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -105,7 +105,7 @@
     </item>
     <item>
       <title>Table column added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card Treasuries Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Column: Permitted Values &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_column_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card Treasuries Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Column: Permitted Values</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -116,7 +116,7 @@
     </item>
     <item>
       <title>Table row added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Securitized Products Summary &gt; Dataset Details &lt;br /&gt;Table: Available Parameters &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All, ABS, ABSX, CMO, MBS', 'Defaults to "All" when no reportView is provided') &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Securitized Products Summary &gt; Dataset Details &lt;br /&gt;Table: Available Parameters &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All, ABS, ABSX, CMO, MBS', 'Defaults to "All" when no reportView is provided')</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -127,7 +127,7 @@
     </item>
     <item>
       <title>Table row added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Securitized Products Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All, ABS, ABSX, CMO, MBS, TBA', 'Defaults to "All" when no reportView is provided') &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Securitized Products Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All, ABS, ABSX, CMO, MBS, TBA', 'Defaults to "All" when no reportView is provided')</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -138,7 +138,7 @@
     </item>
     <item>
       <title>Table row added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Corporate Bonds Summary &gt; Dataset Details &lt;br /&gt;Table: (no title) &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All, P1, S1', 'Defaults to "All" when no reportView is provided') &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Corporate Bonds Summary &gt; Dataset Details &lt;br /&gt;Table: (no title) &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All, P1, S1', 'Defaults to "All" when no reportView is provided')</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -149,7 +149,7 @@
     </item>
     <item>
       <title>Table row added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Corporate Bonds Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All, P1, S1', 'Defaults to "All" when no reportView is provided') &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Cards for Corporate Bonds Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All, P1, S1', 'Defaults to "All" when no reportView is provided')</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -160,7 +160,7 @@
     </item>
     <item>
       <title>Table row added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card for Agency Debt Summary &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All, P1, S1', 'Defaults to "All" when no reportView is provided') &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card for Agency Debt Summary &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All, P1, S1', 'Defaults to "All" when no reportView is provided')</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -171,7 +171,7 @@
     </item>
     <item>
       <title>Table row added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card for Agency Debt Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All, P1, S1', 'Defaults to "All" when no reportView is provided') &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card for Agency Debt Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All, P1, S1', 'Defaults to "All" when no reportView is provided')</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -182,7 +182,7 @@
     </item>
     <item>
       <title>Table row added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card Treasuries Summary &gt; Dataset Details &lt;br /&gt;Table: Available Parameters &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All', 'Defaults to "All" when no reportView is provided') &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card Treasuries Summary &gt; Dataset Details &lt;br /&gt;Table: Available Parameters &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All', 'Defaults to "All" when no reportView is provided')</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -193,7 +193,7 @@
     </item>
     <item>
       <title>Table row added</title>
-      <description>Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card Treasuries Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All', 'Defaults to "All" when no reportView is provided') &lt;br /&gt;priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=HIGH &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Quality of Markets Report Card Treasuries Detail &gt; Dataset Details &lt;br /&gt;Table: Available parameters &lt;br /&gt;Row: ('reportView', 'No', 'String', 'All', 'All', 'Defaults to "All" when no reportView is provided')</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -204,7 +204,7 @@
     </item>
     <item>
       <title>Text changed</title>
-      <description>Path: Query API &gt; Registration &gt; Individual Registration Validation Details &gt; Dataset Details &lt;br /&gt;--- previous &lt;br /&gt;+++ current &lt;br /&gt;@@ -2,3 +2,4 @@ &lt;br /&gt; The scope of individuals included in this dataset include: All active registered individuals who are currently registered with a broker-dealer (inclusive of individuals registered as both RR &amp; IAR) All those who were active in last 10 years All those who where active for over 10 years but have certain types of disclosure that require them being on BrokerCheck permanently &lt;br /&gt; IA Only registered individuals are not included in this dataset. &lt;br /&gt;+Changes to individual records are reflected in the endpoint response after 8 AM the following business day, Monday through Saturday, and after 9 AM on Sunday. &lt;br /&gt; The request will return either a 404 error code, if the individual CRD# is not found/invalid &lt;br /&gt;priority=LOW &lt;br /&gt;kind=text_changed &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=LOW &lt;br /&gt;kind=text_changed &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; Registration &gt; Individual Registration Validation Details &gt; Dataset Details &lt;br /&gt;--- previous &lt;br /&gt;+++ current &lt;br /&gt;@@ -2,3 +2,4 @@ &lt;br /&gt; The scope of individuals included in this dataset include: All active registered individuals who are currently registered with a broker-dealer (inclusive of individuals registered as both RR &amp; IAR) All those who were active in last 10 years All those who where active for over 10 years but have certain types of disclosure that require them being on BrokerCheck permanently &lt;br /&gt; IA Only registered individuals are not included in this dataset. &lt;br /&gt;+Changes to individual records are reflected in the endpoint response after 8 AM the following business day, Monday through Saturday, and after 9 AM on Sunday. &lt;br /&gt; The request will return either a 404 error code, if the individual CRD# is not found/invalid</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -215,7 +215,7 @@
     </item>
     <item>
       <title>Text changed</title>
-      <description>Path: Query API &gt; Registration &gt; Individual Registration Validation &gt; Dataset Details &lt;br /&gt;--- previous &lt;br /&gt;+++ current &lt;br /&gt;@@ -1,4 +1,5 @@ &lt;br /&gt; This endpoint allows FINRA member firms, as well as other financial services industry participants (e.g. insurance companies, mutual fund organizations, transfer agents, clearing firms, service providers, and FinTech solution providers) to validate the registration status of an individual, regardless of the individual's firm affiliation. &lt;br /&gt; The scope of individuals included in this dataset include active registered individuals who are currently registered with a broker-dealer (inclusive of individuals registered as both RR &amp; IAR). IA Only registered individuals are not included in this dataset. &lt;br /&gt;+Changes to individual records are reflected in the endpoint response after 8 AM the following business day, Monday through Saturday, and after 9 AM on Sunday. &lt;br /&gt; This endpoint follows the Single Record Dataset structure: /data/group/{group name}/name/{dataset name}/id/{id} where the {id} field represents and individual CRD number. &lt;br /&gt; The request will return either a 404 error code, if the individual CRD# is not found/invalid, or a response payload containing the following information for a valid CRD#: &lt;br /&gt;priority=LOW &lt;br /&gt;kind=text_changed &lt;br /&gt;section_type=dataset_subsection</description>
+      <description>priority=LOW &lt;br /&gt;kind=text_changed &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; Registration &gt; Individual Registration Validation &gt; Dataset Details &lt;br /&gt;--- previous &lt;br /&gt;+++ current &lt;br /&gt;@@ -1,4 +1,5 @@ &lt;br /&gt; This endpoint allows FINRA member firms, as well as other financial services industry participants (e.g. insurance companies, mutual fund organizations, transfer agents, clearing firms, service providers, and FinTech solution providers) to validate the registration status of an individual, regardless of the individual's firm affiliation. &lt;br /&gt; The scope of individuals included in this dataset include active registered individuals who are currently registered with a broker-dealer (inclusive of individuals registered as both RR &amp; IAR). IA Only registered individuals are not included in this dataset. &lt;br /&gt;+Changes to individual records are reflected in the endpoint response after 8 AM the following business day, Monday through Saturday, and after 9 AM on Sunday. &lt;br /&gt; This endpoint follows the Single Record Dataset structure: /data/group/{group name}/name/{dataset name}/id/{id} where the {id} field represents and individual CRD number. &lt;br /&gt; The request will return either a 404 error code, if the individual CRD# is not found/invalid, or a response payload containing the following information for a valid CRD#:</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
@@ -226,7 +226,7 @@
     </item>
     <item>
       <title>Text changed</title>
-      <description>Path: Getting Started &gt; On Behalf Of &gt; Implementation Workflow &lt;br /&gt;--- previous &lt;br /&gt;+++ current &lt;br /&gt;@@ -26,5 +26,13 @@ &lt;br /&gt; Create the OBO API credential &lt;br /&gt; Use this credential to access data or perform filings on behalf of the firm &lt;br /&gt;-Note: The OBO credential will be visible to both the Prime (vendor) and the firm. The firm can view it under the OBO Credential tab in their API Console. Additionally, the total PAID credential limit per firm/org has been increased from five to seven, which includes OBO credentials. &lt;br /&gt;+Note: &lt;br /&gt;+The OBO credential will be visible to both the Prime (vendor) and the firm. The firm can view it under the OBO Credential tab in their API Console. Additionally, the total PAID credential limit per firm/org has been increased from five to seven, which includes OBO credentials. &lt;br /&gt;+The firm must also maintain an active Firm credential to support the OBO credential. This credential does not need to be shared with the vendor. &lt;br /&gt; QA Test Environment &lt;br /&gt;-Once the OBO relationship is established in production and OBO API credentials are created, you can create an OBO relationship in the QA Test environment if needed. To do so, click the "Chat with us" button on the bottom right to contact support. &lt;br /&gt;+Once the OBO relationship and API credentials are established in production, the vendor or third party may contact API Platform Support to set up the OBO relationship in the QA Test environment. To do so, provide the following: &lt;br /&gt;+vendorOrgId &lt;br /&gt;+vendorOrgName &lt;br /&gt;+vendorEmail &lt;br /&gt;+firmOrgId &lt;br /&gt;+firmOrgName &lt;br /&gt;+Note: The firm must also be onboarded to the QA Test environment and maintain an active Firm credential to support the OBO credential. This credential does not need to be shared with the vendor. &lt;br /&gt;priority=LOW &lt;br /&gt;kind=text_changed &lt;br /&gt;section_type=non_dataset</description>
+      <description>priority=LOW &lt;br /&gt;kind=text_changed &lt;br /&gt;section_type=non_dataset &lt;br /&gt;Path: Getting Started &gt; On Behalf Of &gt; Implementation Workflow &lt;br /&gt;--- previous &lt;br /&gt;+++ current &lt;br /&gt;@@ -26,5 +26,13 @@ &lt;br /&gt; Create the OBO API credential &lt;br /&gt; Use this credential to access data or perform filings on behalf of the firm &lt;br /&gt;-Note: The OBO credential will be visible to both the Prime (vendor) and the firm. The firm can view it under the OBO Credential tab in their API Console. Additionally, the total PAID credential limit per firm/org has been increased from five to seven, which includes OBO credentials. &lt;br /&gt;+Note: &lt;br /&gt;+The OBO credential will be visible to both the Prime (vendor) and the firm. The firm can view it under the OBO Credential tab in their API Console. Additionally, the total PAID credential limit per firm/org has been increased from five to seven, which includes OBO credentials. &lt;br /&gt;+The firm must also maintain an active Firm credential to support the OBO credential. This credential does not need to be shared with the vendor. &lt;br /&gt; QA Test Environment &lt;br /&gt;-Once the OBO relationship is established in production and OBO API credentials are created, you can create an OBO relationship in the QA Test environment if needed. To do so, click the "Chat with us" button on the bottom right to contact support. &lt;br /&gt;+Once the OBO relationship and API credentials are established in production, the vendor or third party may contact API Platform Support to set up the OBO relationship in the QA Test environment. To do so, provide the following: &lt;br /&gt;+vendorOrgId &lt;br /&gt;+vendorOrgName &lt;br /&gt;+vendorEmail &lt;br /&gt;+firmOrgId &lt;br /&gt;+firmOrgName &lt;br /&gt;+Note: The firm must also be onboarded to the QA Test environment and maintain an active Firm credential to support the OBO credential. This credential does not need to be shared with the vendor.</description>
       <author>finra-py</author>
       <pubDate>Sat, 26 Sep 2026 19:07:39 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
