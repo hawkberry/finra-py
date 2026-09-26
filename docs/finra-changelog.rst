@@ -4,6 +4,10 @@
 FINRA API Changelog
 ===================
 
+
+**THIS PAGE AND RSS FEED ARE CURRENTLY UNDER DEVELOPMENT AND SUBJECT TO CHANGE**
+
+
 This is an unofficial changelog for the `FINRA API <https://developer.finra.org/docs>`__.
 
 This page tracks various kinds of changes to the API and its documentation. The purpose of the page is to help developers track API drift and better understand and implement FINRA API integrations.
@@ -79,94 +83,95 @@ Changelog
 September 2026
 --------------
 
-September 25, 2026
+September 26, 2026
 ~~~~~~~~~~~~~~~~~~
 
 * **HIGH — Section added**
-  | Path: Query API > TRACE Report Cards > TRACE Foreign Sovereign Debt Summary
 
+  - Path: Query API > TRACE Report Cards > TRACE Foreign Sovereign Debt Summary
 * **HIGH — Section added**
-  | Path: Query API > TRACE Report Cards > TRACE Treasuries Execution Time Difference Summary
 
-* **MEDIUM — Table removed**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Detail > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Treasuries Execution Time Difference Summary
+* **HIGH — Table column added**
 
-* **MEDIUM — Table removed**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Summary > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Detail > Dataset Details
+  - Table: Available parameters
+  - Column: Permitted Values
+* **HIGH — Table column added**
 
-* **MEDIUM — Table removed**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Detail > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Summary > Dataset Details
+  - Table: Available Parameters
+  - Column: Permitted Values
+* **HIGH — Table column added**
 
-* **MEDIUM — Table removed**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Summary > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Detail > Dataset Details
+  - Table: Available parameters
+  - Column: Permitted Values
+* **HIGH — Table column added**
 
-* **MEDIUM — Table removed**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Detail > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Summary > Dataset Details
+  - Table: Available parameters
+  - Column: Permitted Values
+* **HIGH — Table column added**
 
-* **MEDIUM — Table removed**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Summary > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Detail > Dataset Details
+  - Table: Available parameters
+  - Column: Permitted Values
+* **HIGH — Table column added**
 
-* **MEDIUM — Table removed**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Detail > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Summary > Dataset Details
+  - Table: (no title)
+  - Column: Permitted Values
+* **HIGH — Table column added**
 
-* **MEDIUM — Table removed**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Summary > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Detail > Dataset Details
+  - Table: Available parameters
+  - Column: Permitted Values
+* **HIGH — Table column added**
 
-* **MEDIUM — Table added**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Detail > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Summary > Dataset Details
+  - Table: Available Parameters
+  - Column: Permitted Values
+* **HIGH — Table row added**
 
-* **MEDIUM — Table added**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Summary > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Detail > Dataset Details
+  - Table: Available parameters
+  - Row: ('reportView', 'No', 'String', 'All', 'All', 'Defaults to "All" when no reportView is provided')
+* **HIGH — Table row added**
 
-* **MEDIUM — Table added**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Detail > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card Treasuries Summary > Dataset Details
+  - Table: Available Parameters
+  - Row: ('reportView', 'No', 'String', 'All', 'All', 'Defaults to "All" when no reportView is provided')
+* **HIGH — Table row added**
 
-* **MEDIUM — Table added**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Summary > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Detail > Dataset Details
+  - Table: Available parameters
+  - Row: ('reportView', 'No', 'String', 'All', 'All, P1, S1', 'Defaults to "All" when no reportView is provided')
+* **HIGH — Table row added**
 
-* **MEDIUM — Table added**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Detail > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Card for Agency Debt Summary > Dataset Details
+  - Table: Available parameters
+  - Row: ('reportView', 'No', 'String', 'All', 'All, P1, S1', 'Defaults to "All" when no reportView is provided')
+* **HIGH — Table row added**
 
-* **MEDIUM — Table added**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Summary > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Detail > Dataset Details
+  - Table: Available parameters
+  - Row: ('reportView', 'No', 'String', 'All', 'All, P1, S1', 'Defaults to "All" when no reportView is provided')
+* **HIGH — Table row added**
 
-* **MEDIUM — Table added**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Detail > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Corporate Bonds Summary > Dataset Details
+  - Table: (no title)
+  - Row: ('reportView', 'No', 'String', 'All', 'All, P1, S1', 'Defaults to "All" when no reportView is provided')
+* **HIGH — Table row added**
 
-* **MEDIUM — Table added**
-  | Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Summary > Dataset Details
-  | Table: <no title>
-  | Headers: ('Field', 'Required', 'Format', 'Example with Notes', 'Permitted Values', 'Notes')
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Detail > Dataset Details
+  - Table: Available parameters
+  - Row: ('reportView', 'No', 'String', 'All', 'All, ABS, ABSX, CMO, MBS, TBA', 'Defaults to "All" when no reportView is provided')
+* **HIGH — Table row added**
+
+  - Path: Query API > TRACE Report Cards > TRACE Quality of Markets Report Cards for Securitized Products Summary > Dataset Details
+  - Table: Available Parameters
+  - Row: ('reportView', 'No', 'String', 'All', 'All, ABS, ABSX, CMO, MBS', 'Defaults to "All" when no reportView is provided')
 
 .. END_FINRA_DOCUMENTATION_CHANGES
 
