@@ -22,7 +22,7 @@ To receive changes of all priority levels, including ``LOW`` priority messages, 
 
 * `RSS Feed <https://raw.githubusercontent.com/hawkberry/finra-py/main/finra-changelog.rss>`__
 
-Changes are categorized based on the ``kind`` of change and the documentation ``section_type``, and each combination of categories is assigned a fixed message ``priority``. These fields are provided for category-based filtering in the RSS feed.
+Changes are categorized by the ``kind`` of change and the documentation ``section_type``, with each combination assigned a fixed message ``priority``. These fields are included as RSS category tags to support category-based filtering, and also as ``label=value`` pairs in the description so feeds that do not support category filtering can still filter messages based on the description text.
 
 Message ``priority``:
 
