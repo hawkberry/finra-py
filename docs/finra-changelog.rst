@@ -5,7 +5,7 @@ FINRA API Changelog
 ===================
 
 
-**THIS PAGE AND RSS FEED ARE CURRENTLY UNDER DEVELOPMENT AND SUBJECT TO CHANGE**
+**THIS PAGE AND THE RSS FEED ARE CURRENTLY UNDER DEVELOPMENT AND SUBJECT TO CHANGE**
 
 
 This is an unofficial changelog for the `FINRA API <https://developer.finra.org/docs>`__.
@@ -20,7 +20,7 @@ To receive a weekly digest of ``HIGH`` priority changes, and occasional ``finra-
 
 To receive changes of all priority levels, including ``LOW`` priority messages, subscribe to the RSS feed and filter categories based on your own requirements:
 
-* `RSS Feed <https://raw.githubusercontent.com/hawkberry/finra-py/main/finra-changelog.rss>`__
+* `RSS 2.0 Feed <https://raw.githubusercontent.com/hawkberry/finra-py/main/finra-changelog.rss>`__
 
 Changes are categorized by the ``kind`` of change and the documentation ``section_type``, with each combination assigned a fixed message ``priority``. These fields are included as RSS category tags to support category-based filtering, and also as ``label=value`` pairs in the description so feeds that do not support category filtering can still filter messages based on the description text.
 

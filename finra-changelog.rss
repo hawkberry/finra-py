@@ -5,6 +5,17 @@
     <link>https://finra.hawkberry.com/en/latest/finra-changelog.html</link>
     <description>Unofficial changelog for the FINRA API and documentation.</description>
     <item>
+      <title>LOW — Text changed</title>
+      <description>priority=LOW &lt;br /&gt;kind=text_changed &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Foreign Sovereign Debt Summary &gt; Dataset Details &lt;br /&gt;--- previous &lt;br /&gt;+++ current &lt;br /&gt;@@ -1,2 +1,2 @@ &lt;br /&gt;-The TRACE Quality of Markets Report Card for Foreign Sovereign Debt dataset is a monthly status report for trades that a member firm reported to TRACE. Firms are required to report trades in accordance with established FINRA rules and regulations. &lt;br /&gt;+The TRACE Quality of Markets Report Card for Foreign Sovereign Debt Summary dataset is a monthly status report for trades that a member firm reported to TRACE. Firms are required to report trades in accordance with established FINRA rules and regulations. &lt;br /&gt; The dataset support synchronous GET requests only.</description>
+      <author>finra-py</author>
+      <pubDate>Mon, 28 Sep 2026 13:00:04 +0000</pubDate>
+      <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-09</link>
+      <guid isPermaLink="false">urn:changelog:69b7bd138bf85ae5aea4022a5e4136794a307949ff3a703e8d17fb2849c00379</guid>
+      <category domain="priority">LOW</category>
+      <category domain="kind">text_changed</category>
+      <category domain="section_type">dataset_subsection</category>
+    </item>
+    <item>
       <title>HIGH — Section added</title>
       <description>priority=HIGH &lt;br /&gt;kind=section_added &lt;br /&gt;section_type=dataset &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Treasuries Execution Time Difference Summary</description>
       <author>finra-py</author>
