@@ -810,4 +810,3 @@ _add_auth_params_docs(
     "token_read_func", "token_write_func",
     "mock", "test_environment", "min_expires_in", "kwds"
     )
-
