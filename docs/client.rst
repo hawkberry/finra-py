@@ -26,7 +26,21 @@ This client also supports the API's server-side asynchronous request flow. This 
 Asyncio Support
 +++++++++++++++
 
-In addition to the standard synchronous client, this library provides an asynchronous client for improved throughput with I/O-bound applications. To learn about asynchronous I/O, see Python's `asyncio <https://docs.python.org/3/library/asyncio.html#module-asyncio>`__ module. To create a configured instance of :py:class:`AsyncClient <finra.async_client.AsyncClient>`, set ``is_asyncio=True`` in :py:func:`get_client() <finra.auth.get_client>`.
+In addition to the standard synchronous client, this library provides an asynchronous client for improved throughput with I/O-bound applications. To learn about asynchronous I/O, see Python's `asyncio <https://docs.python.org/3/library/asyncio.html#module-asyncio>`__ module. 
+
+To create a configured instance of :py:class:`AsyncClient <finra.async_client.AsyncClient>`, use :py:func:`await get_async_client() <finra.auth.get_async_client>`.
+
+.. code-block:: python
+
+  from finra.auth import get_async_client
+  
+  c = await get_async_client(
+      api_key="API_KEY",
+      api_secret="API_SECRET",
+      token_path="/tmp/finra/token.json"
+      )
+
+An :py:class:`AsyncClient <finra.async_client.AsyncClient>` can also be created by setting ``is_asyncio=True`` in :py:func:`get_client() <finra.auth.get_client>`, but this uses the synchronous client to perform the initial token fetch, which will block other coroutines.
 
 .. code-block:: python
 
@@ -47,7 +61,24 @@ The :py:class:`AsyncClient <finra.async_client.AsyncClient>` uses an asynchronou
   
   r.raise_for_status()  # raise exception if request was unsuccessful
   
-  data = r.json()  # extract data from response object
+  data = r.json()       # extract data from response object
+
+Close the HTTP connection pool by calling :py:meth:`await AsyncClient.close() <finra.async_client.AsyncClient.close>`.
+
+.. code-block:: python
+
+  c = await get_async_client(...)
+  try:
+      ...
+  finally:
+      await c.close()   # close manually
+
+Alternatively, the :py:class:`AsyncClient <finra.client.AsyncClient>` can be used as an asynchronous context manager.
+
+.. code-block:: python
+
+  async with await get_async_client(...) as c:  # async context management
+      ...
 
 ++++++++++++++++++
 Session Management
@@ -75,7 +106,7 @@ Access tokens have a limited lifetime. If an API request returns a ``401 Unautho
 
 There are two options for managing token expiration without creating a new client. The best solution for most users is to use the OAuth 2.0 session to automatically fetch a new token from the `FINRA Identity Platform <https://developer.finra.org/docs#getting_started-api_platform_basics-authorization>`__ when the existing token has expired. This will fetch a new token and store it at the ``token_path``, or call the ``token_write_func`` if it was set during client creation. To enable this option, set ``automatic_refresh=True`` when creating a client using any of the functions from the :py:mod:`auth <finra.auth>` module.
 
-Automatic refreshing is convenient, but it offers less control over the timing of the token fetch, and less flexibility for customizing token write operations. Values returned by the ``token_write_func`` during an automatic refresh operation cannot be returned directly to the caller. The alternative is to manually fetch a new token by calling :py:meth:`Client.refresh_token() <finra.client.Client.refresh_token>`, or :py:meth:`await AsyncClient.refresh_token() <finra.async_client.AsyncClient.refresh_token>`. A token can be manually refreshed, even when automatic refreshing is enabled.
+Automatic refreshing is convenient, but it offers less control over the timing of the token fetch, and less flexibility for customizing token write operations. Values returned by the ``token_write_func`` during an automatic refresh operation cannot be returned directly to the caller. The alternative is to manually fetch a new token by calling :py:meth:`Client.refresh_token() <finra.client.Client.refresh_token>` or :py:meth:`await AsyncClient.refresh_token() <finra.async_client.AsyncClient.refresh_token>`. A token can be manually refreshed, even when automatic refreshing is enabled.
 
 The client offers several read-only attributes that can be used to anticipate token expiration:
 
@@ -83,7 +114,7 @@ The client offers several read-only attributes that can be used to anticipate to
 - :py:attr:`token_expires_at <finra.base_client.BaseClient.token_expires_at>` : the expiration timestamp in UTC
 - :py:attr:`token_age <finra.base_client.BaseClient.token_age>` : the number of seconds since token creation
 
-These attributes describe a token's lifecycle, and can indicate when to proactively fetch a new token before it expires. Additionally, the :py:func:`get_client() <finra.auth.get_client>` function has a ``min_expires_in`` keyword that can be used to set minimum time to expiration (in seconds) when creating a client from a stored token, and will force a new token to be fetched if the stored token expires sooner.
+These attributes describe a token's lifecycle, and can indicate when to proactively fetch a new token before it expires. Additionally, the :py:func:`get_client() <finra.auth.get_client>` and :py:func:`await get_async_client() <finra.auth.get_async_client>` functions have a ``min_expires_in`` keyword that can be used to set minimum time to expiration (in seconds) when creating a client from a stored token, and will force a new token to be fetched if the stored token expires sooner.
 
 .. _data_version:
 

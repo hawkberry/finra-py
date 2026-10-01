@@ -6,12 +6,14 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import ANY, Mock, patch
+from unittest.mock import ANY, AsyncMock, Mock, patch
 
 from finra import auth
 from finra.token_manager import TokenManager
 
-from .common import MockAsyncOAuth2Client, MockOAuth2Client, no_duplicates
+from .common import (
+    AsyncFunc, MockAsyncOAuth2Client, MockOAuth2Client, no_duplicates,
+    )
 
 
 API_KEY = 'APIKEY'
@@ -115,7 +117,7 @@ class TestTokenManager(unittest.TestCase):
         with self.assertRaisesRegex(
             ValueError,
             "WARNING: The token format has changed since this token "
-            "was created. Please delete it and create a new one."
+            "was created. Delete it and create a new one."
             ):
             TokenManager.from_wrapped_token(token, None)
 
@@ -416,7 +418,7 @@ class TestBuildAsyncClient(unittest.TestCase):
 
 
 ##############################################################################
-# CLIENT FROM READ & WRITE FUNCTIONS
+# DEFAULT TOKEN WRITER
 
 class TestDefaultTokenWriterConstructor(unittest.TestCase):
     def setUp(self):
@@ -474,6 +476,9 @@ class TestDefaultTokenWriterConstructor(unittest.TestCase):
         
         path.mkdir.assert_called_once()
 
+
+##############################################################################
+# CLIENT FROM STORAGE FUNCTIONS
 
 class TestClientFromStorageFunctions(unittest.TestCase):
     def setUp(self):
@@ -605,6 +610,176 @@ class TestClientFromStorageFunctions(unittest.TestCase):
             token_read_func,
             token_write_func,
             is_asyncio=True,
+            mock='mock',
+            test_environment='test_environment',
+            leeway=123,
+            automatic_refresh=True,
+            timeout='timeout',
+            accept_json='accept_json',
+            require_enums='require_enums'
+            )
+        
+        self.assertEqual(c, client)
+        
+        client.assert_called_once_with(
+            API_KEY,
+            session,
+            token_manager=ANY,
+            mock='mock',
+            test_environment='test_environment',
+            timeout='timeout',
+            accept_json='accept_json',
+            require_enums='require_enums'
+            )
+        
+        session.assert_called_once_with(
+            API_KEY, API_SECRET, token=self.token,
+            token_endpoint=auth._TEST_TOKEN_ENDPOINT,
+            update_token=ANY, leeway=123, grant_type="client_credentials"
+            )
+        
+        register_redactions.assert_called_once_with(self.token)
+
+
+class TestAsyncClientFromStorageFunctions(unittest.TestCase):
+    def setUp(self):
+        self.token = {'token': '1'}
+        self.wrapped_token = {
+            'created_timestamp': TOKEN_CREATED_TIMESTAMP,
+            'token': self.token,
+            }
+        
+    @no_duplicates
+    @patch('finra.auth.AsyncClient')
+    @patch('finra.auth.AsyncOAuth2Client', new_callable=MockAsyncOAuth2Client)
+    @patch('finra.auth.register_redactions')
+    @patch('time.time', Mock(return_value=TOKEN_CREATED_TIMESTAMP))
+    def test_token_write_func(self, register_redactions, session, client):
+        session.return_value = session
+        
+        client.return_value = client
+        
+        token_read_func = Mock()
+        token_read_func.return_value = self.wrapped_token
+        
+        written = []
+        def token_write_func(token):
+            written.append(token)
+            return "updated"
+        
+        c = AsyncFunc(auth.async_client_from_storage_functions)(
+            API_KEY,
+            API_SECRET,
+            token_read_func,
+            token_write_func
+            )
+        
+        self.assertEqual(c, client)
+        
+        client.assert_called_once_with(
+            API_KEY,
+            session,
+            token_manager=ANY,
+            mock=False,
+            test_environment=False
+            )
+        
+        session.assert_called_once_with(
+            API_KEY, API_SECRET, token=self.token,
+            token_endpoint=auth._PROD_TOKEN_ENDPOINT,
+            update_token=ANY, leeway=ANY
+            )
+        
+        register_redactions.assert_called_once_with(self.token)
+        
+        token_read_func.assert_called_once()
+        
+        session_call = session.mock_calls[0]
+        update_token = AsyncFunc(
+            session_call[2]['update_token']
+            ) # wrapped token manager method
+        
+        return_value = update_token(self.token)
+        
+        self.assertEqual([self.wrapped_token], written)
+        self.assertEqual(return_value, "updated")
+        
+    @no_duplicates
+    @patch('finra.auth.AsyncClient')
+    @patch('finra.auth.AsyncOAuth2Client', new_callable=MockAsyncOAuth2Client)
+    @patch('finra.auth.register_redactions')
+    @patch('time.time', Mock(return_value=TOKEN_CREATED_TIMESTAMP))
+    def test_async_token_write_func(
+        self, register_redactions, session, client
+        ):
+        session.return_value = session
+        
+        client.return_value = client
+        
+        token_read_func = AsyncMock()
+        token_read_func.return_value = self.wrapped_token
+        
+        written = []
+        async def token_write_func(token):
+            written.append(token)
+            return "updated"
+        
+        c = AsyncFunc(auth.async_client_from_storage_functions)(
+            API_KEY,
+            API_SECRET,
+            token_read_func,
+            token_write_func
+            )
+        
+        self.assertEqual(c, client)
+        
+        client.assert_called_once_with(
+            API_KEY,
+            session,
+            token_manager=ANY,
+            mock=False,
+            test_environment=False
+            )
+        
+        session.assert_called_once_with(
+            API_KEY, API_SECRET, token=self.token,
+            token_endpoint=auth._PROD_TOKEN_ENDPOINT,
+            update_token=ANY, leeway=ANY
+            )
+        
+        register_redactions.assert_called_once_with(self.token)
+        
+        token_read_func.assert_called_once()
+        
+        session_call = session.mock_calls[0]
+        update_token = AsyncFunc(
+            session_call[2]['update_token']
+            ) # wrapped token manager method
+        
+        return_value = update_token(self.token)
+        
+        self.assertEqual([self.wrapped_token], written)
+        self.assertEqual(return_value, "updated")
+        
+    @no_duplicates
+    @patch('finra.auth.AsyncClient')
+    @patch('finra.auth.AsyncOAuth2Client', new_callable=MockAsyncOAuth2Client)
+    @patch('finra.auth.register_redactions')
+    def test_with_params(self, register_redactions, session, client):
+        session.return_value = session
+        
+        client.return_value = client
+        
+        token_read_func = AsyncMock()
+        token_read_func.return_value = self.wrapped_token
+        
+        token_write_func = AsyncMock()
+        
+        c = AsyncFunc(auth.async_client_from_storage_functions)(
+            API_KEY,
+            API_SECRET,
+            token_read_func,
+            token_write_func,
             mock='mock',
             test_environment='test_environment',
             leeway=123,
@@ -850,9 +1025,9 @@ class TestClientFromNewToken(unittest.TestCase):
         
         session.fetch_token.assert_called_once()
         
-        self.assertEqual(len(session.mock_calls), 3) # w/ fetch_token
+        self.assertEqual(len(session.mock_calls), 4) # w/ fetch_token
         
-        session_call = session.mock_calls[2] # called to create client session
+        session_call = session.mock_calls[3] # called to create client session
         self.assertEqual(session_call[1], (API_KEY, API_SECRET))
         self.assertEqual(session_call[2]['token'], self.token)
         self.assertEqual(
@@ -898,7 +1073,7 @@ class TestClientFromNewToken(unittest.TestCase):
         # Synchronous OAuth2Client to fetch new token before creating client
         sync_session.fetch_token.assert_called_once()
         
-        self.assertEqual(len(sync_session.mock_calls), 2) # w/ fetch_token
+        self.assertEqual(len(sync_session.mock_calls), 3) # w/ fetch_token
         
         sync_session_call = sync_session.mock_calls[0]
         self.assertEqual(sync_session_call[1], (API_KEY, API_SECRET))
@@ -957,9 +1132,212 @@ class TestClientFromNewToken(unittest.TestCase):
         
         session.fetch_token.assert_called_once()
         
-        self.assertEqual(len(session.mock_calls), 3) # w/ fetch_token
+        self.assertEqual(len(session.mock_calls), 4) # w/ fetch_token
         
-        session_call = session.mock_calls[2] # called to create client session
+        session_call = session.mock_calls[3] # called to create client session
+        self.assertEqual(session_call[1], (API_KEY, API_SECRET))
+        self.assertEqual(session_call[2]['token'], self.token)
+        self.assertEqual(
+            session_call[2]['token_endpoint'], auth._TEST_TOKEN_ENDPOINT
+            )
+        
+        register_redactions.assert_called_once_with(self.token)
+
+
+class TestAsyncClientFromNewToken(unittest.TestCase):
+    def setUp(self):
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.token_path = Path(self.tmpdir.name, TOKEN_PATH)
+        self.token = {'token': '1'}
+        self.wrapped_token = {
+            'created_timestamp': TOKEN_CREATED_TIMESTAMP,
+            'token': self.token,
+            }
+        
+    def tearDown(self):
+        self.tmpdir.cleanup()
+        
+    def read_token(self):
+        with open(self.token_path, 'r') as f:
+            return json.load(f)
+    
+    @no_duplicates
+    @patch('finra.auth.AsyncClient')
+    @patch('finra.auth.AsyncOAuth2Client', new_callable=MockAsyncOAuth2Client)
+    @patch('finra.auth.register_redactions')
+    @patch('time.time', Mock(return_value=TOKEN_CREATED_TIMESTAMP))
+    def test_token_write_func(self, register_redactions, session, client):
+        session.return_value = session
+        session.fetch_token = AsyncMock()
+        session.fetch_token.return_value = self.token
+        session.aclose = AsyncMock()
+        
+        client.return_value = client
+        
+        written = []
+        def token_write_func(token):
+            written.append(token)
+        
+        c = AsyncFunc(auth.async_client_from_new_token)(
+            API_KEY, API_SECRET, None, # token path ignored if token_write_func
+            token_write_func=token_write_func
+            )
+        
+        self.assertEqual(c, client)
+        
+        client.assert_called_once_with(
+            API_KEY,
+            session,
+            token_manager=ANY,
+            mock=False,
+            test_environment=False
+            )
+        
+        session.fetch_token.assert_called_once()
+        session.aclose.assert_called_once()
+        
+        register_redactions.assert_called_once_with(self.token)
+        
+        self.assertEqual([self.wrapped_token], written)
+        
+    @no_duplicates
+    @patch('finra.auth.AsyncClient')
+    @patch('finra.auth.AsyncOAuth2Client', new_callable=MockAsyncOAuth2Client)
+    @patch('finra.auth.register_redactions')
+    @patch('time.time', Mock(return_value=TOKEN_CREATED_TIMESTAMP))
+    def test_async_token_write_func(
+        self, register_redactions, session, client
+        ):
+        session.return_value = session
+        session.fetch_token = AsyncMock()
+        session.fetch_token.return_value = self.token
+        session.aclose = AsyncMock()
+        
+        client.return_value = client
+        
+        written = []
+        async def token_write_func(token):
+            written.append(token)
+        
+        c = AsyncFunc(auth.async_client_from_new_token)(
+            API_KEY, API_SECRET, None, # token path ignored if token_write_func
+            token_write_func=token_write_func
+            )
+        
+        self.assertEqual(c, client)
+        
+        client.assert_called_once_with(
+            API_KEY,
+            session,
+            token_manager=ANY,
+            mock=False,
+            test_environment=False
+            )
+        
+        session.fetch_token.assert_called_once()
+        session.aclose.assert_called_once()
+        
+        register_redactions.assert_called_once_with(self.token)
+        
+        self.assertEqual([self.wrapped_token], written)
+        
+    @no_duplicates
+    @patch('finra.auth.AsyncClient')
+    @patch('time.time', Mock(return_value=TOKEN_CREATED_TIMESTAMP))
+    def test_token_write_func_token_path_none(self, client):
+        with self.assertRaisesRegex(
+            ValueError, "Must set token path to use default token_write_func"
+            ):
+            AsyncFunc(auth.async_client_from_new_token)(
+                API_KEY, API_SECRET, None
+                )
+        
+    @no_duplicates
+    @patch('finra.auth.AsyncClient')
+    @patch('finra.auth.AsyncOAuth2Client', new_callable=MockAsyncOAuth2Client)
+    @patch('finra.auth.register_redactions')
+    @patch('time.time', Mock(return_value=TOKEN_CREATED_TIMESTAMP))
+    def test_new_token(self, register_redactions, session, client):
+        session.return_value = session
+        session.fetch_token = AsyncMock()
+        session.fetch_token.return_value = self.token
+        session.aclose = AsyncMock()
+        
+        client.return_value = client
+        
+        c = AsyncFunc(auth.async_client_from_new_token)(
+            API_KEY, API_SECRET, self.token_path
+            )
+        
+        self.assertEqual(c, client)
+        
+        client.assert_called_once_with(
+            API_KEY,
+            session,
+            token_manager=ANY,
+            mock=False,
+            test_environment=False
+            )
+        
+        session.fetch_token.assert_called_once()
+        session.aclose.assert_called_once()
+        
+        self.assertEqual(len(session.mock_calls), 4) # w/ fetch_token
+        
+        session_call = session.mock_calls[3] # called to create client session
+        self.assertEqual(session_call[1], (API_KEY, API_SECRET))
+        self.assertEqual(session_call[2]['token'], self.token)
+        self.assertEqual(
+            session_call[2]['token_endpoint'], auth._PROD_TOKEN_ENDPOINT
+            )
+        
+        register_redactions.assert_called_once_with(self.token)
+        
+        self.assertEqual(self.read_token(), self.wrapped_token)
+        
+    @no_duplicates
+    @patch('finra.auth.AsyncClient')
+    @patch('finra.auth.AsyncOAuth2Client', new_callable=MockAsyncOAuth2Client)
+    @patch('finra.auth.register_redactions')
+    @patch('time.time', Mock(return_value=TOKEN_CREATED_TIMESTAMP))
+    def test_with_params(self, register_redactions, session, client):
+        session.return_value = session
+        session.fetch_token = AsyncMock()
+        session.fetch_token.return_value = self.token
+        session.aclose = AsyncMock()
+        
+        client.return_value = client
+        
+        c = AsyncFunc(auth.async_client_from_new_token)(
+            API_KEY,
+            API_SECRET,
+            self.token_path,
+            mock='mock',
+            test_environment='test_environment',
+            timeout='timeout',
+            accept_json='accept_json',
+            require_enums='require_enums'
+            )
+        
+        self.assertEqual(c, client)
+        
+        client.assert_called_once_with(
+            API_KEY,
+            session,
+            token_manager=ANY,
+            mock='mock',
+            test_environment='test_environment',
+            timeout='timeout',
+            accept_json='accept_json',
+            require_enums='require_enums'
+            )
+        
+        session.fetch_token.assert_called_once()
+        session.aclose.assert_called_once()
+        
+        self.assertEqual(len(session.mock_calls), 4) # w/ fetch_token
+        
+        session_call = session.mock_calls[3] # called to create client session
         self.assertEqual(session_call[1], (API_KEY, API_SECRET))
         self.assertEqual(session_call[2]['token'], self.token)
         self.assertEqual(
@@ -1238,6 +1616,288 @@ class TestGetClient(unittest.TestCase):
         mock_client.token_expires_in = 10_000
         
         c = auth.get_client(
+            API_KEY,
+            API_SECRET,
+            token_path=self.token_path,
+            min_expires_in=0
+            )
+        
+        self.assertIs(c, mock_client)
+
+
+class TestGetAsyncClient(unittest.TestCase):
+    def setUp(self):
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.token_path = Path(self.tmpdir.name, TOKEN_PATH)
+        self.token = {'token': '1'}
+        self.wrapped_token = {
+            'created_timestamp': TOKEN_CREATED_TIMESTAMP,
+            'token': self.token,
+            }
+        
+    def tearDown(self):
+        self.tmpdir.cleanup()
+        
+    def write_token(self):
+        with open(self.token_path, 'w') as f:
+            json.dump(self.wrapped_token, f)
+        
+    @no_duplicates
+    @patch('finra.auth.async_client_from_new_token', new_callable=AsyncMock)
+    def test_new_token(self, async_client_from_new_token):
+        mock_client = AsyncMock()
+        async_client_from_new_token.return_value = mock_client
+        
+        c = AsyncFunc(auth.get_async_client)(
+            API_KEY,
+            API_SECRET,
+            token_path=self.token_path
+            )
+        
+        self.assertIs(c, mock_client)
+        
+    @no_duplicates
+    @patch('finra.auth.async_client_from_new_token', new_callable=AsyncMock)
+    def test_new_token_with_params(self, async_client_from_new_token):
+        mock_client = AsyncMock()
+        async_client_from_new_token.return_value = mock_client
+        
+        c = AsyncFunc(auth.get_async_client)(
+            API_KEY,
+            API_SECRET,
+            token_path=self.token_path,
+            token_write_func='token_write_func',
+            mock='mock',
+            test_environment='test_environment'
+            )
+        
+        self.assertIs(c, mock_client)
+        
+        async_client_from_new_token.assert_called_once_with(
+            API_KEY,
+            API_SECRET,
+            self.token_path,
+            token_write_func='token_write_func',
+            mock='mock',
+            test_environment='test_environment'
+            )
+        
+    @no_duplicates
+    @patch('finra.auth.client_from_token_file')
+    def test_token_file(self, client_from_token_file):
+        self.write_token()
+        
+        mock_client = AsyncMock()
+        client_from_token_file.return_value = mock_client
+        mock_client.token_expires_in = 10_000
+        
+        c = AsyncFunc(auth.get_async_client)(
+            API_KEY,
+            API_SECRET,
+            token_path=self.token_path
+            )
+        
+        self.assertIs(c, mock_client)
+        
+    @no_duplicates
+    @patch('finra.auth.client_from_token_file')
+    def test_token_file_with_params(self, client_from_token_file):
+        self.write_token()
+        
+        mock_client = AsyncMock()
+        client_from_token_file.return_value = mock_client
+        mock_client.token_expires_in = 10_000
+        
+        c = AsyncFunc(auth.get_async_client)(
+            API_KEY,
+            API_SECRET,
+            token_path=self.token_path,
+            mock='mock',
+            test_environment='test_environment'
+            )
+        
+        self.assertIs(c, mock_client)
+        
+        client_from_token_file.assert_called_once_with(
+            API_KEY,
+            API_SECRET,
+            self.token_path,
+            is_asyncio=True,
+            mock='mock',
+            test_environment='test_environment'
+            )
+        
+    @no_duplicates
+    @patch('finra.auth.client_from_token_file')
+    @patch('finra.auth.async_client_from_new_token', new_callable=AsyncMock)
+    def test_token_file_token_expired(self, async_client_from_new_token,
+                                      client_from_token_file):
+        self.write_token()
+        
+        mock_client = AsyncMock()
+        client_from_token_file.return_value = mock_client
+        mock_client.token_expires_in = -1
+        
+        mock_new_token_client = AsyncMock()
+        async_client_from_new_token.return_value = mock_new_token_client
+        
+        c = AsyncFunc(auth.get_async_client)(
+            API_KEY,
+            API_SECRET,
+            token_path=self.token_path
+            )
+        
+        self.assertIs(c, mock_new_token_client)
+        
+    @no_duplicates
+    def test_missing_token_path_and_read_write_funcs(self):
+        with self.assertRaisesRegex(
+            ValueError,
+            "Must either provide local token path, or both token "
+            "read and write functions"
+            ):
+            AsyncFunc(auth.get_async_client)(API_KEY, API_SECRET)
+        
+    @no_duplicates
+    @patch(
+        'finra.auth.async_client_from_storage_functions',
+        new_callable=AsyncMock
+        )
+    def test_storage_functions(self, async_client_from_storage_functions):
+        mock_client = AsyncMock()
+        async_client_from_storage_functions.return_value = mock_client
+        mock_client.token_expires_in = 10_000
+        
+        c = AsyncFunc(auth.get_async_client)(
+            API_KEY,
+            API_SECRET,
+            token_read_func='token_read_func',
+            token_write_func='token_write_func'
+            )
+        
+        self.assertIs(c, mock_client)
+        
+    @no_duplicates
+    @patch(
+        'finra.auth.async_client_from_storage_functions',
+        new_callable=AsyncMock
+        )
+    def test_storage_functions_with_params(
+        self, async_client_from_storage_functions
+        ):
+        mock_client = AsyncMock()
+        async_client_from_storage_functions.return_value = mock_client
+        mock_client.token_expires_in = 10_000
+        
+        c = AsyncFunc(auth.get_async_client)(
+            API_KEY,
+            API_SECRET,
+            token_read_func='token_read_func',
+            token_write_func='token_write_func',
+            mock='mock',
+            test_environment='test_environment'
+            )
+        
+        self.assertIs(c, mock_client)
+        
+        async_client_from_storage_functions.assert_called_once_with(
+            API_KEY,
+            API_SECRET,
+            'token_read_func',
+            'token_write_func',
+            mock='mock',
+            test_environment='test_environment'
+            )
+        
+    @no_duplicates
+    @patch(
+        'finra.auth.async_client_from_storage_functions',
+        new_callable=AsyncMock
+        )
+    @patch('finra.auth.async_client_from_new_token', new_callable=AsyncMock)
+    def test_storage_functions_raise_exception(
+        self, async_client_from_new_token, async_client_from_storage_functions
+        ):
+        async_client_from_storage_functions.side_effect = Exception()
+        
+        mock_client = AsyncMock()
+        async_client_from_new_token.return_value = mock_client
+        
+        c = AsyncFunc(auth.get_async_client)(
+            API_KEY,
+            API_SECRET,
+            token_read_func='token_read_func',
+            token_write_func='token_write_func'
+            )
+        
+        self.assertIs(c, mock_client)
+        
+    @no_duplicates
+    @patch(
+        'finra.auth.async_client_from_storage_functions',
+        new_callable=AsyncMock
+        )
+    @patch('finra.auth.async_client_from_new_token', new_callable=AsyncMock)
+    def test_storage_functions_token_expired(
+        self, async_client_from_new_token, async_client_from_storage_functions
+        ):
+        mock_client = AsyncMock()
+        async_client_from_storage_functions.return_value = mock_client
+        mock_client.token_expires_in = -1
+        
+        mock_new_token_client = AsyncMock()
+        async_client_from_new_token.return_value = mock_new_token_client
+        
+        c = AsyncFunc(auth.get_async_client)(
+            API_KEY,
+            API_SECRET,
+            token_read_func='token_read_func',
+            token_write_func='token_write_func'
+            )
+        
+        self.assertIs(c, mock_new_token_client)
+        
+    @no_duplicates
+    @patch('finra.auth.client_from_token_file')
+    def test_negative_min_expires_in(self, client_from_token_file):
+        with self.assertRaisesRegex(
+                ValueError, "'min_expires_in' must be non-negative, or None"
+                ):
+            AsyncFunc(auth.get_async_client)(
+                API_KEY,
+                API_SECRET,
+                token_path=self.token_path,
+                min_expires_in=-1
+                )
+        
+    @no_duplicates
+    @patch('finra.auth.client_from_token_file')
+    def test_none_min_expires_in(self, client_from_token_file):
+        self.write_token()
+        
+        mock_client = AsyncMock()
+        client_from_token_file.return_value = mock_client
+        mock_client.token_expires_in = 10_000
+        
+        c = AsyncFunc(auth.get_async_client)(
+            API_KEY,
+            API_SECRET,
+            token_path=self.token_path,
+            min_expires_in=None
+            )
+        
+        self.assertIs(c, mock_client)
+        
+    @no_duplicates
+    @patch('finra.auth.client_from_token_file')
+    def test_zero_min_expires_in(self, client_from_token_file):
+        self.write_token()
+        
+        mock_client = AsyncMock()
+        client_from_token_file.return_value = mock_client
+        mock_client.token_expires_in = 10_000
+        
+        c = AsyncFunc(auth.get_async_client)(
             API_KEY,
             API_SECRET,
             token_path=self.token_path,

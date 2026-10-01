@@ -15,6 +15,9 @@ __all__ = [
     ]
 
 
+##############################################################################
+# LOG REDACTOR
+
 # Class for building a global singleton for redacting secrets in logs
 class _LogRedactor:
     """
@@ -81,6 +84,43 @@ class _LogRedactor:
 _LOG_REDACTOR = _LogRedactor()
 
 
+##############################################################################
+# REGISTER REDACTIONS
+
+# Bad word stubs in lowercase, redact if they are part of any key
+_BAD_PATTERNS = [
+    "key",
+    "secret",
+    "token",
+    "crd",
+    "ssn",
+    "dob",
+    "dateofbirth",
+    "identifier",
+    "addressline",
+    "firstname",
+    "lastname",
+    "middlename",
+    "suffixname",
+    "initiatorName",
+    "occurrencenumber",
+    "confirmationnumber",
+    "docketnumber",
+    "instanceNumber",
+    "userid",
+    "resultLink",
+    ]
+
+
+# Whitelisted terms in lowercase, to never redact
+_WHITELIST = [
+    "token_type",
+    "tierIdentifier",
+    "issueSymbolIdentifier",
+    "securitiesInformationProcessorSymbolIdentifier",
+    ]
+
+
 def _register_redactions(
     obj: Any,
     key_path: Optional[list[str]],
@@ -120,40 +160,6 @@ def _register_redactions(
             last_key = k.casefold() # bad patterns is case-insensitive
             if any([bad in last_key for bad in bad_patterns]):
                 _LOG_REDACTOR.register(obj, "-".join(key_path))
-
-
-# Bad word stubs in lowercase, redact if they are part of any key
-_BAD_PATTERNS = [
-    "key",
-    "secret",
-    "token",
-    "crd",
-    "ssn",
-    "dob",
-    "dateofbirth",
-    "identifier",
-    "addressline",
-    "firstname",
-    "lastname",
-    "middlename",
-    "suffixname",
-    "initiatorName",
-    "occurrencenumber",
-    "confirmationnumber",
-    "docketnumber",
-    "instanceNumber",
-    "userid",
-    "resultLink",
-    ]
-
-
-# Whitelisted terms in lowercase, to never redact
-_WHITELIST = [
-    "token_type",
-    "tierIdentifier",
-    "issueSymbolIdentifier",
-    "securitiesInformationProcessorSymbolIdentifier",
-    ]
 
 
 def register_redactions(
@@ -209,6 +215,9 @@ def register_redactions_from_response(response: Response) -> None:
     """
     _register_redactions_from_response(response, register_redactions)
 
+
+##############################################################################
+# LOGGING HANDLERS
 
 def _emit(handler: FileHandler | StreamHandler, record: LogRecord):
     if handler.stream is None: # pragma: no cover

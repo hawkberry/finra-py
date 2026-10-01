@@ -8,6 +8,9 @@ from .base_filing import BaseFilingOps, FilingDictType, _set_filing_type
 __all__ = ["FormBR"]
 
 
+##############################################################################
+# ENUMS
+
 class FilingType(Enum):
     """
     Used in a filing to set the filing type.
@@ -28,6 +31,9 @@ class FilingType(Enum):
 
 _FilingType: TypeAlias = EnumStr[FilingType]
 
+
+##############################################################################
+# FILING
 
 class FormBR(BaseFilingOps):
     """

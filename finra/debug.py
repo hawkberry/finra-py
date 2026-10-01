@@ -16,10 +16,16 @@ __all__ = [
     ]
 
 
+##############################################################################
+# LOGGING
+
 def get_logger() -> logging.Logger:
     """Logger for :mod:`debug` module"""
     return logging.getLogger(__name__)
 
+
+##############################################################################
+# BUG REPORTING
 
 # Internal version used in testing
 def _enable_bug_report_logging(

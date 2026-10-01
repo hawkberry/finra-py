@@ -1,6 +1,5 @@
 import asyncio
 import datetime
-import inspect
 import json
 import logging
 import unittest
@@ -22,7 +21,7 @@ from finra.filings.form_u5 import FormU5
 from finra.filings.non_registered_fingerprint import NonRegisteredFingerprint
 from finra.filters import Filter
 
-from .common import no_duplicates, set_meth
+from .common import AsyncProxy, no_duplicates, set_meth
 
 
 # NOTE: To add new datasets for unittest, add the dataset configuration to the
@@ -743,9 +742,6 @@ REPORT_CARD_DETAILS: T = {
     "get_trace_agency_debt_details": (
         "reportcard", "traceAgencyDetail", None, [],
         ),
-    "get_trace_treasuries_details": (
-        "reportcard", "traceTreasuriesDetail", None, [],
-        ),
     "get_trace_corporate_bonds_details": (
         "reportcard", "traceCorporateBondDetail", None, [],
         ),
@@ -754,18 +750,34 @@ REPORT_CARD_DETAILS: T = {
         ),
     }
 
+REPORT_CARD_DETAILS_NO_REPORT_VIEW: T = {
+    "get_trace_treasuries_details": (
+        "reportcard", "traceTreasuriesDetail", None, [],
+        ),
+    }
+
 REPORT_CARD_SUMMARY: T = {
+    "get_trace_sovereign_debt_summary": (
+        "reportcard", "traceSovereignSummary", None, [],
+        ),
     "get_trace_agency_debt_summary": (
         "reportcard", "traceAgencySummary", None, [],
-        ),
-    "get_trace_treasuries_summary": (
-        "reportcard", "traceTreasuriesSummary", None, [],
         ),
     "get_trace_corporate_bonds_summary": (
         "reportcard", "traceCorporateBondSummary", None, [],
         ),
     "get_trace_securitized_products_summary": (
         "reportcard", "traceSecuritizedProductSummary", None, [],
+        ),
+    }
+
+REPORT_CARD_SUMMARY_NO_REPORT_VIEW: T = {
+    "get_trace_treasuries_summary": (
+        "reportcard", "traceTreasuriesSummary", None, [],
+        ),
+    'get_trace_treasuries_execution_time_difference_summary': (
+        "reportcard", "traceExecutionTimeDifferenceTreasuriesFirmSummary",
+        None, [],
         ),
     }
 
@@ -1329,6 +1341,31 @@ def _test_trace_get_data(method, group, name, is_summary, test_case):
         )
 
 
+def _test_trace_get_data_with_report_view(
+    method, group, name, is_summary, test_case
+    ):
+    if is_summary:
+        url = test_case.base_url + f"/data/group/{group}/name/{name}"
+    else:
+        url = test_case.base_url + f"/v1/data/group/{group}/name/{name}"
+    
+    test_case.mock_session.get.return_value = test_case.response
+    
+    result = getattr(test_case.client, method)(DATE, "ABCD", report_view="All")
+    
+    params = {
+        "period": DATE_ISO,
+        "firmMarketIdentifier": "ABCD",
+        "reportView": "All",
+        }
+    
+    test_case.assertEqual(result, test_case.response)
+    test_case.mock_session.get.assert_called_once_with(
+        url + "Mock" if test_case.mock else url,
+        params=params, headers={"Accept": "application/json"}
+        )
+
+
 def _test_trace_get_data_with_version(
     method, group, name, is_summary, test_case
     ):
@@ -1398,6 +1435,11 @@ def _test_trace_get_data_wrong_period_type_datetime(method, test_case):
 def _test_trace_get_data_wrong_period_type_string(method, test_case):
     with test_case.assertRaisesRegex(TypeError, "datetime.date"):
         getattr(test_case.client, method)(DATE_ISO, "ABCD")
+
+
+def _test_trace_get_data_wrong_report_view_type(method, test_case):
+    with test_case.assertRaisesRegex(TypeError, "builtins.str"):
+        getattr(test_case.client, method)(DATE, "ABCD", report_view=123)
 
 
 ##############################################################################
@@ -4129,7 +4171,7 @@ def _set_test_api_methods():
         
     # Set methods for TRACE report cards
     for method, (group, name, enum, partition_fields) in (
-        REPORT_CARD_DETAILS
+        REPORT_CARD_DETAILS | REPORT_CARD_DETAILS_NO_REPORT_VIEW
         ).items():
         
         set_meth(_TestAPI, f"test_{method}_get_data",
@@ -4142,7 +4184,15 @@ def _set_test_api_methods():
                  _test_trace_get_data_with_request_id, method, group, name)
         
     for method, (group, name, enum, partition_fields) in (
-        REPORT_CARD_SUMMARY
+        REPORT_CARD_DETAILS
+        ).items():
+        
+        set_meth(_TestAPI, f"test_{method}_get_data_with_params",
+                 _test_trace_get_data_with_report_view, method, group, name,
+                 False)
+        
+    for method, (group, name, enum, partition_fields) in (
+        REPORT_CARD_SUMMARY | REPORT_CARD_SUMMARY_NO_REPORT_VIEW
         ).items():
         
         set_meth(_TestAPI, f"test_{method}_datasets",
@@ -4161,7 +4211,16 @@ def _set_test_api_methods():
                  _test_trace_get_data_with_version, method, group, name, True)
         
     for method, (group, name, enum, partition_fields) in (
-        REPORT_CARD_DETAILS | REPORT_CARD_SUMMARY
+        REPORT_CARD_SUMMARY
+        ).items():
+        
+        set_meth(_TestAPI, f"test_{method}_get_data_with_params",
+                 _test_trace_get_data_with_report_view, method, group, name,
+                 True)
+        
+    for method, (group, name, enum, partition_fields) in (
+        REPORT_CARD_DETAILS | REPORT_CARD_DETAILS_NO_REPORT_VIEW |
+        REPORT_CARD_SUMMARY | REPORT_CARD_SUMMARY_NO_REPORT_VIEW
         ).items():
         
         set_meth(_TestAPI, f"test_{method}_get_data_no_period",
@@ -4176,6 +4235,13 @@ def _set_test_api_methods():
         
         set_meth(_TestAPI, f"test_{method}_get_data_wrong_period_type_string",
                  _test_trace_get_data_wrong_period_type_string, method)
+        
+    for method, (group, name, enum, partition_fields) in (
+        REPORT_CARD_DETAILS | REPORT_CARD_SUMMARY
+        ).items():
+        
+        set_meth(_TestAPI, f"test_{method}_get_data_wrong_report_view_type",
+                 _test_trace_get_data_wrong_report_view_type, method)
 
 _set_test_api_methods()
 
@@ -5259,51 +5325,10 @@ class TestClientQAEnvMock(
 ##############################################################################
 # ASYNC CLIENT TEST CASES
 
-# Re-synchronizes every async function on a given object.
-# NOTE: Every method runs on a new loop
-class AsyncResync:
-    class _AsyncResyncMethod:
-        def __init__(self, func):
-            self.func = func
-            
-        def __call__(self, *args, **kwargs):
-            coroutine = self.func(*args, **kwargs)
-            loop = asyncio.new_event_loop()
-            try:
-                out = loop.run_until_complete(coroutine)
-            finally:
-                loop.close()
-            return out
-        
-    def __getattr__(self, attr, *not_callable_attrs):
-        out = super().__getattribute__(attr)
-        if inspect.iscoroutinefunction(out) and \
-           attr not in self.not_callable_attrs:
-            return self._AsyncResyncMethod(out)
-        return out
-    
-    __getattribute__ = __getattr__
-
-
-# Proxies the underlying class, replacing coroutine methods with an
-# auto-executing one. Also allows a set of non-callable attributes to be set.
-class ResyncProxy:
-    def __init__(self, cls, *not_callable_attrs):
-        self.cls = cls
-        self.cls.not_callable_attrs = not_callable_attrs
-        
-    # Forces a mixin of the underlying class and the AsyncResync class
-    def __call__(self, *args, **kwargs):
-        class DynamicResync(AsyncResync, self.cls):
-            pass
-        
-        return DynamicResync(*args, **kwargs)
-
-
 # Mixin for testing asynchronous AsyncClient
 class _TestAsyncClient(_TestClientBase):
     mock_cls = AsyncMock
-    client_cls = ResyncProxy(AsyncClient, "_session", "_resource_session")
+    client_cls = AsyncProxy(AsyncClient, "_session", "_resource_session")
     session_cls = AsyncOAuth2Client
 
 
@@ -5327,7 +5352,7 @@ class TestAsyncClient(
         
         httpx_client.get = mock
         
-        result = self.client.get_async_result("result link")
+        result = self.client.get_async_result("result link") # proxy awaits
         
         self.assertEqual(result, self.response)
         httpx_client.get.assert_called_once_with(
@@ -5335,8 +5360,36 @@ class TestAsyncClient(
             )
         
     @no_duplicates
+    @patch("time.time", Mock(return_value=NOW))
+    def test_refresh_token_with_async_write_func(self):
+        new_token = {"new_token": "1"}
+        self.mock_session.fetch_token = self.mock_cls(return_value=new_token)
+        
+        write_func = AsyncMock()
+        write_func.return_value = "updated"
+        
+        token_manager = MagicMock()
+        token_manager.update_token.return_value = write_func() # awaitable
+        
+        client = self.client_cls(
+            API_KEY, self.mock_session, token_manager=token_manager
+            )
+        
+        return_value = client.refresh_token('args', kwds='kwds') # proxy awaits
+        
+        self.mock_session.fetch_token.assert_called_once()
+        
+        session_call = self.mock_register_redactions.mock_calls[-1]
+        self.assertEqual(session_call[1], (new_token,))
+        
+        token_manager.update_token.assert_called_once_with(
+            new_token, 'args', kwds='kwds'
+            )
+        self.assertEqual(return_value, "updated")
+        
+    @no_duplicates
     def test_close(self):
-        self.client.close()
+        self.client.close() # proxy awaits
         
         self.mock_session.aclose.assert_called_once()
         
@@ -5344,7 +5397,7 @@ class TestAsyncClient(
     def test_close_resource_session(self):
         self.client._resource_session = self.mock_session
         
-        self.client.close()
+        self.client.close() # proxy awaits
         
         self.assertEqual(len(self.mock_session.aclose.mock_calls), 2)
         

@@ -68,7 +68,7 @@ For more information about creating clients, see :ref:`auth`. For details on bas
 Basic Query Pattern
 -------------------
 
-Internally, ``finra-py`` uses `Authlib's HTTPX integration <https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html>`__ to implement the OAuth 2.0 standard and perform requests securely. Every API request returns an ``httpx.Response`` object, which is passed directly to the caller. It is up to the caller to handle the response object. This design choice gives the caller the most control possible over their requests.
+Internally, ``finra-py`` uses `Authlib's HTTPX integration <https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html>`__ to implement the OAuth 2.0 standard and perform requests. Every API request returns an ``httpx.Response`` object, which is passed directly to the caller. It is up to the caller to handle the response object. This design choice gives the caller the most control possible over their requests.
 
 This is the most basic query pattern to fetch a dataset, and handle the ``httpx.Response`` object.
 
@@ -134,14 +134,7 @@ Due to server-side constraints, this example will only fetch the first 1,000 rec
 Close the Client
 ----------------
 
-When you're done with the client, connections should be closed properly to free up resources. The recommended way to use a :py:class:`Client <finra.client.Client>` is as a context manager.
-
-.. code-block:: python
-
-  with get_client(...) as c:  # context management
-      ...
-
-Alternatively, you can explicitly close the HTTP connection pool by calling :py:meth:`Client.close() <finra.client.Client.close>`.
+When you're done with the client, connections should be closed properly to free up resources. You can explicitly close the HTTP connection pool by calling :py:meth:`Client.close() <finra.client.Client.close>`.
 
 .. code-block:: python
 
@@ -151,20 +144,12 @@ Alternatively, you can explicitly close the HTTP connection pool by calling :py:
   finally:
       c.close()               # close manually
 
-For the asynchronous client use :py:meth:`await AsyncClient.close() <finra.async_client.AsyncClient.close>`. See :ref:`async` for more information.
+Alternatively, the :py:class:`Client <finra.client.Client>` can be used as a context manager.
 
 .. code-block:: python
 
-  async with get_client(..., is_asyncio=True) as c:  # async context
+  with get_client(...) as c:  # context management
       ...
-
-.. code-block:: python
-
-  c = get_client(..., is_asyncio=True)
-  try:
-      ...
-  finally:
-      await c.close()         # close manually
 
 Any requests made after closing a client will raise a ``RuntimeError``. To make additional requests, create a new client.
 
@@ -178,6 +163,14 @@ For troubleshooting guidance and answers to common questions, see the
 Submit bug reports on the ``finra-py`` `Issues Page <https://github.com/hawkberry/finra-py/issues>`__ on GitHub.
 
 If you need a dataset or feature that is not currently supported by the client, please file a `Feature Request <https://github.com/hawkberry/finra-py/issues>`__. Pull requests are not currently accepted.
+
+++++++++
+Security
+++++++++
+
+Please report security vulnerabilities privately using GitHub's Private Vulnerability Reporting, rather than as a normal bug report. See the `Security Policy <https://github.com/hawkberry/finra-py/blob/main/SECURITY.md>`__ for more information.
+
+The policy includes additional security information specific to ``finra-py``, including credential and token handling, sensitive data, diagnostic logging, dependency security, and supported releases.
 
 ++++++++++++++++++++
 FINRA API Consulting

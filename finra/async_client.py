@@ -1,3 +1,4 @@
+import inspect
 from types import TracebackType
 from typing import Any, Optional, Self
 
@@ -114,10 +115,14 @@ class AsyncClient(BaseClient):
         :param kwds: Keyword arguments passed to the ``token_write_func``
         :return: The value returned by ``token_write_func``
         """
-        return self._set_token(
+        out = self._set_token(
             await self._session.fetch_token(grant_type="client_credentials"),
             *args, **kwds
             )
+        if inspect.isawaitable(out):
+            return await out
+        
+        return out
     
     async def close(self) -> None:
         """

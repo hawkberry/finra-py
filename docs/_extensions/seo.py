@@ -292,10 +292,12 @@ def _project_links(app):
         f"{app.config.llms_project_links_descriptions['repository']}",
         f"- [PyPI]({app.config.pypi_url}): "
         f"{app.config.llms_project_links_descriptions['pypi']}",
-        f"- [Issues]({app.config.issues_url}): "
-        f"{app.config.llms_project_links_descriptions['issues']}",
         f"- [Changelog]({app.config.changelog_url}): "
         f"{app.config.llms_project_links_descriptions['changelog']}",
+        f"- [Issues]({app.config.issues_url}): "
+        f"{app.config.llms_project_links_descriptions['issues']}",
+        f"- [Security]({app.config.security_url}): "
+        f"{app.config.llms_project_links_descriptions['security']}",
         f"- [Architecture Decision Records]({app.config.adrs_url}): "
         f"{app.config.llms_project_links_descriptions['adr']}",
         f"- [FINRA API Consulting]({app.config.consulting_url}): "
@@ -562,8 +564,9 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value("project_description", "", "html")
     app.add_config_value("documentation_url", "", "html")
     app.add_config_value("repository_url", "", "html")
-    app.add_config_value("issues_url", "", "html")
     app.add_config_value("changelog_url", "", "html")
+    app.add_config_value("issues_url", "", "html")
+    app.add_config_value("security_url", "", "html")
     app.add_config_value("adrs_url", "", "html")
     app.add_config_value("consulting_url", "", "html")
     app.add_config_value("support_url", "", "html")

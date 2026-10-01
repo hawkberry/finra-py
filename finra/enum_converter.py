@@ -6,6 +6,9 @@ from typing import Any, Iterable, TypeAlias, TypeVar
 __all__ = ["EnumConverter"]
 
 
+##############################################################################
+# TYPES
+
 # Typing parameterization, internal types
 E = TypeVar("E", bound=Enum)
 
@@ -14,6 +17,9 @@ EnumStr: TypeAlias = E | str
 EnumAny: TypeAlias = E | Any
 
 
+##############################################################################
+# DOCUMENTATION
+
 def _add_require_enums_docs(cls: type) -> None:
     cls.__doc__ = (getattr(cls, "__doc__") or "") + """
 :param require_enums: Option to require enums within this object. If ``True``,
@@ -21,6 +27,9 @@ def _add_require_enums_docs(cls: type) -> None:
     expected enum.
 """
 
+
+##############################################################################
+# ENUM CONVERTER
 
 # Include module in enum's fully qualified name
 # Names should reflect user facing attribute access where applicable

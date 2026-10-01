@@ -24,8 +24,9 @@ Project Links
 
 * `Repository <https://github.com/hawkberry/finra-py>`__
 * `PyPI <https://pypi.org/project/finra-py/>`__
-* `Issues <https://github.com/hawkberry/finra-py/issues>`__
 * `Changelog <https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md>`__
+* `Issues <https://github.com/hawkberry/finra-py/issues>`__
+* `Security <https://github.com/hawkberry/finra-py/blob/main/SECURITY.md>`__
 * `ADRs <https://finra.hawkberry.com/en/latest/adr.html>`__
 * `Consulting <https://finra.hawkberry.com/en/latest/consulting.html>`__
 * `Support <https://support.hawkberry.com/>`__
@@ -45,6 +46,7 @@ Table of Contents
    notification-api
    submission-api
    help
+   finra-changelog
    reference
 
 .. rubric:: Disclaimer

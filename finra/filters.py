@@ -13,9 +13,15 @@ from .exceptions import _type_error
 __all__ = ["FiltersDictType", "Filter"]
 
 
+##############################################################################
+# TYPES
+
 #: Type of object returned by :py:meth:`Filter.build`
 FiltersDictType: TypeAlias = dict[str, list[dict[str, Any]]]
 
+
+##############################################################################
+# ENUMS
 
 class CompareType(Enum):
     """
@@ -41,6 +47,9 @@ class CompareType(Enum):
 
 _CompareType: TypeAlias = EnumStr[CompareType]
 
+
+##############################################################################
+# FILTER
 
 class Filter(EnumConverter):
     """

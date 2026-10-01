@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "finra-py"
-version = "1.2.1"
+version = "1.3.0"
 authors = [
 	{name = "Hawk Berry", email = "finra@hawkberry.com"},
 	]
@@ -32,17 +32,18 @@ keywords = [
 	"finra", "finra-api", "api-client", "rest-api", "market-data", "compliance", "regulatory", "regtech", "broker-dealer", "trading", "fixed-income", "short-interest", "trace",
 	]
 dependencies = [
-    "authlib",
-    "httpx",
-    "jsonschema",
-    "tzdata ; sys_platform == 'win32'",
+    "authlib>=1.8.0",
+    "httpx>=0.28.1",
+    "jsonschema>=4.25.1",
+    "tzdata>=2026.4 ; sys_platform == 'win32'",
 	]
 
 [project.urls]
 Documentation = "https://finra.hawkberry.com/en/latest/"
 Repository = "https://github.com/hawkberry/finra-py"
-Issues = "https://github.com/hawkberry/finra-py/issues"
 Changelog = "https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md"
+Issues = "https://github.com/hawkberry/finra-py/issues"
+Security = "https://github.com/hawkberry/finra-py/blob/main/SECURITY.md"
 ADRs = "https://finra.hawkberry.com/en/latest/adr.html"
 Consulting = "https://finra.hawkberry.com/en/latest/consulting.html"
 Support = "https://support.hawkberry.com/"
@@ -66,7 +67,7 @@ branch = true
 [tool.finra-py]
 license_url = "https://github.com/hawkberry/finra-py/blob/main/LICENSE"
 pypi_url = "https://pypi.org/project/finra-py/"
-rss_url = "https://raw.githubusercontent.com/hawkberry/finra-py/main/changes.rss"
+rss_url = "https://raw.githubusercontent.com/hawkberry/finra-py/main/finra-changelog.rss"
 
 [[tool.mypy.overrides]]
 module = "referencing"

@@ -1,23 +1,18 @@
+from __future__ import annotations
+
+import inspect
 import json
 import logging
 import time
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, cast
 
 from authlib.integrations.httpx_client import AsyncOAuth2Client, OAuth2Client
 
 from .async_client import AsyncClient
 from .client import Client
 from .log_redactor import register_redactions
-from .token_manager import TokenManager
-
-
-# NOTE: FINRA token has the following keys:
-#   scope: any
-#   token_type: bearer
-#   expires_in
-#   expires_at
-#   access_token
+from .token_manager import TokenManager, TokenType
 
 
 __all__ = [
@@ -26,10 +21,30 @@ __all__ = [
     "client_from_token_file",
     "client_from_new_token",
     "client_from_storage_functions",
+    "get_async_client",
+    "async_client_from_new_token",
+    "async_client_from_storage_functions",
     "build_async_client",
     "build_client",
     ]
 
+
+##############################################################################
+# CONFIG
+
+#: FINRA Identify Platform production OAuth 2.0 authentication URL
+_PROD_TOKEN_ENDPOINT = (
+    "https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token"
+    )
+
+#: FINRA Identify Platform QA Test Environment OAuth 2.0 authentication URL
+_TEST_TOKEN_ENDPOINT = (
+    "https://ews-qaint.fip.qa.finra.org/fip/rest/ews/oauth2/access_token"
+    )
+
+
+##############################################################################
+# LOGGING
 
 def get_logger() -> logging.Logger:
     """Logger for :mod:`auth` module"""
@@ -140,25 +155,30 @@ def _add_auth_params_docs(func: Callable, *params: str) -> None:
 
 
 ##############################################################################
-# CONFIG / UTILS
+# UTILS
 
-#: FINRA Identify Platform production OAuth 2.0 authentication URL
-_PROD_TOKEN_ENDPOINT = (
-    "https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token"
-    )
-
-#: FINRA Identify Platform QA Test Environment OAuth 2.0 authentication URL
-_TEST_TOKEN_ENDPOINT = (
-    "https://ews-qaint.fip.qa.finra.org/fip/rest/ews/oauth2/access_token"
-    )
+# Constructor for default token read function
+def __token_reader(
+    token_path: str | Path
+    ) -> Callable[[], TokenType]:
+    
+    def token_read_func() -> TokenType:
+        get_logger().info("Reading token from file %s", token_path)
+        with open(token_path, "r") as f:
+            return json.load(f)
+    
+    return token_read_func
 
 
 # Constructor for default token write function
-def __token_writer(token_path: str | Path) -> Callable:
+def __token_writer(
+    token_path: str | Path
+    ) -> Callable[..., Any]:
+    
     Path(token_path).parent.mkdir(parents=True, exist_ok=True)
     
     def token_write_func(
-        token: dict[str, Any],
+        token: TokenType,
         *args: Any,
         **kwds: Any
         ) -> None:
@@ -167,17 +187,6 @@ def __token_writer(token_path: str | Path) -> Callable:
         get_logger().info("New token written to file %s", token_path)
     
     return token_write_func
-
-
-# Constructor for default token read function
-def __token_reader(token_path: str | Path) -> Callable:
-    
-    def token_read_func() -> dict[str, Any]:
-        get_logger().info("Reading token from file %s", token_path)
-        with open(token_path, "r") as f:
-            return json.load(f)
-    
-    return token_read_func
 
 
 ##############################################################################
@@ -192,7 +201,7 @@ def build_client(
     test_environment: bool=False,
     leeway: float=300.0,
     automatic_refresh: bool=False,
-    client_cls: Optional[Callable]=None,
+    client_cls: Optional[Callable[..., Client]]=None,
     **kwds
     ) -> Client:
     """
@@ -256,7 +265,7 @@ def build_async_client(
     test_environment: bool=False,
     leeway: float=300.0,
     automatic_refresh: bool=False,
-    async_client_cls: Optional[Callable]=None,
+    async_client_cls: Optional[Callable[..., AsyncClient]]=None,
     **kwds
     ) -> AsyncClient:
     """
@@ -266,8 +275,11 @@ def build_async_client(
     async-oauth-2-0>`__
     session and :py:class:`TokenManager <finra.token_manager.TokenManager>`
     """
-    async def update_token(token: dict[str, Any], *args, **kwds) -> None:
-        token_manager.update_token(token, *args, **kwds)
+    async def update_token(token: TokenType, *args, **kwds) -> Any:
+        out = token_manager.update_token(token, *args, **kwds)
+        if inspect.isawaitable(out):
+            return await out
+        return out
     
     if test_environment:
         token_endpoint = _TEST_TOKEN_ENDPOINT
@@ -321,8 +333,8 @@ _add_auth_params_docs(
 def client_from_storage_functions(
     api_key: str,
     api_secret: str,
-    token_read_func: Callable,
-    token_write_func: Callable,
+    token_read_func: Callable[[], TokenType],
+    token_write_func: Callable[..., Any],
     *,
     is_asyncio: bool=False,
     mock: bool=False,
@@ -330,12 +342,12 @@ def client_from_storage_functions(
     **kwds
     ) -> Client | AsyncClient:
     """
-    Build a client from custom storage functions. This is useful if your client
-    credentials or your token file do not exist on your local machine, for
-    example if your application is running in a cloud environment. Most users
-    will not need this functionality.
+    Build a client from custom storage functions. This is useful if the client
+    credentials or token file do not exist locally, for example if the
+    application is running in a cloud environment.
     """
     wrapped_token = token_read_func() # read wrapped token from storage
+    
     token_manager = TokenManager.from_wrapped_token(
         wrapped_token,
         token_write_func
@@ -367,6 +379,53 @@ _add_auth_params_docs(
     client_from_storage_functions,
     "api_key", "api_secret", "token_read_func", "token_write_func",
     "is_asyncio", "mock", "test_environment", "kwds"
+    )
+
+
+async def async_client_from_storage_functions(
+    api_key: str,
+    api_secret: str,
+    token_read_func: Callable[[], TokenType],
+    token_write_func: Callable[..., Any],
+    *,
+    mock: bool=False,
+    test_environment: bool=False,
+    **kwds
+    ) -> AsyncClient:
+    """
+    Asynchronous version of :py:func:`client_from_storage_functions`.
+    
+    This is useful if the application uses a custom ``token_read_func``
+    callback that is asynchronous, however this is not required. This function
+    only returns :py:class:`AsyncClient <finra.async_client.AsyncClient>`.
+    """
+    wrapped_token = token_read_func() # read wrapped token from storage
+    if inspect.isawaitable(wrapped_token): # optionally async
+        _wrapped_token = await wrapped_token
+    else:
+        _wrapped_token = wrapped_token
+    
+    token_manager = TokenManager.from_wrapped_token(
+        _wrapped_token,
+        token_write_func
+        ) # build token manager object from wrapped token
+    
+    # Don't emit token details in debug logs
+    register_redactions(token_manager.token) # raw token
+    
+    return build_async_client(
+        api_key,
+        api_secret,
+        token_manager,
+        mock=mock,
+        test_environment=test_environment,
+        **kwds
+        )
+
+_add_auth_params_docs(
+    async_client_from_storage_functions,
+    "api_key", "api_secret", "token_read_func", "token_write_func",
+    "mock", "test_environment", "kwds"
     )
 
 
@@ -414,7 +473,7 @@ def client_from_new_token(
     api_secret: str,
     token_path: Optional[str | Path],
     *,
-    token_write_func: Optional[Callable]=None,
+    token_write_func: Optional[Callable[..., Any]]=None,
     is_asyncio: bool=False,
     mock: bool=False,
     test_environment: bool=False,
@@ -439,12 +498,17 @@ def client_from_new_token(
     else:
         token_endpoint = _PROD_TOKEN_ENDPOINT
     
-    session = OAuth2Client(
+    # Use a separate session to fetch, since client not created yet
+    # NOTE: authlib typing stubs do not contain underlying httpx behavior
+    session: Any = OAuth2Client(
         api_key,
         api_secret,
         token_endpoint=token_endpoint
         )
-    token = session.fetch_token(grant_type="client_credentials")
+    try:
+        token = session.fetch_token(grant_type="client_credentials")
+    finally:
+        session.close()
     
     # Don't emit token details in debug logs
     register_redactions(token)
@@ -479,6 +543,77 @@ _add_auth_params_docs(
     )
 
 
+async def async_client_from_new_token(
+    api_key: str,
+    api_secret: str,
+    token_path: Optional[str | Path],
+    *,
+    token_write_func: Optional[Callable[..., Any]]=None,
+    mock: bool=False,
+    test_environment: bool=False,
+    **kwds
+    ) -> AsyncClient:
+    """
+    Asynchronous version of :py:func:`client_from_new_token`.
+    
+    This function uses `AsyncOAuth2Client
+    <https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html#
+    async-oauth-2-0>`__ during the initial token fetch, so
+    it won't block other coroutines. This is also useful if the application
+    uses a custom ``token_write_func`` callback that is asynchronous, however
+    this is not required. This function only returns
+    :py:class:`AsyncClient <finra.async_client.AsyncClient>`.
+    """
+    if token_write_func is None:
+        if token_path is None:
+            raise ValueError(
+                "Must set token path to use default token_write_func"
+                )
+        token_write_func = __token_writer(token_path)
+    
+    # Fetch new token
+    if test_environment:
+        token_endpoint = _TEST_TOKEN_ENDPOINT
+    else:
+        token_endpoint = _PROD_TOKEN_ENDPOINT
+    
+    # Use a separate session to fetch, since client not created yet
+    # NOTE: authlib typing stubs do not contain underlying httpx behavior
+    session: Any = AsyncOAuth2Client(
+        api_key,
+        api_secret,
+        token_endpoint=token_endpoint
+        )
+    try:
+        token = await session.fetch_token(grant_type="client_credentials")
+    finally:
+        await session.aclose()
+    
+    # Don't emit token details in debug logs
+    register_redactions(token)
+    
+    # Wrap token with metadata & write to storage
+    token_manager = TokenManager(token, int(time.time()), token_write_func)
+    out = token_manager.update_token(token) # write to storage
+    if inspect.isawaitable(out): # optionally async
+        await out
+    
+    return build_async_client(
+        api_key,
+        api_secret,
+        token_manager,
+        mock=mock,
+        test_environment=test_environment,
+        **kwds
+        )
+
+_add_auth_params_docs(
+    async_client_from_new_token,
+    "api_key", "api_secret", "token_path", "token_write_func",
+    "mock", "test_environment", "kwds"
+    )
+
+
 ##############################################################################
 # GET CLIENT
 
@@ -487,8 +622,8 @@ def get_client(
     api_secret: str,
     *,
     token_path: Optional[str | Path]=None,
-    token_read_func: Optional[Callable]=None,
-    token_write_func: Optional[Callable]=None,
+    token_read_func: Optional[Callable[[], TokenType]]=None,
+    token_write_func: Optional[Callable[..., Any]]=None,
     is_asyncio: bool=False,
     mock: bool=False,
     test_environment: bool=False,
@@ -576,5 +711,103 @@ _add_auth_params_docs(
     "api_key", "api_secret", "token_path",
     "token_read_func", "token_write_func",
     "is_asyncio", "mock", "test_environment", "min_expires_in", "kwds"
+    )
+
+
+async def get_async_client(
+    api_key: str,
+    api_secret: str,
+    *,
+    token_path: Optional[str | Path]=None,
+    token_read_func: Optional[Callable[[], TokenType]]=None,
+    token_write_func: Optional[Callable[..., Any]]=None,
+    mock: bool=False,
+    test_environment: bool=False,
+    min_expires_in: Optional[float]=60.0 * 60.0,
+    **kwds
+    ) -> AsyncClient:
+    """
+    Asynchronous version of :py:func:`get_client`.
+    
+    This function won't block other coroutines during an initial token fetch.
+    This is also useful if the application uses custom ``token_read_func`` and
+    ``token_write_func`` callbacks that are asynchronous, however this is not
+    required. This function only returns
+    :py:class:`AsyncClient <finra.async_client.AsyncClient>`.
+    """
+    if min_expires_in is None:
+        min_expires_in = 0.0
+    if min_expires_in < 0:
+        raise ValueError("'min_expires_in' must be non-negative, or None")
+    
+    logger = get_logger()
+    
+    # Load token from local file path
+    if token_path is not None:
+        if Path(token_path).exists():
+            c = client_from_token_file(
+                api_key,
+                api_secret,
+                token_path,
+                is_asyncio=True,
+                mock=mock,
+                test_environment=test_environment,
+                **kwds
+                )
+            logger.info("Loaded token from file '%s'", token_path)
+            if c.token_expires_in > min_expires_in:
+                return cast(AsyncClient, c)
+            
+            logger.info("Token has expired, proactively creating a new one")
+        else:
+            logger.info("Token file not found, creating a new one")
+        
+    elif token_read_func is None or token_write_func is None:
+        raise ValueError(
+            "Must either provide local token path, or both token "
+            "read and write functions"
+            )
+    
+    # Load token using custom storage functions
+    else:
+        try:
+            c = await async_client_from_storage_functions(
+                api_key,
+                api_secret,
+                token_read_func,
+                token_write_func,
+                mock=mock,
+                test_environment=test_environment,
+                **kwds
+                )
+        except Exception:
+            logger.info("Token failed to load, creating a new one")
+        else:
+            logger.info("Loaded token using token read function")
+            if c.token_expires_in > min_expires_in:
+                return c
+            
+            logger.info("Token has expired, proactively creating a new one")
+    
+    # Fetch a new token from the authorization server
+    c = await async_client_from_new_token(
+        api_key,
+        api_secret,
+        token_path,
+        token_write_func=token_write_func,
+        mock=mock,
+        test_environment=test_environment,
+        **kwds
+        )
+    logger.info(
+        "Returning client with new token, writing token to '%s'", token_path
+        )
+    return c
+
+_add_auth_params_docs(
+    get_async_client,
+    "api_key", "api_secret", "token_path",
+    "token_read_func", "token_write_func",
+    "mock", "test_environment", "min_expires_in", "kwds"
     )
 

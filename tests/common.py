@@ -1,3 +1,4 @@
+import asyncio
 import difflib
 import inspect
 import json
@@ -76,4 +77,41 @@ class MockResponse(httpx.Response): # pragma: no cover
     def raise_for_status(self):
         if self.status_code > 299:
             raise Exception(f"Failed status code: {self.status_code}")
+
+
+# Execute each coroutine in its own asyncio loop
+class AsyncFunc:
+    def __init__(self, func):
+        self.func = func
+        
+    def __call__(self, *args, **kwargs):
+        loop = asyncio.new_event_loop()
+        try:
+            return loop.run_until_complete(self.func(*args, **kwargs))
+        
+        finally:
+            loop.close()
+
+
+# A proxy subclass that wraps each async method in an asycio loop
+# Also allows a set of non-callable attributes to be set
+class AsyncProxy:
+    def __init__(self, cls, *not_callable):
+        self.cls = cls
+        self.cls.not_callable = not_callable
+        
+    def __call__(self, *args, **kwargs):
+        
+        class ProxyClass(self.cls):
+            def __getattr__(self, attr, *not_callable):
+                out = super().__getattribute__(attr)
+                if (inspect.iscoroutinefunction(out)
+                    and attr not in self.not_callable): # wrap coroutines
+                    return AsyncFunc(out)
+                
+                return out
+            
+            __getattribute__ = __getattr__
+        
+        return ProxyClass(*args, **kwargs)
 

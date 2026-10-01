@@ -11,6 +11,57 @@ The client must provide enough FINRA-specific functionality to make these operat
 
 In particular, applications should be able to use the capabilities of a dedicated FINRA client while retaining direct access to the HTTP response and its standard semantics.
 
+## Data Flow
+
+                       Normal HTTP path:
+                    +----------------------+
+                    | Calling application  |
+                    +----------+-----------+
+                               |
+                               v
+                    +----------------------+
+                    |      finra-py        |
+                    +----------+-----------+
+                               |
+                      access token needed?
+                          /          \
+                        yes           no
+                        |              |
+                        v              |
+             +---------------------+   |
+             | FINRA Identity      |   |
+             | Platform (FIP)      |   |
+             +----------+----------+   |
+                        |              |               Async result retrieval (3rd leg):
+                   access token        |                   +----------------------+
+                        |              |                   |  Calling application |
+                        +------+-------+                   +----------------------+
+                               |                                      |
+                               v                                      v
+                    +----------------------+               +----------------------+
+                    |      finra-py        |               |      finra-py        |
+                    +----------+-----------+               +----------+-----------+
+                               |                                      |
+                      bearer-authenticated                   pre-signed result URL
+                          API request                                 |
+                               |                                      |
+                               v                                      v
+                    +----------------------+               +----------------------+
+                    | FINRA API Platform   |               | FINRA result resource|
+                    +----------+-----------+               +----------+-----------+
+                               |                                      |
+                          HTTP response                          HTTP response
+                               |                                      |
+                               v                                      v
+                    +----------------------+               +----------------------+
+                    |      finra-py        |               |      finra-py        |
+                    +----------+-----------+               +----------------------+
+                               |                                      |
+                               v                                      v
+                    +----------------------+               +----------------------+
+                    | Calling application  |               |  Calling application |
+                    +----------------------+               +----------------------+
+
 ## Decision
 
 `finra-py` will maintain a **direct, standards-based HTTP boundary** while providing **FINRA-specific interfaces for request construction and API operations**.
@@ -26,6 +77,7 @@ Specifically:
 - OAuth 2.0 authentication and token lifecycle management are handled through the client's authentication facilities.
 - The client supports both synchronous and `asyncio`-based client operation.
 - The client does not prescribe how applications represent, transform, validate, persist, or otherwise consume API response data.
+- No maintainer-operated service sits between the calling application and the endpoints used by `finra-py`.
 
 ## Rationale
 

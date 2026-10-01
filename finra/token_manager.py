@@ -1,9 +1,27 @@
+from __future__ import annotations
+
 import time
-from typing import Any, Callable, Self
+from typing import Any, Callable, Self, TypeAlias
 
 
-__all__ = ["TokenManager"]
+__all__ = ["TokenType", "TokenManager"]
 
+
+##############################################################################
+# TYPES
+
+# NOTE: FINRA token has the following keys:
+#   scope: any
+#   token_type: bearer
+#   expires_in
+#   expires_at
+#   access_token
+
+TokenType: TypeAlias = dict[str, Any]
+
+
+##############################################################################
+# TOKEN MANAGER
 
 class TokenManager:
     """
@@ -17,9 +35,9 @@ class TokenManager:
     
     def __init__(
         self,
-        token: dict[str, Any],
+        token: TokenType,
         created_timestamp: int,
-        token_write_func: Callable
+        token_write_func: Callable[..., Any]
         ):
         self.token = token # raw token
         self.created_timestamp = created_timestamp
@@ -40,7 +58,7 @@ class TokenManager:
         """Returns the number of seconds until the token expires"""
         return self.expires_at - int(time.time()) - 1 # round down
     
-    def _wrap_metadata(self, token: dict[str, Any]) -> dict[str, Any]:
+    def _wrap_metadata(self, token: TokenType) -> TokenType:
         return {
             "created_timestamp": self.created_timestamp,
             "token": token,
@@ -50,7 +68,7 @@ class TokenManager:
     # These are passed directly to token_write_func
     def update_token(
         self,
-        token: dict[str, Any],
+        token: TokenType,
         *args: Any,
         **kwds: Any
         ) -> Any:
@@ -76,8 +94,8 @@ class TokenManager:
     @classmethod
     def from_wrapped_token(
         cls,
-        token: dict[str, Any],
-        token_write_func: Callable
+        token: TokenType,
+        token_write_func: Callable[..., Any]
         ) -> Self:
         """
         Construct a new :py:class:`TokenManager` object from the metadata of
@@ -92,7 +110,7 @@ class TokenManager:
         if "created_timestamp" not in token:
             raise ValueError(
                 "WARNING: The token format has changed since this token "
-                "was created. Please delete it and create a new one."
+                "was created. Delete it and create a new one."
                 )
         
         return cls(

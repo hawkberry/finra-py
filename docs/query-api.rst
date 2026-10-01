@@ -83,6 +83,7 @@ The **Registration** group contains datasets for member firms covering their reg
 
 The **Report Card** group contains datasets for member firms covering TRACE Report Card information across a range of compliance topics and rule sets:
 
+- :py:meth:`Client.get_trace_sovereign_debt_summary() <finra.base_client.BaseClient.get_trace_sovereign_debt_summary>`
 - :py:meth:`Client.get_trace_agency_debt_details() <finra.base_client.BaseClient.get_trace_agency_debt_details>`
 - :py:meth:`Client.get_trace_agency_debt_summary() <finra.base_client.BaseClient.get_trace_agency_debt_summary>`
 - :py:meth:`Client.get_trace_treasuries_details() <finra.base_client.BaseClient.get_trace_treasuries_details>`
@@ -91,6 +92,7 @@ The **Report Card** group contains datasets for member firms covering TRACE Repo
 - :py:meth:`Client.get_trace_corporate_bonds_summary() <finra.base_client.BaseClient.get_trace_corporate_bonds_summary>`
 - :py:meth:`Client.get_trace_securitized_products_details() <finra.base_client.BaseClient.get_trace_securitized_products_details>`
 - :py:meth:`Client.get_trace_securitized_products_summary() <finra.base_client.BaseClient.get_trace_securitized_products_summary>`
+- :py:meth:`Client.get_trace_treasuries_execution_time_difference_summary() <finra.base_client.BaseClient.get_trace_treasuries_execution_time_difference_summary>`
 
 .. _endpoints:
 

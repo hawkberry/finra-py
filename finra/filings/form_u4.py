@@ -12,6 +12,9 @@ from .base_filing import (
 __all__ = ["FormU4"]
 
 
+##############################################################################
+# ENUMS
+
 class FilingType(Enum):
     """
     Used in a filing to set the filing type.
@@ -69,6 +72,9 @@ class RepAccessType(Enum):
 
 _RepAccessType: TypeAlias = EnumStr[RepAccessType]
 
+
+##############################################################################
+# FILING
 
 class FormU4(BaseFilingOps):
     """

@@ -12,6 +12,9 @@ from .base_filing import (
 __all__ = ["FormU5"]
 
 
+##############################################################################
+# ENUMS
+
 class FilingType(Enum):
     """
     Used in a filing to set the filing type.
@@ -28,6 +31,9 @@ class FilingType(Enum):
 
 _FilingType: TypeAlias = EnumStr[FilingType]
 
+
+##############################################################################
+# FILING
 
 class FormU5(BaseFilingOps):
     """

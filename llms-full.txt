@@ -84,15 +84,16 @@ FINRA.
 
 ## Additional Documentation
 
-- [Reference](https://finra.hawkberry.com/en/latest/reference.html): Complete Python API reference for `finra-py` covering authentication, the HTTPX client, Query, Notification and Submission APIs, utilities, exceptions, and data types.
 - [FINRA API Changelog](https://finra.hawkberry.com/en/latest/finra-changelog.html): Unofficial FINRA API changelog tracking changes to datasets and related documentation by change `kind`, documentation `section_type`, and `priority`, with RSS and weekly email updates.
+- [Reference](https://finra.hawkberry.com/en/latest/reference.html): Complete Python API reference for `finra-py` covering authentication, the HTTPX client, Query, Notification and Submission APIs, utilities, exceptions, and data types.
 
 ## Project Links
 
 - [Repository](https://github.com/hawkberry/finra-py): GitHub source repository, project files, development configuration, and history.
 - [PyPI](https://pypi.org/project/finra-py/): Published `finra-py` package and release information for Python installation.
-- [Issues](https://github.com/hawkberry/finra-py/issues): GitHub issue tracker for bug reports and feature requests.
 - [Changelog](https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md): Release history and changes between `finra-py` versions.
+- [Issues](https://github.com/hawkberry/finra-py/issues): GitHub issue tracker for bug reports and feature requests.
+- [Security](https://github.com/hawkberry/finra-py/blob/main/SECURITY.md): Security policy, security model, credential and data handling, dependency security, supported versions, and vulnerability reporting.
 - [Architecture Decision Records](https://finra.hawkberry.com/en/latest/adr.html): Architecture Decision Records for `finra-py` documenting client architecture and HTTP response handling, authentication and token management, FINRA API values and enum representations, and client-side submission validation.
 - [FINRA API Consulting](https://finra.hawkberry.com/en/latest/consulting.html): Professional FINRA API consulting for member firms and software teams, covering API integrations, Web EFT migrations, regulatory filing workflows, and FINRA data systems.
 
@@ -114,8 +115,9 @@ FINRA.
 
 * [Repository](https://github.com/hawkberry/finra-py)
 * [PyPI](https://pypi.org/project/finra-py/)
-* [Issues](https://github.com/hawkberry/finra-py/issues)
 * [Changelog](https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md)
+* [Issues](https://github.com/hawkberry/finra-py/issues)
+* [Security](https://github.com/hawkberry/finra-py/blob/main/SECURITY.md)
 * [ADRs](https://finra.hawkberry.com/en/latest/adr.html)
 * [Consulting](https://finra.hawkberry.com/en/latest/consulting.html)
 * [Support](https://support.hawkberry.com/)
@@ -182,7 +184,7 @@ For more information about creating clients, see [Authentication and Client Crea
 
 ### Basic Query Pattern
 
-Internally, `finra-py` uses [Authlib’s HTTPX integration](https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html) to implement the OAuth 2.0 standard and perform requests securely. Every API request returns an `httpx.Response` object, which is passed directly to the caller. It is up to the caller to handle the response object. This design choice gives the caller the most control possible over their requests.
+Internally, `finra-py` uses [Authlib’s HTTPX integration](https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html) to implement the OAuth 2.0 standard and perform requests. Every API request returns an `httpx.Response` object, which is passed directly to the caller. It is up to the caller to handle the response object. This design choice gives the caller the most control possible over their requests.
 
 This is the most basic query pattern to fetch a dataset, and handle the `httpx.Response` object.
 
@@ -242,14 +244,7 @@ Due to server-side constraints, this example will only fetch the first 1,000 rec
 
 ### Close the Client
 
-When you’re done with the client, connections should be closed properly to free up resources. The recommended way to use a [`Client`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client) is as a context manager.
-
-```python
-with get_client(...) as c:  # context management
-    ...
-```
-
-Alternatively, you can explicitly close the HTTP connection pool by calling [`Client.close()`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client.close).
+When you’re done with the client, connections should be closed properly to free up resources. You can explicitly close the HTTP connection pool by calling [`Client.close()`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client.close).
 
 ```python
 c = get_client(...)
@@ -259,19 +254,11 @@ finally:
     c.close()               # close manually
 ```
 
-For the asynchronous client use [`await AsyncClient.close()`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient.close). See [Asyncio Support](https://finra.hawkberry.com/en/latest/client.html#async) for more information.
+Alternatively, the [`Client`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client) can be used as a context manager.
 
 ```python
-async with get_client(..., is_asyncio=True) as c:  # async context
+with get_client(...) as c:  # context management
     ...
-```
-
-```python
-c = get_client(..., is_asyncio=True)
-try:
-    ...
-finally:
-    await c.close()         # close manually
 ```
 
 Any requests made after closing a client will raise a `RuntimeError`. To make additional requests, create a new client.
@@ -283,6 +270,12 @@ For troubleshooting guidance and answers to common questions, see the [Getting H
 Submit bug reports on the `finra-py` [Issues Page](https://github.com/hawkberry/finra-py/issues) on GitHub.
 
 If you need a dataset or feature that is not currently supported by the client, please file a [Feature Request](https://github.com/hawkberry/finra-py/issues). Pull requests are not currently accepted.
+
+## Security
+
+Please report security vulnerabilities privately using GitHub’s Private Vulnerability Reporting, rather than as a normal bug report. See the [Security Policy](https://github.com/hawkberry/finra-py/blob/main/SECURITY.md) for more information.
+
+The policy includes additional security information specific to `finra-py`, including credential and token handling, sensitive data, diagnostic logging, dependency security, and supported releases.
 
 ## FINRA API Consulting
 
@@ -300,13 +293,11 @@ Before using `finra-py`, you’ll need to create a developer account with FINRA 
 
 The [FINRA API Platform](https://developer.finra.org/docs#getting_started-api_platform_basics-authorization) uses OAuth 2.0 for authentication and authorization. OAuth 2.0 uses short-lived access tokens instead of the resource owner’s long-term credentials, reducing the risk of credential exposure.
 
-Internally, `finra-py` uses [Authlib’s HTTPX integration](https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html) to perform requests and implement the OAuth 2.0 standard. This OAuth2 session securely manages the credentials and `token_path` you provide, which are never stored directly on the `finra-py` client.
+Internally, `finra-py` uses [Authlib’s HTTPX integration](https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html) to perform requests and implement the OAuth 2.0 standard. This OAuth2 session manages the credentials and `token_path` you provide, which are never stored directly on the `finra-py` client.
 
-`finra-py` is designed to handle credentials and authentication tokens securely. However, you are ultimately responsible for securing your credentials, authentication tokens, and any data written to disk. Make sure to take any additional steps necessary to secure your data.
+You are ultimately responsible for securing your credentials, authentication tokens, and any data written to disk. `finra-py` will save authentication tokens to any file path you provide (assuming you have the necessary file permissions). It is your responsibility to ensure that this location is secure and appropriate for your environment.
 
-This client will save authentication tokens to any file path you provide (assuming you have appropriate file permissions).  It is your responsibility to ensure that this location is secure and appropriate for your environment. Consult your system administrator or security team as appropriate.
-
-**IMPORTANT! Only use one client at a time. The behavior is undefined if you try to use multiple clients with the same credentials at the same time, and may cause problems with the underlying OAuth2 session management.**
+To manage credentials outside your local filesystem, see [Advanced Creation](https://finra.hawkberry.com/en/latest/auth.html#advanced-creation). For broader security considerations, see the [Security Policy](https://github.com/hawkberry/finra-py/blob/main/SECURITY.md).
 
 See the [`auth`](https://finra.hawkberry.com/en/latest/reference.html#module-finra.auth) module for complete reference documentation.
 
@@ -324,9 +315,21 @@ c = get_client(
     )
 ```
 
-To create an asynchronous client instead, set `is_asyncio=True` in [`get_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_client). See [Asyncio Support](https://finra.hawkberry.com/en/latest/client.html#async) for more information.
-
 If a valid token exists at the given path it will be used, otherwise a new token will be fetched from the [FINRA Identity Platform](https://developer.finra.org/docs#getting_started-api_platform_basics-authorization) and saved to the provided path.
+
+To create an asynchronous client instead, use [`await get_async_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_async_client), which performs the initial token fetch asynchronously and accepts both synchronous and asynchronous callbacks when customizing the `token_read_func` and `token_write_func`.
+
+```python
+from finra.auth import get_async_client
+
+c = await get_async_client(
+    api_key="API_KEY",
+    api_secret="API_SECRET",
+    token_path="/tmp/finra/token.json"        # token file path
+    )
+```
+
+For more information about basic `asyncio` usage, see [Asyncio Support](https://finra.hawkberry.com/en/latest/client.html#async).
 
 ## Mock Endpoints
 
@@ -342,7 +345,7 @@ from finra.auth import get_client
 c = get_client(
     api_key="MOCK_API_KEY",
     api_secret="MOCK_API_SECRET",
-    token_path="/tmp/finra/mock_token.json",  # different file name
+    token_path="/tmp/finra/mock_token.json",  # different file path
     mock=True
     )
 ```
@@ -366,7 +369,7 @@ from finra.auth import get_client
 c = get_client(
     api_key="QA_TEST_API_KEY",
     api_secret="QA_TEST_API_SECRET",
-    token_path="/tmp/finra/qa_test_token.json",  # different file name
+    token_path="/tmp/finra/qa_test_token.json",  # different file path
     test_environment=True
     )
 ```
@@ -377,27 +380,35 @@ Mock datasets can also be accessed in the QA Test Environment by setting `mock=T
 
 ## Advanced Creation
 
-Aside from [`get_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_client) there are additional routines with different behaviors for creating a client.
+For most users, [`get_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_client) and [`await get_async_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_async_client) have all the necessary functionality. However, for users that need additional control over the authentication and client creation process, the library exposes several sub-routines, each with different behaviors.
 
 ### Load an Existing Token
 
-To load an existing token and create a client with it, use [`client_from_token_file()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_token_file). This function does not check whether the token is expired or not, and can result in a `401 Unauthorized` response code when making a request if the token is already expired. It will not fetch a new token.
+To load an existing token from a file and create a client with it, use [`client_from_token_file()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_token_file). This function does not check whether the token has expired or not, and can result in a `401 Unauthorized` response code when making an API request if the token has already expired. If the file does not exist, it will raise `FileNotFoundError`. It will not fetch a new token.
 
 ### Fetch a New Token
 
-To force a new token to be fetched and create a client with it, use [`client_from_new_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_new_token). This will write the token to the `token_path`, and will overwrite any file that already exists at that path.
+To force a new token to be fetched from the [FINRA Identity Platform](https://developer.finra.org/docs#getting_started-api_platform_basics-authorization) and create a client with it, use [`client_from_new_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_new_token). By default, the token will be written to the given `token_path`, and will overwrite any file that already exists there. The token write behavior can be customized by setting a synchronous callback as the `token_write_func`, however it is your responsibility to ensure your callback function operates securely and behaves as expected.
+
+To create an [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient), use [`await async_client_from_new_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.async_client_from_new_token), which performs the initial token fetch asynchronously and accepts both synchronous and asynchronous callbacks for the `token_write_func`. An [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) can also be created by setting `is_asyncio=True` in [`client_from_new_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_new_token), however this uses the synchronous client to perform the initial token fetch, which will block other coroutines, and it only accepts synchronous callbacks.
 
 ### Customized Storage Functions
 
-Most users will not need this functionality. However, for use cases involving specialized credential storage, [`client_from_storage_functions()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_storage_functions) allows custom callback functions to read and write the token files. This is useful when credentials are managed outside the local filesystem, for example in cloud-hosted or enterprise environments. You are responsible for ensuring these callbacks function securely and behave as expected.
+For use cases involving specialized credential storage, [`client_from_storage_functions()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_storage_functions) allows custom callback functions to read and write tokens. This is useful when credentials are managed outside the local filesystem, for example in cloud-hosted or enterprise environments. It is your responsibility to ensure your callback functions operate securely and behave as expected.
+
+This function calls the `token_read_func` callback to fetch an existing token from the storage location. It will not automatically fetch a new token if the token does not exist.
+
+This function calls the `token_write_func` callback to write a new token to the storage location, for example when calling [`Client.refresh_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client.refresh_token) (see [Token Expiration](https://finra.hawkberry.com/en/latest/client.html#token-expiration)).
+
+To create an [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient), use [`await async_client_from_storage_functions()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.async_client_from_storage_functions), which accepts both synchronous and asynchronous callbacks for the `token_read_func` and `token_write_func`. An [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) can also be created by setting `is_asyncio=True` in [`client_from_storage_functions()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_storage_functions), however this only accepts synchronous callbacks.
 
 ### Build Client
 
-The [`build_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.build_client) function provides the most fine-grained control over client creation, but requires additional setup to configure the client correctly. All of the above client creation functions ultimately call [`build_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.build_client).
+The following creation functions are included for completeness, but unless you need to subclass [`TokenManager`](https://finra.hawkberry.com/en/latest/reference.html#finra.token_manager.TokenManager), you should not need them.
 
-Keyword arguments for this function can be passed through any of the above client creation functions, including custom constructors that return an instance of [`Client`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client) or a subclass thereof. Calling this function directly requires a correctly configured instance of [`TokenManager`](https://finra.hawkberry.com/en/latest/reference.html#finra.token_manager.TokenManager) or a subclass.
+The [`build_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.build_client) and [`build_async_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.build_async_client) functions provide the most fine-grained control over client creation, but they require additional setup to configure correctly. All of the other client creation functions ultimately call one of these to instantiate the client.
 
-Similarly, [`build_async_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.build_async_client) can be used to create an [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) with `asyncio` support.
+Keyword arguments for these functions can be passed through any of the other client creation functions, including custom constructors that return an instance of [`Client`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client) or [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient). Calling these functions directly requires a correctly configured instance of [`TokenManager`](https://finra.hawkberry.com/en/latest/reference.html#finra.token_manager.TokenManager).
 
 # HTTP Client
 
@@ -419,7 +430,21 @@ This client also supports the API’s server-side asynchronous request flow. Thi
 
 ## Asyncio Support
 
-In addition to the standard synchronous client, this library provides an asynchronous client for improved throughput with I/O-bound applications. To learn about asynchronous I/O, see Python’s [asyncio](https://docs.python.org/3/library/asyncio.html#module-asyncio) module. To create a configured instance of [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient), set `is_asyncio=True` in [`get_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_client).
+In addition to the standard synchronous client, this library provides an asynchronous client for improved throughput with I/O-bound applications. To learn about asynchronous I/O, see Python’s [asyncio](https://docs.python.org/3/library/asyncio.html#module-asyncio) module.
+
+To create a configured instance of [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient), use [`await get_async_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_async_client).
+
+```python
+from finra.auth import get_async_client
+
+c = await get_async_client(
+    api_key="API_KEY",
+    api_secret="API_SECRET",
+    token_path="/tmp/finra/token.json"
+    )
+```
+
+An [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) can also be created by setting `is_asyncio=True` in [`get_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_client), but this uses the synchronous client to perform the initial token fetch, which will block other coroutines.
 
 ```python
 from finra.auth import get_client
@@ -439,7 +464,24 @@ r = await c.get_consolidated_short_interest()  # await async coroutine
 
 r.raise_for_status()  # raise exception if request was unsuccessful
 
-data = r.json()  # extract data from response object
+data = r.json()       # extract data from response object
+```
+
+Close the HTTP connection pool by calling [`await AsyncClient.close()`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient.close).
+
+```python
+c = await get_async_client(...)
+try:
+    ...
+finally:
+    await c.close()   # close manually
+```
+
+Alternatively, the `AsyncClient` can be used as an asynchronous context manager.
+
+```python
+async with await get_async_client(...) as c:  # async context management
+    ...
 ```
 
 ## Session Management
@@ -460,7 +502,7 @@ Access tokens have a limited lifetime. If an API request returns a `401 Unauthor
 
 There are two options for managing token expiration without creating a new client. The best solution for most users is to use the OAuth 2.0 session to automatically fetch a new token from the [FINRA Identity Platform](https://developer.finra.org/docs#getting_started-api_platform_basics-authorization) when the existing token has expired. This will fetch a new token and store it at the `token_path`, or call the `token_write_func` if it was set during client creation. To enable this option, set `automatic_refresh=True` when creating a client using any of the functions from the [`auth`](https://finra.hawkberry.com/en/latest/reference.html#module-finra.auth) module.
 
-Automatic refreshing is convenient, but it offers less control over the timing of the token fetch, and less flexibility for customizing token write operations. Values returned by the `token_write_func` during an automatic refresh operation cannot be returned directly to the caller. The alternative is to manually fetch a new token by calling [`Client.refresh_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client.refresh_token), or [`await AsyncClient.refresh_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient.refresh_token). A token can be manually refreshed, even when automatic refreshing is enabled.
+Automatic refreshing is convenient, but it offers less control over the timing of the token fetch, and less flexibility for customizing token write operations. Values returned by the `token_write_func` during an automatic refresh operation cannot be returned directly to the caller. The alternative is to manually fetch a new token by calling [`Client.refresh_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client.refresh_token) or [`await AsyncClient.refresh_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient.refresh_token). A token can be manually refreshed, even when automatic refreshing is enabled.
 
 The client offers several read-only attributes that can be used to anticipate token expiration:
 
@@ -468,7 +510,7 @@ The client offers several read-only attributes that can be used to anticipate to
 - [`token_expires_at`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.token_expires_at) : the expiration timestamp in UTC
 - [`token_age`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.token_age) : the number of seconds since token creation
 
-These attributes describe a token’s lifecycle, and can indicate when to proactively fetch a new token before it expires. Additionally, the [`get_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_client) function has a `min_expires_in` keyword that can be used to set minimum time to expiration (in seconds) when creating a client from a stored token, and will force a new token to be fetched if the stored token expires sooner.
+These attributes describe a token’s lifecycle, and can indicate when to proactively fetch a new token before it expires. Additionally, the [`get_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_client) and [`await get_async_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_async_client) functions have a `min_expires_in` keyword that can be used to set minimum time to expiration (in seconds) when creating a client from a stored token, and will force a new token to be fetched if the stored token expires sooner.
 
 ## Data Versioning
 
@@ -559,6 +601,7 @@ The **Registration** group contains datasets for member firms covering their reg
 
 The **Report Card** group contains datasets for member firms covering TRACE Report Card information across a range of compliance topics and rule sets:
 
+- [`Client.get_trace_sovereign_debt_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_sovereign_debt_summary)
 - [`Client.get_trace_agency_debt_details()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_agency_debt_details)
 - [`Client.get_trace_agency_debt_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_agency_debt_summary)
 - [`Client.get_trace_treasuries_details()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_treasuries_details)
@@ -567,6 +610,7 @@ The **Report Card** group contains datasets for member firms covering TRACE Repo
 - [`Client.get_trace_corporate_bonds_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_corporate_bonds_summary)
 - [`Client.get_trace_securitized_products_details()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_securitized_products_details)
 - [`Client.get_trace_securitized_products_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_securitized_products_summary)
+- [`Client.get_trace_treasuries_execution_time_difference_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_treasuries_execution_time_difference_summary)
 
 ## Endpoints
 
@@ -1704,10 +1748,12 @@ This section includes issues and inconsistencies for Query API mock datasets ret
     - [`BaseClient.get_individual_delta()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_delta)
     - [`BaseClient.get_individual_pre_registration_search_v2()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_pre_registration_search_v2)
     - [`BaseClient.get_u4_form_prefill()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_u4_form_prefill)
+    - [`Client.get_trace_sovereign_debt_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_sovereign_debt_summary)
     - [`BaseClient.get_trace_agency_debt_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_agency_debt_summary)
     - [`BaseClient.get_trace_treasuries_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_treasuries_summary)
     - [`BaseClient.get_trace_corporate_bonds_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_corporate_bonds_summary)
     - [`BaseClient.get_trace_securitized_products_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_securitized_products_summary)
+    - [`Client.get_trace_treasuries_execution_time_difference_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_treasuries_execution_time_difference_summary)
 
 # ADR: Client Architecture and HTTP Response Boundary
 
@@ -1721,6 +1767,57 @@ This section includes issues and inconsistencies for Query API mock datasets ret
 The client must provide enough FINRA-specific functionality to make these operations practical from Python without imposing a separate application-level interface for standard HTTP behavior.
 
 In particular, applications should be able to use the capabilities of a dedicated FINRA client while retaining direct access to the HTTP response and its standard semantics.
+
+## Data Flow
+
+                       Normal HTTP path:
+                    +----------------------+
+                    | Calling application  |
+                    +----------+-----------+
+                               |
+                               v
+                    +----------------------+
+                    |      finra-py        |
+                    +----------+-----------+
+                               |
+                      access token needed?
+                          /          \
+                        yes           no
+                        |              |
+                        v              |
+             +---------------------+   |
+             | FINRA Identity      |   |
+             | Platform (FIP)      |   |
+             +----------+----------+   |
+                        |              |               Async result retrieval (3rd leg):
+                   access token        |                   +----------------------+
+                        |              |                   |  Calling application |
+                        +------+-------+                   +----------------------+
+                               |                                      |
+                               v                                      v
+                    +----------------------+               +----------------------+
+                    |      finra-py        |               |      finra-py        |
+                    +----------+-----------+               +----------+-----------+
+                               |                                      |
+                      bearer-authenticated                   pre-signed result URL
+                          API request                                 |
+                               |                                      |
+                               v                                      v
+                    +----------------------+               +----------------------+
+                    | FINRA API Platform   |               | FINRA result resource|
+                    +----------+-----------+               +----------+-----------+
+                               |                                      |
+                          HTTP response                          HTTP response
+                               |                                      |
+                               v                                      v
+                    +----------------------+               +----------------------+
+                    |      finra-py        |               |      finra-py        |
+                    +----------+-----------+               +----------------------+
+                               |                                      |
+                               v                                      v
+                    +----------------------+               +----------------------+
+                    | Calling application  |               |  Calling application |
+                    +----------------------+               +----------------------+
 
 ## Decision
 
@@ -1737,6 +1834,7 @@ Specifically:
 - OAuth 2.0 authentication and token lifecycle management are handled through the client's authentication facilities.
 - The client supports both synchronous and `asyncio`-based client operation.
 - The client does not prescribe how applications represent, transform, validate, persist, or otherwise consume API response data.
+- No maintainer-operated service sits between the calling application and the endpoints used by `finra-py`.
 
 ## Rationale
 

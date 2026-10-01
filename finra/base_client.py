@@ -30,18 +30,15 @@ from .filings.validator import Validator
 from .log_redactor import (
     _LOG_REDACTOR, register_redactions, register_redactions_from_response,
     )
-from .token_manager import TokenManager
+from .token_manager import TokenManager, TokenType
 
 
 __all__ = [
-    "get_logger",
     "FieldsType",
     "SortFieldsType",
+    "get_logger",
     "BaseClient",
     ]
-
-
-_TZ = ZoneInfo("America/New_York") # FINRA API server timezone
 
 
 ##############################################################################
@@ -59,6 +56,12 @@ _SortFieldsType: TypeAlias = EnumStr[E] | tuple[int | float, EnumStr[E]]
 #: Type for a dataset query method's ``sort_fields`` keyword, parameterized by
 #: its ``Enum``.
 SortFieldsType: TypeAlias = _SortFieldsType[E] | Iterable[_SortFieldsType[E]]
+
+
+##############################################################################
+# CONFIG
+
+_TZ = ZoneInfo("America/New_York") # FINRA API server timezone
 
 
 ##############################################################################
@@ -328,14 +331,6 @@ def _add_params_docs(
 :param first_name: Individual's First Name
 """)
         # Report Card
-        elif p == "period":
-            _params.append("""
-:param period: First day of the month for the report
-""")
-        elif p == "firm_market_id":
-            _params.append("""
-:param firm_market_id: Market Participant ID (MPID) of the requesting firm
-""")
         elif p == "request_id":
             _params.append("""
 :param request_id: UUID used when processing the asynchronous request. This is
@@ -348,7 +343,7 @@ def _add_params_docs(
                 "delimiter", "quote_values", "version",
                 "firm_crd_number", "individual_crd_number",
                 "date_of_birth", "ssn", "last_name", "first_name",
-                "period", "firm_market_id", "request_id",
+                "request_id",
                 ]
             unknown = ", ".join([f"'{p}'" for p in params if p not in _all])
             available = ", ".join([f"'{p}'" for p in _all])
@@ -595,7 +590,7 @@ class BaseClient(EnumConverter, ABC):
     ##########################################################################
     # SESSION MANAGEMENT
     
-    def _set_token(self, token: dict[str, Any], *args, **kwds) -> Any:
+    def _set_token(self, token: TokenType, *args, **kwds) -> Any:
         register_redactions(token)
         if self._token_manager is None:
             raise ValueError("Token Manager not set")
@@ -1289,7 +1284,7 @@ class BaseClient(EnumConverter, ABC):
             the provided date.
         :param historical_month: The platform will provide all data with a
             ``week_start_date`` within the month provided.
-        :param tier_identifier: Tier identifier. Known values:
+        :param tier_identifier: Tier identifier. Accepted values:
             
             - ``T1`` : Securities included in the S&P 500, Russell 1000 and
               selected exchange-traded products
@@ -3967,11 +3962,80 @@ class BaseClient(EnumConverter, ABC):
     ##########################################################################
     # TRACE REPORT CARDS GROUP
     
+    def get_trace_sovereign_debt_summary(
+        self,
+        period: Optional[date]=None,
+        firm_market_id: Optional[str]=None,
+        *,
+        report_view: Optional[str]=None,
+        endpoint: Optional[_EndpointType]=None,
+        version: Optional[int]=None
+        ):
+        """
+        The TRACE Quality of Markets Report Cards for Foreign Sovereign Debt
+        Summary dataset is a monthly status report for transactions in foreign
+        sovereign debt that a member firm reported to TRACE.
+        
+        Returned data follows the `TRACE Sovereign Debt Summary schema
+        <https://schemas.api.finra.org/v1/
+        reportCard/traceSovereignSummary.json>`__.
+        
+        This dataset only supports synchronous requests.
+        
+        Requires Firm API credentials.
+        
+        :param period: First day of the month for the report
+        :param firm_market_id: Market Participant ID (MPID) of the requesting
+            firm
+        :param report_view: Request a specific report view. Accepted values:
+            
+            - ``All`` : Default when no value is provided
+            - ``P1``
+            - ``S1``
+        
+        """
+        if (endpoint is None
+            or endpoint == self.Endpoint.DATA
+            or (not self.require_enums and endpoint == "data")):
+            if period is None or firm_market_id is None:
+                raise ValueError(
+                    "When submitting a file request (request_id is None), "
+                    "TRACE Report Card methods require two arguments: "
+                    "period and firm_market_id."
+                    )
+            
+            if (not isinstance(period, date)
+                or isinstance(period, datetime)):
+                _type_error("period", period, (date,))
+            
+            params = {
+                "period": period.isoformat(),
+                "firmMarketIdentifier": firm_market_id,
+                }
+            
+            if report_view is not None:
+                if not isinstance(report_view, str):
+                    _type_error("report_view", report_view, (str,))
+                params["reportView"] = report_view
+        else:
+            params = {}
+        
+        return self._get_query(
+            self.base_url, "reportcard", "traceSovereignSummary", None,
+            endpoint, None, version, **params
+            )
+    
+    _add_params_docs(
+        get_trace_sovereign_debt_summary,
+        "endpoint", "version"
+        )
+    
     def get_trace_agency_debt_details(
         self,
         period: Optional[date]=None,
         firm_market_id: Optional[str]=None,
         *,
+        report_view: Optional[str]=None,
         request_id: Optional[str]=None,
         version: Optional[int]=None
         ):
@@ -4022,6 +4086,16 @@ class BaseClient(EnumConverter, ABC):
         for more information about this dataset.
         
         Requires Firm API credentials.
+        
+        :param period: First day of the month for the report
+        :param firm_market_id: Market Participant ID (MPID) of the requesting
+            firm
+        :param report_view: Request a specific report view. Accepted values:
+            
+            - ``All`` : Default when no value is provided
+            - ``P1``
+            - ``S1``
+        
         """
         if request_id is None:
             if period is None or firm_market_id is None:
@@ -4038,6 +4112,11 @@ class BaseClient(EnumConverter, ABC):
                 "period": period.isoformat(),
                 "firmMarketIdentifier": firm_market_id,
                 }
+            
+            if report_view is not None:
+                if not isinstance(report_view, str):
+                    _type_error("report_view", report_view, (str,))
+                params["reportView"] = report_view
         else:
             params = {}
         
@@ -4053,7 +4132,7 @@ class BaseClient(EnumConverter, ABC):
     
     _add_params_docs(
         get_trace_agency_debt_details,
-        "period", "firm_market_id", "request_id", "version"
+        "request_id", "version"
         )
     
     def get_trace_agency_debt_summary(
@@ -4061,6 +4140,7 @@ class BaseClient(EnumConverter, ABC):
         period: Optional[date]=None,
         firm_market_id: Optional[str]=None,
         *,
+        report_view: Optional[str]=None,
         endpoint: Optional[_EndpointType]=None,
         version: Optional[int]=None
         ):
@@ -4076,6 +4156,16 @@ class BaseClient(EnumConverter, ABC):
         This dataset only supports synchronous requests.
         
         Requires Firm API credentials.
+        
+        :param period: First day of the month for the report
+        :param firm_market_id: Market Participant ID (MPID) of the requesting
+            firm
+        :param report_view: Request a specific report view. Accepted values:
+            
+            - ``All`` : Default when no value is provided
+            - ``P1``
+            - ``S1``
+        
         """
         if (endpoint is None
             or endpoint == self.Endpoint.DATA
@@ -4095,6 +4185,11 @@ class BaseClient(EnumConverter, ABC):
                 "period": period.isoformat(),
                 "firmMarketIdentifier": firm_market_id,
                 }
+            
+            if report_view is not None:
+                if not isinstance(report_view, str):
+                    _type_error("report_view", report_view, (str,))
+                params["reportView"] = report_view
         else:
             params = {}
         
@@ -4105,7 +4200,7 @@ class BaseClient(EnumConverter, ABC):
     
     _add_params_docs(
         get_trace_agency_debt_summary,
-        "period", "firm_market_id", "endpoint", "version"
+        "endpoint", "version"
         )
     
     def get_trace_treasuries_details(
@@ -4164,6 +4259,10 @@ class BaseClient(EnumConverter, ABC):
         for more information about this dataset.
         
         Requires Firm API credentials.
+        
+        :param period: First day of the month for the report
+        :param firm_market_id: Market Participant ID (MPID) of the requesting
+            firm
         """
         if request_id is None:
             if period is None or firm_market_id is None:
@@ -4195,7 +4294,7 @@ class BaseClient(EnumConverter, ABC):
     
     _add_params_docs(
         get_trace_treasuries_details,
-        "period", "firm_market_id", "request_id", "version"
+        "request_id", "version"
         )
     
     def get_trace_treasuries_summary(
@@ -4219,6 +4318,10 @@ class BaseClient(EnumConverter, ABC):
         This dataset only supports synchronous requests.
         
         Requires Firm API credentials.
+        
+        :param period: First day of the month for the report
+        :param firm_market_id: Market Participant ID (MPID) of the requesting
+            firm
         """
         if (endpoint is None
             or endpoint == self.Endpoint.DATA
@@ -4248,7 +4351,7 @@ class BaseClient(EnumConverter, ABC):
     
     _add_params_docs(
         get_trace_treasuries_summary,
-        "period", "firm_market_id", "endpoint", "version"
+        "endpoint", "version"
         )
     
     def get_trace_corporate_bonds_details(
@@ -4256,6 +4359,7 @@ class BaseClient(EnumConverter, ABC):
         period: Optional[date]=None,
         firm_market_id: Optional[str]=None,
         *,
+        report_view: Optional[str]=None,
         request_id: Optional[str]=None,
         version: Optional[int]=None
         ):
@@ -4306,6 +4410,16 @@ class BaseClient(EnumConverter, ABC):
         for more information about this dataset.
         
         Requires Firm API credentials.
+        
+        :param period: First day of the month for the report
+        :param firm_market_id: Market Participant ID (MPID) of the requesting
+            firm
+        :param report_view: Request a specific report view. Accepted values:
+            
+            - ``All`` : Default when no value is provided
+            - ``P1``
+            - ``S1``
+        
         """
         if request_id is None:
             if period is None or firm_market_id is None:
@@ -4322,6 +4436,11 @@ class BaseClient(EnumConverter, ABC):
                 "period": period.isoformat(),
                 "firmMarketIdentifier": firm_market_id,
                 }
+            
+            if report_view is not None:
+                if not isinstance(report_view, str):
+                    _type_error("report_view", report_view, (str,))
+                params["reportView"] = report_view
         else:
             params = {}
         
@@ -4337,7 +4456,7 @@ class BaseClient(EnumConverter, ABC):
     
     _add_params_docs(
         get_trace_corporate_bonds_details,
-        "period", "firm_market_id", "request_id", "version"
+        "request_id", "version"
         )
     
     def get_trace_corporate_bonds_summary(
@@ -4345,6 +4464,7 @@ class BaseClient(EnumConverter, ABC):
         period: Optional[date]=None,
         firm_market_id: Optional[str]=None,
         *,
+        report_view: Optional[str]=None,
         endpoint: Optional[_EndpointType]=None,
         version: Optional[int]=None
         ):
@@ -4360,6 +4480,16 @@ class BaseClient(EnumConverter, ABC):
         This dataset only supports synchronous requests.
         
         Requires Firm API credentials.
+        
+        :param period: First day of the month for the report
+        :param firm_market_id: Market Participant ID (MPID) of the requesting
+            firm
+        :param report_view: Request a specific report view. Accepted values:
+            
+            - ``All`` : Default when no value is provided
+            - ``P1``
+            - ``S1``
+        
         """
         if (endpoint is None
             or endpoint == self.Endpoint.DATA
@@ -4379,6 +4509,11 @@ class BaseClient(EnumConverter, ABC):
                 "period": period.isoformat(),
                 "firmMarketIdentifier": firm_market_id,
                 }
+            
+            if report_view is not None:
+                if not isinstance(report_view, str):
+                    _type_error("report_view", report_view, (str,))
+                params["reportView"] = report_view
         else:
             params = {}
         
@@ -4389,7 +4524,7 @@ class BaseClient(EnumConverter, ABC):
     
     _add_params_docs(
         get_trace_corporate_bonds_summary,
-        "period", "firm_market_id", "endpoint", "version"
+        "endpoint", "version"
         )
     
     def get_trace_securitized_products_details(
@@ -4397,6 +4532,7 @@ class BaseClient(EnumConverter, ABC):
         period: Optional[date]=None,
         firm_market_id: Optional[str]=None,
         *,
+        report_view: Optional[str]=None,
         request_id: Optional[str]=None,
         version: Optional[int]=None
         ):
@@ -4450,6 +4586,19 @@ class BaseClient(EnumConverter, ABC):
         for more information about this dataset.
         
         Requires Firm API credentials.
+        
+        :param period: First day of the month for the report
+        :param firm_market_id: Market Participant ID (MPID) of the requesting
+            firm
+        :param report_view: Request a specific report view. Accepted values:
+            
+            - ``All`` : Default when no value is provided
+            - ``ABS``
+            - ``ABSX``
+            - ``CMO``
+            - ``MBS``
+            - ``TBA``
+        
         """
         if request_id is None:
             if period is None or firm_market_id is None:
@@ -4466,6 +4615,11 @@ class BaseClient(EnumConverter, ABC):
                 "period": period.isoformat(),
                 "firmMarketIdentifier": firm_market_id,
                 }
+            
+            if report_view is not None:
+                if not isinstance(report_view, str):
+                    _type_error("report_view", report_view, (str,))
+                params["reportView"] = report_view
         else:
             params = {}
         
@@ -4482,14 +4636,17 @@ class BaseClient(EnumConverter, ABC):
     
     _add_params_docs(
         get_trace_securitized_products_details,
-        "period", "firm_market_id", "request_id", "version"
+        "request_id", "version"
         )
-    
+
+
+####TODO: does report_view accept "TBA" like details?
     def get_trace_securitized_products_summary(
         self,
         period: Optional[date]=None,
         firm_market_id: Optional[str]=None,
         *,
+        report_view: Optional[str]=None,
         endpoint: Optional[_EndpointType]=None,
         version: Optional[int]=None
         ):
@@ -4507,6 +4664,80 @@ class BaseClient(EnumConverter, ABC):
         This dataset only supports synchronous requests.
         
         Requires Firm API credentials.
+        
+        :param period: First day of the month for the report
+        :param firm_market_id: Market Participant ID (MPID) of the requesting
+            firm
+        :param report_view:Request a specific report view. Accepted values:
+            
+            - ``All`` : Default when no value is provided 
+            - ``ABS``
+            - ``ABSX``
+            - ``CMO``
+            - ``MBS``
+        
+        """
+        if (endpoint is None
+            or endpoint == self.Endpoint.DATA
+            or (not self.require_enums and endpoint == "data")):
+            if period is None or firm_market_id is None:
+                raise ValueError(
+                    "When submitting a file request (request_id is None), "
+                    "TRACE Report Card methods require two arguments: "
+                    "period and firm_market_id."
+                    )
+            
+            if (not isinstance(period, date)
+                or isinstance(period, datetime)):
+                _type_error("period", period, (date,))
+            
+            params = {
+                "period": period.isoformat(),
+                "firmMarketIdentifier": firm_market_id,
+                }
+            
+            if report_view is not None:
+                if not isinstance(report_view, str):
+                    _type_error("report_view", report_view, (str,))
+                params["reportView"] = report_view
+        else:
+            params = {}
+        
+        return self._get_query(
+            self.base_url, "reportcard", "traceSecuritizedProductSummary",
+            None,
+            endpoint, None, version, **params
+            )
+    
+    _add_params_docs(
+        get_trace_securitized_products_summary,
+        "endpoint", "version"
+        )
+    
+    def get_trace_treasuries_execution_time_difference_summary(
+        self,
+        period: Optional[date]=None,
+        firm_market_id: Optional[str]=None,
+        *,
+        endpoint: Optional[_EndpointType]=None,
+        version: Optional[int]=None
+        ):
+        """
+        The TRACE Treasuries Execution Time Difference Summary dataset is a
+        monthly report comparing execution times for inter-dealer transactions
+        in U.S. Treasury Securities that a member firm reported to TRACE.
+        
+        Returned data follows the `TRACE Treasuries Execution Time Difference
+        Summary schema <https://schemas.api.finra.org/v1/
+        reportCard/TRACEEXECUTIONTIMEDIFFERENCETREASURIESFIRMSUMMARY.json>`__.
+        
+        This dataset only supports synchronous requests.
+        
+        Requires Firm API credentials.
+        
+        :param period: First day of the month for the report
+        :param firm_market_id: Market Participant ID (MPID) of the requesting
+            firm
         """
         if (endpoint is None
             or endpoint == self.Endpoint.DATA
@@ -4530,14 +4761,14 @@ class BaseClient(EnumConverter, ABC):
             params = {}
         
         return self._get_query(
-            self.base_url, "reportcard", "traceSecuritizedProductSummary",
-            None,
+            self.base_url, "reportcard",
+            "traceExecutionTimeDifferenceTreasuriesFirmSummary", None,
             endpoint, None, version, **params
             )
     
     _add_params_docs(
-        get_trace_securitized_products_summary,
-        "period", "firm_market_id", "endpoint", "version"
+        get_trace_treasuries_execution_time_difference_summary,
+        "endpoint", "version"
         )
     
     

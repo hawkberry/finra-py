@@ -10,6 +10,9 @@ from .base_filing import (
 __all__ = ["NonRegisteredFingerprint"]
 
 
+##############################################################################
+# ENUMS
+
 class FilingType(Enum):
     """
     Used in a filing to set the filing type.
@@ -24,6 +27,9 @@ class FilingType(Enum):
 
 _FilingType: TypeAlias = EnumStr[FilingType]
 
+
+##############################################################################
+# FILING
 
 class NonRegisteredFingerprint(BaseFiling):
     """

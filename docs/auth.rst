@@ -10,13 +10,11 @@ Before using ``finra-py``, you'll need to create a developer account with FINRA 
 
 The `FINRA API Platform <https://developer.finra.org/docs#getting_started-api_platform_basics-authorization>`__ uses OAuth 2.0 for authentication and authorization. OAuth 2.0 uses short-lived access tokens instead of the resource owner’s long-term credentials, reducing the risk of credential exposure.
 
-Internally, ``finra-py`` uses `Authlib's HTTPX integration <https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html>`__ to perform requests and implement the OAuth 2.0 standard. This OAuth2 session securely manages the credentials and ``token_path`` you provide, which are never stored directly on the ``finra-py`` client.
+Internally, ``finra-py`` uses `Authlib's HTTPX integration <https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html>`__ to perform requests and implement the OAuth 2.0 standard. This OAuth2 session manages the credentials and ``token_path`` you provide, which are never stored directly on the ``finra-py`` client.
 
-``finra-py`` is designed to handle credentials and authentication tokens securely. However, you are ultimately responsible for securing your credentials, authentication tokens, and any data written to disk. Make sure to take any additional steps necessary to secure your data.
+You are ultimately responsible for securing your credentials, authentication tokens, and any data written to disk. ``finra-py`` will save authentication tokens to any file path you provide (assuming you have the necessary file permissions). It is your responsibility to ensure that this location is secure and appropriate for your environment.
 
-This client will save authentication tokens to any file path you provide (assuming you have appropriate file permissions).  It is your responsibility to ensure that this location is secure and appropriate for your environment. Consult your system administrator or security team as appropriate.
-
-**IMPORTANT! Only use one client at a time. The behavior is undefined if you try to use multiple clients with the same credentials at the same time, and may cause problems with the underlying OAuth2 session management.**
+To manage credentials outside your local filesystem, see :ref:`advanced_creation`. For broader security considerations, see the `Security Policy <https://github.com/hawkberry/finra-py/blob/main/SECURITY.md>`__.
 
 See the :py:mod:`auth <finra.auth>` module for complete reference documentation.
 
@@ -36,9 +34,21 @@ The easiest way to create a configured instance of :py:class:`Client <finra.clie
       token_path="/tmp/finra/token.json"
       )
 
-To create an asynchronous client instead, set ``is_asyncio=True`` in :py:func:`get_client() <finra.auth.get_client>`. See :ref:`async` for more information.
-
 If a valid token exists at the given path it will be used, otherwise a new token will be fetched from the `FINRA Identity Platform <https://developer.finra.org/docs#getting_started-api_platform_basics-authorization>`__ and saved to the provided path.
+
+To create an asynchronous client instead, use :py:func:`await get_async_client() <finra.auth.get_async_client>`, which performs the initial token fetch asynchronously and accepts both synchronous and asynchronous callbacks when customizing the ``token_read_func`` and ``token_write_func``.
+
+.. code-block:: python
+
+  from finra.auth import get_async_client
+  
+  c = await get_async_client(
+      api_key="API_KEY",
+      api_secret="API_SECRET",
+      token_path="/tmp/finra/token.json"        # token file path
+      )
+
+For more information about basic ``asyncio`` usage, see :ref:`async`.
 
 ++++++++++++++
 Mock Endpoints
@@ -57,7 +67,7 @@ Set ``mock=True`` when creating a client to use mock endpoints.
   c = get_client(
       api_key="MOCK_API_KEY",
       api_secret="MOCK_API_SECRET",
-      token_path="/tmp/finra/mock_token.json",  # different file name
+      token_path="/tmp/finra/mock_token.json",  # different file path
       mock=True
       )
 
@@ -83,7 +93,7 @@ Set ``test_environment=True`` when creating a client to use the QA Test Environm
   c = get_client(
       api_key="QA_TEST_API_KEY",
       api_secret="QA_TEST_API_SECRET",
-      token_path="/tmp/finra/qa_test_token.json",  # different file name
+      token_path="/tmp/finra/qa_test_token.json",  # different file path
       test_environment=True
       )
 
@@ -91,37 +101,47 @@ If a dataset is queried that requires QA Test Environment credentials and the cl
 
 Mock datasets can also be accessed in the QA Test Environment by setting ``mock=True`` when creating a client. This setting will disable non-mock :ref:`query` endpoints while using the client, but it will not disable :ref:`notification` and :ref:`submission` endpoints.
 
+.. _advanced_creation:
+
 +++++++++++++++++
 Advanced Creation
 +++++++++++++++++
 
-Aside from :py:func:`get_client() <finra.auth.get_client>` there are additional routines with different behaviors for creating a client.
+For most users, :py:func:`get_client() <finra.auth.get_client>` and :py:func:`await get_async_client() <finra.auth.get_async_client>` have all the necessary functionality. However, for users that need additional control over the authentication and client creation process, the library exposes several sub-routines, each with different behaviors.
 
 ----------------------
 Load an Existing Token
 ----------------------
 
-To load an existing token and create a client with it, use :py:func:`client_from_token_file() <finra.auth.client_from_token_file>`. This function does not check whether the token is expired or not, and can result in a ``401 Unauthorized`` response code when making a request if the token is already expired. It will not fetch a new token.
+To load an existing token from a file and create a client with it, use :py:func:`client_from_token_file() <finra.auth.client_from_token_file>`. This function does not check whether the token has expired or not, and can result in a ``401 Unauthorized`` response code when making an API request if the token has already expired. If the file does not exist, it will raise ``FileNotFoundError``. It will not fetch a new token.
 
 -----------------
 Fetch a New Token
 -----------------
 
-To force a new token to be fetched and create a client with it, use :py:func:`client_from_new_token() <finra.auth.client_from_new_token>`. This will write the token to the ``token_path``, and will overwrite any file that already exists at that path.
+To force a new token to be fetched from the `FINRA Identity Platform <https://developer.finra.org/docs#getting_started-api_platform_basics-authorization>`__ and create a client with it, use :py:func:`client_from_new_token() <finra.auth.client_from_new_token>`. By default, the token will be written to the given ``token_path``, and will overwrite any file that already exists there. The token write behavior can be customized by setting a synchronous callback as the ``token_write_func``, however it is your responsibility to ensure your callback function operates securely and behaves as expected.
+
+To create an :py:class:`AsyncClient <finra.async_client.AsyncClient>`, use :py:func:`await async_client_from_new_token() <finra.auth.async_client_from_new_token>`, which performs the initial token fetch asynchronously and accepts both synchronous and asynchronous callbacks for the ``token_write_func``. An :py:class:`AsyncClient <finra.async_client.AsyncClient>` can also be created by setting ``is_asyncio=True`` in :py:func:`client_from_new_token() <finra.auth.client_from_new_token>`, however this uses the synchronous client to perform the initial token fetch, which will block other coroutines, and it only accepts synchronous callbacks.
 
 ----------------------------
 Customized Storage Functions
 ----------------------------
 
-Most users will not need this functionality. However, for use cases involving specialized credential storage, :py:func:`client_from_storage_functions() <finra.auth.client_from_storage_functions>` allows custom callback functions to read and write the token files. This is useful when credentials are managed outside the local filesystem, for example in cloud-hosted or enterprise environments. You are responsible for ensuring these callbacks function securely and behave as expected.
+For use cases involving specialized credential storage, :py:func:`client_from_storage_functions() <finra.auth.client_from_storage_functions>` allows custom callback functions to read and write tokens. This is useful when credentials are managed outside the local filesystem, for example in cloud-hosted or enterprise environments. It is your responsibility to ensure your callback functions operate securely and behave as expected.
+
+This function calls the ``token_read_func`` callback to fetch an existing token from the storage location. It will not automatically fetch a new token if the token does not exist.
+
+This function calls the ``token_write_func`` callback to write a new token to the storage location, for example when calling :py:meth:`Client.refresh_token() <finra.client.Client.refresh_token>` (see :ref:`token_expiration`).
+
+To create an :py:class:`AsyncClient <finra.async_client.AsyncClient>`, use :py:func:`await async_client_from_storage_functions() <finra.auth.async_client_from_storage_functions>`, which accepts both synchronous and asynchronous callbacks for the ``token_read_func`` and ``token_write_func``. An :py:class:`AsyncClient <finra.async_client.AsyncClient>` can also be created by setting ``is_asyncio=True`` in :py:func:`client_from_storage_functions() <finra.auth.client_from_storage_functions>`, however this only accepts synchronous callbacks.
 
 ------------
 Build Client
 ------------
 
-The :py:func:`build_client() <finra.auth.build_client>` function provides the most fine-grained control over client creation, but requires additional setup to configure the client correctly. All of the above client creation functions ultimately call :py:func:`build_client() <finra.auth.build_client>`.
+The following creation functions are included for completeness, but unless you need to subclass :py:class:`TokenManager <finra.token_manager.TokenManager>`, you should not need them.
 
-Keyword arguments for this function can be passed through any of the above client creation functions, including custom constructors that return an instance of :py:class:`Client <finra.client.Client>` or a subclass thereof. Calling this function directly requires a correctly configured instance of :py:class:`TokenManager <finra.token_manager.TokenManager>` or a subclass.
+The :py:func:`build_client() <finra.auth.build_client>` and :py:func:`build_async_client() <finra.auth.build_async_client>` functions provide the most fine-grained control over client creation, but they require additional setup to configure correctly. All of the other client creation functions ultimately call one of these to instantiate the client.
 
-Similarly, :py:func:`build_async_client() <finra.auth.build_async_client>` can be used to create an :py:class:`AsyncClient <finra.async_client.AsyncClient>` with ``asyncio`` support.
+Keyword arguments for these functions can be passed through any of the other client creation functions, including custom constructors that return an instance of :py:class:`Client <finra.client.Client>` or :py:class:`AsyncClient <finra.async_client.AsyncClient>`. Calling these functions directly requires a correctly configured instance of :py:class:`TokenManager <finra.token_manager.TokenManager>`.
 

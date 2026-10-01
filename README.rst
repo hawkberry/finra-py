@@ -97,6 +97,14 @@ Submit bug reports on the ``finra-py`` `Issues Page <https://github.com/hawkberr
 
 If you need a dataset or feature that is not currently supported by the client, please file a `Feature Request <https://github.com/hawkberry/finra-py/issues>`__. Pull requests are not currently accepted.
 
+++++++++
+Security
+++++++++
+
+Please report security vulnerabilities privately using GitHub's Private Vulnerability Reporting, rather than as a normal bug report. See the `Security Policy <https://github.com/hawkberry/finra-py/blob/main/SECURITY.md>`__ for more information.
+
+The policy includes additional security information specific to ``finra-py``, including credential and token handling, sensitive data, diagnostic logging, dependency security, and supported releases.
+
 ++++++++++++++++++++
 FINRA API Consulting
 ++++++++++++++++++++
@@ -114,8 +122,9 @@ Project Links
 * `Documentation <https://finra.hawkberry.com/en/latest/>`__
 * `Repository <https://github.com/hawkberry/finra-py>`__
 * `PyPI <https://pypi.org/project/finra-py/>`__
-* `Issues <https://github.com/hawkberry/finra-py/issues>`__
 * `Changelog <https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md>`__
+* `Issues <https://github.com/hawkberry/finra-py/issues>`__
+* `Security <https://github.com/hawkberry/finra-py/blob/main/SECURITY.md>`__
 * `ADRs <https://finra.hawkberry.com/en/latest/adr.html>`__
 * `Consulting <https://finra.hawkberry.com/en/latest/consulting.html>`__
 * `Support <https://support.hawkberry.com/>`__

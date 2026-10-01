@@ -18,11 +18,14 @@ __all__ = [
 
 
 ##############################################################################
-# BASE FILING
+# TYPES
 
 #: Type of object returned by :py:meth:`BaseFiling.build`.
 FilingDictType: TypeAlias = dict[str, Any]
 
+
+##############################################################################
+# ENUMS
 
 class FilingStatus(Enum):
     """
@@ -60,6 +63,9 @@ class Op(Enum):
 
 _Op: TypeAlias = EnumStr[Op]
 
+
+##############################################################################
+# METADATA
 
 # Private class used by BaseFiling for building filing metadata
 class _Metadata:
@@ -99,6 +105,9 @@ class _Metadata:
     def set_ignore_warnings(self, ignore_warning: Optional[bool]) -> None:
         self._ignoreWarnings = ignore_warning
 
+
+##############################################################################
+# BASE FILING
 
 class BaseFiling(EnumConverter, ABC):
     """Abstract base class for filing objects"""

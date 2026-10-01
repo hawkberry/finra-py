@@ -42,9 +42,11 @@ documentation_url = config["project"]["urls"]["Documentation"]
 
 repository_url = config["project"]["urls"]["Repository"]
 
+changelog_url = config["project"]["urls"]["Changelog"]
+
 issues_url = config["project"]["urls"]["Issues"]
 
-changelog_url = config["project"]["urls"]["Changelog"]
+security_url = config["project"]["urls"]["Security"]
 
 adrs_url = config["project"]["urls"]["ADRs"]
 
@@ -100,6 +102,11 @@ page_descriptions = {
         "Troubleshoot finra-py and FINRA API integrations with diagnostic "
         "logging, known API issues, bug-reporting guidance, and solutions."
         ),
+    "finra-changelog": (
+        "Unofficial changelog for the FINRA API and related documentation, "
+        "tracking dataset, documentation, and API changes by type and "
+        "priority."
+        ),
     "reference": (
         "Complete API reference for finra-py, covering authentication, "
         "the HTTPX client, Query, Notification and Submission APIs, "
@@ -114,11 +121,6 @@ page_descriptions = {
         "FINRA API consulting for member firms and developers, covering "
         "API integrations, Web EFT migrations, regulatory filing workflows, "
         "and FINRA data systems."
-        ),
-    "finra-changelog": (
-        "Unofficial changelog for the FINRA API and related documentation, "
-        "tracking dataset, documentation, and API changes by type and "
-        "priority."
         ),
     }
 
@@ -174,15 +176,15 @@ llms_page_descriptions = {
         "Troubleshooting and support guidance covering diagnostic logging, "
         "bug reports, known FINRA API issues, and common `finra-py` problems."
         ),
-    "reference": (
-        "Complete Python API reference for `finra-py` covering "
-        "authentication, the HTTPX client, Query, Notification and "
-        "Submission APIs, utilities, exceptions, and data types."
-        ),
     "finra-changelog": (
         "Unofficial FINRA API changelog tracking changes to datasets and "
         "related documentation by change `kind`, documentation "
         "`section_type`, and `priority`, with RSS and weekly email updates."
+        ),
+    "reference": (
+        "Complete Python API reference for `finra-py` covering "
+        "authentication, the HTTPX client, Query, Notification and "
+        "Submission APIs, utilities, exceptions, and data types."
         ),
     }
 
@@ -195,11 +197,16 @@ llms_project_links_descriptions = {
         "Published `finra-py` package and release information for Python "
         "installation."
         ),
+    "changelog": (
+        "Release history and changes between `finra-py` versions."
+        ),
     "issues": (
         "GitHub issue tracker for bug reports and feature requests."
         ),
-    "changelog": (
-        "Release history and changes between `finra-py` versions."
+    "security": (
+        "Security policy, security model, credential and data handling, "
+        "dependency security, supported versions, and vulnerability "
+        "reporting."
         ),
     "adr": (
         "Architecture Decision Records for `finra-py` documenting client "
@@ -294,6 +301,7 @@ autodoc_type_aliases = {
         ":py:type:`FiltersDictType <finra.filters.FiltersDictType>`"
         ),
     "LabelsMapType": ":py:type:`LabelsMapType <finra.utils.LabelsMapType>`",
+    "TokenType": ":py:type:`TokenType <finra.token_manager.TokenType>`",
     }
 
 markdown_http_base = documentation_url.rstrip("/")
