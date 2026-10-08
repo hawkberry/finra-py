@@ -6,6 +6,17 @@
     <description>Unofficial changelog for the FINRA API and documentation.</description>
     <item>
       <title>LOW — Text changed</title>
+      <description>priority=LOW &lt;br /&gt;kind=text_changed &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Submission API &gt; Registration &gt; U4 &gt; Submission Type Details &lt;br /&gt;--- previous &lt;br /&gt;+++ current &lt;br /&gt;@@ -3,5 +3,5 @@ &lt;br /&gt; U4 submission (metadata, filingData and operations) must adhere to the U4 schema . &lt;br /&gt; If both filingData and operations are provided in a single call, operations will be ignored. &lt;br /&gt;-U4 submission supports Rep Edit and Rep Signature via FINRPO. If a U4 requires Rep Edit or Rep Signature, it must be sent in a draft mode and the final submission must be made via FINRA Gateway. &lt;br /&gt;+U4 submission supports Rep Edit and Rep Signature via FINRPO. If a U4 requires Rep Edit or Rep Signature, it must be sent in a draft mode. &lt;br /&gt; U4 submission is an asynchronous request. Check for status update with the GET Submission API using unique "ID" received during submission. Please allow 5-15 mins processing time for each U4 submission before making a GET call. &lt;br /&gt; U4 filing can be made in a draft, submitted or validate mode.</description>
+      <author>finra-py</author>
+      <pubDate>Thu, 08 Oct 2026 18:18:29 +0000</pubDate>
+      <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-10</link>
+      <guid isPermaLink="false">urn:changelog:e67b918918b4c1ee28cb884042d0f168245e99c4fe078fb3332872bdc418dd36</guid>
+      <category domain="priority">LOW</category>
+      <category domain="kind">text_changed</category>
+      <category domain="section_type">dataset_subsection</category>
+    </item>
+    <item>
+      <title>LOW — Text changed</title>
       <description>priority=LOW &lt;br /&gt;kind=text_changed &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; TRACE Report Cards &gt; TRACE Foreign Sovereign Debt Summary &gt; Dataset Details &lt;br /&gt;--- previous &lt;br /&gt;+++ current &lt;br /&gt;@@ -1,2 +1,2 @@ &lt;br /&gt;-The TRACE Quality of Markets Report Card for Foreign Sovereign Debt dataset is a monthly status report for trades that a member firm reported to TRACE. Firms are required to report trades in accordance with established FINRA rules and regulations. &lt;br /&gt;+The TRACE Quality of Markets Report Card for Foreign Sovereign Debt Summary dataset is a monthly status report for trades that a member firm reported to TRACE. Firms are required to report trades in accordance with established FINRA rules and regulations. &lt;br /&gt; The dataset support synchronous GET requests only.</description>
       <author>finra-py</author>
       <pubDate>Mon, 28 Sep 2026 13:00:04 +0000</pubDate>
