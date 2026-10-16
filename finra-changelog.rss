@@ -5,6 +5,28 @@
     <link>https://finra.hawkberry.com/en/latest/finra-changelog.html</link>
     <description>Unofficial changelog for the FINRA API and documentation.</description>
     <item>
+      <title>MEDIUM — Table row added</title>
+      <description>priority=MEDIUM &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=non_dataset &lt;br /&gt;Path: Getting Started &gt; API Platform Basics &gt; Troubleshooting &lt;br /&gt;Table: (no title) &lt;br /&gt;Row: ('429', 'Too Many Requests', 'Indicates there are too many requests coming from the same client within a give amount of time. Please refer to the Platform Usage Limits for more information')</description>
+      <author>finra-py</author>
+      <pubDate>Fri, 16 Oct 2026 18:06:24 +0000</pubDate>
+      <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-10</link>
+      <guid isPermaLink="false">urn:changelog:417b0365ef4d28f0e1d89a81fbdf4dc189bce552dc663494ad271b9471f57655</guid>
+      <category domain="priority">MEDIUM</category>
+      <category domain="kind">table_row_added</category>
+      <category domain="section_type">non_dataset</category>
+    </item>
+    <item>
+      <title>LOW — Link added</title>
+      <description>priority=LOW &lt;br /&gt;kind=link_added &lt;br /&gt;section_type=non_dataset &lt;br /&gt;Path: Getting Started &gt; API Platform Basics &gt; Troubleshooting &lt;br /&gt;Text: Platform Usage Limits &lt;br /&gt;URL: https://developer.finra.org/docs#getting_started-api_platform_basics-platform_usage_limits</description>
+      <author>finra-py</author>
+      <pubDate>Fri, 16 Oct 2026 18:06:24 +0000</pubDate>
+      <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-10</link>
+      <guid isPermaLink="false">urn:changelog:1458cbd8bcf280a78c8cd67f0b79cbffc119d2edfbc8f0ab8978d2b01a2002ce</guid>
+      <category domain="priority">LOW</category>
+      <category domain="kind">link_added</category>
+      <category domain="section_type">non_dataset</category>
+    </item>
+    <item>
       <title>LOW — Text changed</title>
       <description>priority=LOW &lt;br /&gt;kind=text_changed &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Submission API &gt; Registration &gt; U4 &gt; Submission Type Details &lt;br /&gt;--- previous &lt;br /&gt;+++ current &lt;br /&gt;@@ -3,5 +3,5 @@ &lt;br /&gt; U4 submission (metadata, filingData and operations) must adhere to the U4 schema . &lt;br /&gt; If both filingData and operations are provided in a single call, operations will be ignored. &lt;br /&gt;-U4 submission supports Rep Edit and Rep Signature via FINRPO. If a U4 requires Rep Edit or Rep Signature, it must be sent in a draft mode and the final submission must be made via FINRA Gateway. &lt;br /&gt;+U4 submission supports Rep Edit and Rep Signature via FINRPO. If a U4 requires Rep Edit or Rep Signature, it must be sent in a draft mode. &lt;br /&gt; U4 submission is an asynchronous request. Check for status update with the GET Submission API using unique "ID" received during submission. Please allow 5-15 mins processing time for each U4 submission before making a GET call. &lt;br /&gt; U4 filing can be made in a draft, submitted or validate mode.</description>
       <author>finra-py</author>

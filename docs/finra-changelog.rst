@@ -76,6 +76,20 @@ Changelog
 
 .. BEGIN_FINRA_DOCUMENTATION_CHANGES
 
+.. _finra_docs_2026_10:
+
+October 2026
+------------
+
+October 16, 2026
+~~~~~~~~~~~~~~~~
+
+* **MEDIUM — Table row added**
+
+  - Path: Getting Started > API Platform Basics > Troubleshooting
+  - Table: (no title)
+  - Row: ('429', 'Too Many Requests', 'Indicates there are too many requests coming from the same client within a give amount of time. Please refer to the Platform Usage Limits for more information')
+
 .. _finra_docs_2026_09:
 
 September 2026
