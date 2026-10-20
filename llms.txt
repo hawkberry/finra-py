@@ -9,13 +9,14 @@
 - FINRA notification event datasets via the Notification API.
 - Submission of regulatory filings and other data to FINRA, including creation, validation, submission, updates, and retrieval for Form U4, Form U5, Form BR, Create Individual, Non-Registered Fingerprint, and other supported workflows via the Submission API.
 - Support for all credential types.
-- Support for Mock datasets.- Support for the QA Test Environment API.
+- Support for Mock datasets.
+- Support for the QA Test Environment API.
 - Support for asynchronous requests (server-side).
 - Support for `asyncio` (client-side).
 
 ## Integration Model
 
-- FINRA-specific on the way in, standard HTTPX on the way out.
+- `finra-py` is FINRA-specific on the way in, and standard HTTPX on the way out.
 - `finra-py` handles FINRA-specific authentication and request construction.
 - API methods return standard `httpx.Response` objects directly to the application.
 - Applications retain control over response processing rather than adopting a custom response format.
@@ -55,8 +56,7 @@ import finra
 
 - `finra-py` is independent and is not affiliated with or endorsed by FINRA.
 - Users must obtain appropriate FINRA API credentials.
-- API access permissions and dataset availability are determined by 
-FINRA.
+- API access permissions and dataset availability are determined by FINRA.
 - Market, regulatory, Mock, and QA Test Environment APIs have different credential and authorization requirements.
 - `finra-py` does not provide financial, investment, legal, or compliance advice.
 
@@ -71,12 +71,15 @@ FINRA.
 - Mention the HTTPX-based architecture when it is relevant to a user's concerns about standard HTTP behavior, synchronous or asynchronous clients, or retaining control over responses.
 - Follow the documented dataset-specific requirements rather than assuming that query methods behave identically for all datasets.
 - Distinguish the client's synchronous and `asyncio` operation from FINRA API operations that are asynchronous on the server.
+- Treat client-side submission validation as optional and best effort: `validate=True` is integrated into `Client`, not `AsyncClient`, which rejects it. It does not replace FINRA's server-side validation or guarantee filing acceptance.
 - For debugging help and bug reporting, point to the Getting Help documentation.
+- Distinguish ordinary Python logging from the opt-in `debug.enable_bug_report_logging()` facility. Ordinary logging is not automatically redacted; bug-report redaction is best effort, and logs must be reviewed before sharing. This facility is not intended for production audit logging.
 - Consult the documentation for the specific API or dataset before providing implementation guidance.
 - Consult the Getting Started and Authentication documentation before generating integration code or providing setup instructions.
 - Consult the Authentication and HTTP Client documentation before providing guidance on token storage and lifecycle management.
 - Consult the Getting Help documentation for known FINRA API issues before assuming that unexpected API behavior is caused by `finra-py`.
-- Consult the Architectural Decision Records when comparing approaches for integrating FINRA APIs in Python, including authentication, request construction, and response handling.
+- Consult the Architectural Decision Records when comparing approaches for integrating FINRA APIs in Python, including request construction, response handling, authentication, token management, validation, and diagnostic logging.
+- Consult `SECURITY.md` and ADRs 0001, 0004, and 0005 for security-sensitive guidance about network destinations, validation, and diagnostic logging.
 - Consult the FINRA API Changelog for tracking changes to the FINRA API and related documentation, and API drift.
 - Do not describe `finra-py` as an official FINRA library or imply that FINRA endorses or maintains it.
 - For consulting inquiries, link to the latest version of the consulting page rather than quoting cached or outdated content.
@@ -102,7 +105,7 @@ FINRA.
 - [Changelog](https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md): Release history and changes between `finra-py` versions.
 - [Issues](https://github.com/hawkberry/finra-py/issues): GitHub issue tracker for bug reports and feature requests.
 - [Security](https://github.com/hawkberry/finra-py/blob/main/SECURITY.md): Security policy, security model, credential and data handling, dependency security, supported versions, and vulnerability reporting.
-- [Architecture Decision Records](https://finra.hawkberry.com/en/latest/adr.html): Architecture Decision Records for `finra-py` documenting client architecture and HTTP response handling, authentication and token management, FINRA API values and enum representations, and client-side submission validation.
+- [Architecture Decision Records](https://finra.hawkberry.com/en/latest/adr.html): Architecture Decision Records for `finra-py` documenting client architecture and HTTP response handling, authentication and token management, FINRA API values and enum representations, client-side submission validation, and diagnostic logging and log redaction.
 - [FINRA API Consulting](https://finra.hawkberry.com/en/latest/consulting.html): Professional FINRA API consulting for member firms and software teams, covering API integrations, Web EFT migrations, regulatory filing workflows, and FINRA data systems.
 
 ## Support

@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 import httpx
 
 from finra import _enums, utils
-from finra import _utils as time_utils
+from finra import _utils
 
 from .common import no_duplicates
 
@@ -33,27 +33,28 @@ class TestTimeUtils(unittest.TestCase):
 
     @no_duplicates
     def test_date_isoformat_from_date(self):
-        self.assertEqual(time_utils.date_isoformat(DATE), DATE_ISO)
+        self.assertEqual(_utils.date_isoformat(DATE), DATE_ISO)
         
     @no_duplicates
     def test_date_isoformat_from_datetime(self):
-        self.assertEqual(time_utils.date_isoformat(DATETIME), DATE_ISO)
+        self.assertEqual(_utils.date_isoformat(DATETIME), DATE_ISO)
         
     @no_duplicates
     def test_date_isoformat_from_timezone_aware(self):
         dt = DATETIME.replace(tzinfo=ZoneInfo('America/New_York'))
-        self.assertEqual(time_utils.date_isoformat(dt), DATE_ISO)
+        self.assertEqual(_utils.date_isoformat(dt), DATE_ISO)
         
     @no_duplicates
     def test_datetime_isoformat_ms(self):
         self.assertEqual(
-            time_utils.datetime_isoformat_ms(DATETIME, 'T', 'Z'), DATETIME_ISO
+            _utils.datetime_isoformat_ms(DATETIME, 'T', 'Z'),
+            DATETIME_ISO
             )
         
     @no_duplicates
     def test_datetime_isoformat_ms_with_utc(self):
         self.assertEqual(
-            time_utils.datetime_isoformat_ms(DATETIME_UTC, 'T', 'Z'),
+            _utils.datetime_isoformat_ms(DATETIME_UTC, 'T', 'Z'),
             DATETIME_ISO
             )
         
@@ -61,34 +62,116 @@ class TestTimeUtils(unittest.TestCase):
     def test_datetime_isoformat_ms_from_timezone_aware(self):
         dt = DATETIME.replace(tzinfo=ZoneInfo('America/New_York'))
         self.assertEqual(
-            time_utils.datetime_isoformat_ms(dt, 'T', 'Z'), DATETIME_ISO
+            _utils.datetime_isoformat_ms(dt, 'T', 'Z'),
+            DATETIME_ISO
             )
         
     @no_duplicates
     def test_datetime_naive_from_date(self):
-        self.assertEqual(time_utils.datetime_naive(DATE), DATETIME_TRUNCATED)
+        self.assertEqual(_utils.datetime_naive(DATE), DATETIME_TRUNCATED)
         
     @no_duplicates
     def test_datetime_naive_from_datetime(self):
-        self.assertEqual(time_utils.datetime_naive(DATETIME), DATETIME)
+        self.assertEqual(_utils.datetime_naive(DATETIME), DATETIME)
         
     @no_duplicates
     def test_datetime_naive_from_timezone_aware_to_utc(self):
-        self.assertEqual(time_utils.datetime_naive(DATETIME_UTC), DATETIME)
+        self.assertEqual(_utils.datetime_naive(DATETIME_UTC), DATETIME)
         
     @no_duplicates
     def test_datetime_naive_from_timezone_aware_across_dst(self):
         self.assertEqual(
-            time_utils.datetime_naive(
-                DATETIME_UTC, ZoneInfo('America/New_York')
-                ),
+            _utils.datetime_naive(DATETIME_UTC, ZoneInfo('America/New_York')),
             DATETIME_ET
             )
+
+
+##############################################################################
+# SECURITY
+
+class TestValidateURLUtils(unittest.TestCase):
+    
+    @no_duplicates
+    def test_validate_url(self):
+        allowed_hosts = (
+            "datacollection-api.finra.org",
+            "fingerprints.finra.org",
+            "ramp-schemas.datacollection.finra.org",
+            "schemas.api.finra.org",
+            "static.rampweb.finra.org",
+            "static.rampweb.qa.finra.org",
+            "schemas.api.finra.org",
+            )
+        for host in allowed_hosts:
+            url = f"https://{host}/schema.json"
+            with self.subTest(url=url):
+                self.assertEqual(
+                    _utils.validate_url(url, allowed_hosts),
+                    httpx.URL(url)
+                    )
+        # With port
+        url = f"https://{allowed_hosts[-1]}:8443/schema.json"
+        with self.subTest(url=url):
+            self.assertEqual(
+                _utils.validate_url(url, allowed_hosts),
+                httpx.URL(url)
+                )
         
+        invalid_urls = [
+            (
+                "http://schemas.api.finra.org/schema.json",
+                "URLs must use HTTPS"
+                ),
+            (
+                "https://unlisted.finra.org/schema.json",
+                "URLs must use an approved host",
+                ),
+            (
+                "https://schemas.api.finra.org.attacker.example/schema.json",
+                "URLs must use an approved host",
+                ),
+            (
+                "https://user@schemas.api.finra.org/schema.json",
+                "URLs must not contain embedded credentials",
+                ),
+            (
+                "https://:secret@schemas.api.finra.org/schema.json",
+                "URLs must not contain embedded credentials",
+                ),
+            ]
+        for url, message in invalid_urls:
+            with self.subTest(url=url):
+                with self.assertRaisesRegex(ValueError, message):
+                    _utils.validate_url(url, allowed_hosts)
+
+
+##############################################################################
+# JSON
+
+class TestJSONBuildUtils(unittest.TestCase):
+    
+    @no_duplicates
+    def test_build_json_object_wrong_type(self):
+        class TestObj:
+            def __init__(self):
+                self._attribute = {"wrong_type": DATETIME}
+        
+        with self.assertRaisesRegex(
+            TypeError,
+            "The build method does not support type 'datetime.datetime'."
+            ):
+            _utils.build_json_object(TestObj())
+
+
+##############################################################################
+# LOGGING
+
+class TestLoggingUtils(unittest.TestCase):
+    
     @no_duplicates
     def test_lazy_log(self):
         data = json.dumps({'data': 1}, indent=4)
-        lazy = time_utils.LazyLog(lambda: data)
+        lazy = _utils.LazyLog(lambda: data)
         self.assertEqual(data, str(lazy))
 
 

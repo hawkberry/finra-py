@@ -1,119 +1,116 @@
 # Security Policy for `finra-py`
 
-## Scope
+## Overview
 
-This policy applies to latest released version of `finra-py` and its direct runtime dependencies:
-
-- `authlib`
-- `httpx`
-- `jsonschema`
-- `tzdata` (Windows only)
-
-The supported version ranges for these dependencies are defined by the project's package metadata.
+| Policy Area | Evidence |
+| --- | --- |
+| Supported versions and metadata | [`pyproject.toml`](https://github.com/hawkberry/finra-py/blob/main/pyproject.toml) |
+| Dependency and supply-chain | [Dependabot](https://docs.github.com/code-security/dependabot); [Dependency Review](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependency-review); [CodeQL](https://github.com/apps/github-advanced-security) |
+| Published artifacts and provenance | [PyPI Attestations](https://pypi.org/project/finra-py/#files) |
+| Source inventory and file integrity | [Release SBOMs](https://github.com/hawkberry/finra-py/tree/main/.sbom) |
+| License and change history | [LICENSE](https://github.com/hawkberry/finra-py/blob/main/LICENSE); [CHANGELOG](https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md) |
+| Application and network boundary | [ADR 0001](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0001-client-architecture-http-boundary.md) |
+| Authentication and token storage | [ADR 0002](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0002-authentication-token-management.md); [Authentication and Client Creation](https://finra.hawkberry.com/en/latest/auth.html) |
+| Client-side submission validation | [ADR 0004](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0004-client-side-submission-validation.md) |
+| Diagnostic logging and redaction | [ADR 0005](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0005-diagnostic-logging-redaction.md); [Getting Help — Bug Reporting](https://finra.hawkberry.com/en/latest/help.html#bug-reporting) |
+| Vulnerability reporting | [GitHub Private Vulnerability Reporting](https://github.com/hawkberry/finra-py/security) |
 
 ## Supported Versions
 
-Security fixes are provided for the latest released version of `finra-py`. Older releases are not maintained as separate security-support branches.
+This policy applies to the latest released version of `finra-py` and its direct runtime dependencies: (1) `authlib`, (2) `httpx`, (3) `jsonschema`, and (4) `tzdata` (Windows only). Supported dependency ranges are defined by [`pyproject.toml`](https://github.com/hawkberry/finra-py/blob/main/pyproject.toml).
 
-A vulnerability in a supported runtime dependency may require a `finra-py` release even when no vulnerability exists in `finra-py` source code. When necessary, the minimum supported dependency version will be raised to exclude the affected versions.
+Security fixes are provided for the latest version only. Older releases are not currently maintained as separate security-support branches. Breaking changes, deprecations, removals, and security-related dependency changes are documented through the release and [CHANGELOG](https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md) where applicable.
 
-## Security Boundary
+## Dependency and Supply-Chain
 
-`finra-py` is a client-side library that runs in the calling application's process. Applications communicate directly with the FINRA API. `finra-py` constructs API requests and returns standard `httpx.Response` objects directly t the application. Application storage, retention, access control, encryption, and response processing remain the responsibility of the calling application.
+Dependency vulnerability is monitored through GitHub’s dependency graph and [Dependabot](https://docs.github.com/code-security/dependabot) alerts. As part of the automated CI workflow, [Dependency Review](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependency-review) checks dependency changes introduced through pull requests, and CI audits the resolved dependency set on pushes and pull requests. A dependency security issue may result in a `finra-py` release that changes only dependency minimums when that is sufficient to exclude an affected version.
 
-See the [Client Architecture and HTTP Response Boundary ADR](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0001-client-architecture-http-boundary.md).
+Repository security checks include GitHub [CodeQL](https://github.com/apps/github-advanced-security) and secret scanning with push protection. These controls support the `finra-py` development process but do not replace an application's own security testing or risk assessment.
 
-`finra-py` does not provide a maintainer-operated service, proxy application traffic through maintainer infrastructure, or remotely store application or API data. `finra-py` does not implement telemetry, analytics, advertising, or usage tracking.
+## Provenance and File Integrity
+
+Release distributions are built from tagged repository state and published to PyPI using Trusted Publishing. [PyPI Attestations](https://pypi.org/project/finra-py/#files) provide cryptographic proof of provenance through verifiable records for each published release.
+
+Each release also includes a versioned CycloneDX JSON SBOM in the [`.sbom/` directory](https://github.com/hawkberry/finra-py/tree/main/.sbom). The SBOM provides a machine-readable inventory of source files and dependencies, with SHA-256 hashes of the source files it inventories.
+
+## Application and Network Boundary
+
+`finra-py` is an open-source Python client library that runs in the calling application's process. It sends requests directly to the FINRA API Platform and related resources, and returns standard `httpx.Response` object directly to the application.
+
+Asynchronous status/result URLs and JSON schema retrieval are restricted to approved hosts over HTTPS, and embedded credentials are rejected. For JSON schema URLs, these constraints are applied to redirects. For FINRA API and related resource URLs, redirect following is disabled entirely. These restrictions reduce the risk of exposing access tokens to unintended hosts.
+
+Optional client-side validation checks filing data against the FINRA API's published JSON Schemas before submission, but does not replace the API's server-side validation.
+
+`finra-py` does not pass requests through a service operated by the project maintainer. `finra-py` does not remotely store application or API data, or collect telemetry, analytics, advertising, or usage data.
+
+See [ADR 0001 — Client Architecture and HTTP Response Boundary](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0001-client-architecture-http-boundary.md) and [ADR 0004 — Client-Side Submission Validation](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0004-client-side-submission-validation.md).
 
 ## Authentication and Token Storage
 
-`finra-py` uses Authlib's HTTPX integration for OAuth 2.0 authentication. API credentials are handled by the underlying OAuth2 client. OAuth token data is managed by the token manager and accessed through the configured token-storage read/write functions. By default tokens are written to a local file system location set by the application's `token_path`. Alternatively, the application can configure custom read/write functions to implement local or non-local token storage patterns.
+`finra-py` uses Authlib's HTTPX integration for OAuth 2.0 authentication. API credentials are passed to the underlying OAuth2 client, and access tokens are managed by the token manager.
 
-See the [Authentication documentation](https://finra.hawkberry.com/en/latest/auth.html) and the OAuth 2.0 ADR.
+By default, the token manager writes token state and metadata to the file at `token_path`, which contains ordinary JSON and is not encrypted by `finra-py`. Applications can instead provide custom functions to read and write tokens using other storage systems.
+
+See [ADR 0002 — Authentication and Token Management](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0002-authentication-token-management.md) and [Authentication and Client Creation](https://finra.hawkberry.com/en/latest/auth.html).
 
 ## Sensitive Data
 
 | Data | `finra-py` handling | Library-managed persistence |
 | --- | --- | --- |
-| API key and API secret | Passed to the underlying OAuth2 client | Not written to the default token file |
-| OAuth token data | Managed by the token manager and token-storage functions | `token_path` by default, or the application's custom storage callback functions |
-| Query parameters and request payloads | Constructed and sent by the client | None |
-| Submission payloads | Constructed and sent by the client | None |
+| API key and API secret | Passed to the underlying OAuth2 client | None |
+| OAuth token data | Managed by the token manager | `token_path`, or application-provided callbacks |
+| Request parameters and payloads | Constructed and sent by the client | None |
 | API responses | Returned as `httpx.Response` objects | None |
 | Asynchronous result data | Retrieved and returned by the client | None |
-| Diagnostic log data | Optional request/response logging with best-effort redaction | Only where the application configures logging output |
-| Custom schema data | Retrieved when client-side validation is configured to use a schema URL | None |
-
-Applications are responsible for protecting credentials, token data, sensitive request and response data, and diagnostic logs.
+| JSON Schema resources | Retrieved for client-side validation | In-memory schema registry only |
+| Diagnostic log data | Optional best-effort logging redaction | Depends on the configured logging output |
 
 ## Diagnostic Logging
 
-Diagnostic logging is optional and intended for troubleshooting. When enabled, it can record request and response information and applies best-effort redaction of credentials and other sensitive values.
+Diagnostic logging is optional and intended for troubleshooting. The dedicated bug-report logging facility provides **best-effort** redaction for diagnostic output intended for review and sharing. Redaction is not guaranteed, so logs should be reviewed before they are shared. Response-content redaction is only applied to response content that can be decoded as JSON. Redaction is not intended for production use due to increased performance overhead.
 
-Redaction is not a security boundary or a guarantee that sensitive information cannot appear in logs. Applications must review diagnostic logs before sharing them.
+Ordinary Python logging follows the application's logging configuration, and does not use the dedicated bug-report logging facility to redact sensitive data.
 
-For `text/plain` response content, automatic response-content redaction is not applied; a warning is emitted when that content is logged.
+See [ADR 0005 — Diagnostic Logging and Log Redaction](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0005-diagnostic-logging-redaction.md) and [Getting Help — Bug Reporting](https://finra.hawkberry.com/en/latest/help.html#bug-reporting).
 
-See the [Getting Help documentation](https://finra.hawkberry.com/en/latest/help.html).
+## Application Responsibilities
 
-## Dependency Security
+The application remains responsible for protecting its credentials, tokens, data, and diagnostic logs, and for the security of the environment in which `finra-py` runs. These responsibilities include, but are not limited to:
 
-Direct runtime dependency requirements are declared in `pyproject.toml`. GitHub's dependency graph and Dependabot alerts provide vulnerability monitoring. Automated dependency-update pull requests are not enabled. Dependency updates are made by the project maintainer.
+- **Credentials and tokens:** Storage, access control, and encryption of API credentials and OAuth tokens, including custom token-storage functions and the systems they access. The default token file is not encrypted by `finra-py`.
 
-GitHub Dependency Review checks dependency changes introduced through pull requests. CI also audits the resolved dependency set on pushes and pull requests. A dependency security issue may result in a `finra-py` release that changes only dependency minimums when that is sufficient to exclude an affected version.
+- **API environment separation:** Credentials and token storage for production, Mock, and QA Test environments.
 
-## Automated Security Checks
+- **Response and data handling:** Processing HTTP responses, classifying application data, and controlling access, retention, and deletion of data stored, cached, backed up, or passed to other systems.
 
-The repository uses GitHub CodeQL for static analysis and GitHub secret scanning with push protection. Dependency security is monitored through the GitHub dependency graph, Dependabot alerts, Dependency Review, and CI vulnerability auditing.
+- **Diagnostic logging:** Logging configuration and destinations, and the protection of sensitive information in logs. Bug-report logging provides best-effort redaction, which does not guarantee that sensitive information is classified correctly or redacted.
 
-## Release Integrity and Provenance
+- **Application security controls:** Network, endpoint, identity, access-control, monitoring, and incident-response controls for the application and its operating environment.
 
-Release distributions are built by the project's GitHub Actions release workflow from versioned repository state and published to PyPI using Trusted Publishing. PyPI publish attestations identify the Trusted Publisher used to publish each release distribution.
-
-The release process is:
-
-1. The maintainer creates and pushes the release version tag.
-2. GitHub Actions runs the test suite for the release tag and runs the release workflow.
-3. The release workflow builds and publishes the release distributions to PyPI using Trusted Publishing.
-4. PyPI records a publish attestation for each published distribution.
-
-Trusted Publishing uses short-lived identity tokens rather than a long-lived PyPI upload credential.
+These responsibilities are outside the security boundary of `finra-py`.
 
 ## Reporting a Vulnerability
 
-Please do not report suspected security vulnerabilities through a public GitHub issue.
+Please do not report suspected security vulnerabilities through a public GitHub issue. Use GitHub's [Private Vulnerability Reporting](https://github.com/hawkberry/finra-py/security) to report a suspected vulnerability. If private reporting is unavailable, use the contact address published on the [PyPI project page](https://pypi.org/project/finra-py/).
 
-Use GitHub's [Private Vulnerability Reporting](https://github.com/hawkberry/finra-py/security) to report a suspected vulnerability.
+Reports are reviewed to determine validity, severity, affected versions, and appropriate remediation or disclosure steps. The expected response process is:
 
-If private reporting is unavailable, use the contact address published on the [`finra-py` PyPI project page](https://pypi.org/project/finra-py/).
+1. Receive and acknowledge the report
+2. Assess validity and security impact
+3. Determine affected versions and remediation requirements
+4. Develop and test an appropriate fix
+5. Release the remediation through the normal release process
+6. Coordinate appropriate disclosure with the reporter
 
-We will acknowledge reports and perform an initial assessment as soon as reasonably practicable. Reports will be reviewed to determine their validity, severity, affected versions, and appropriate remediation or disclosure steps.
+### Provide Steps and Code to Reproduce the Vulnerability
 
-Please include the following information:
+1. Describe the environment. Include the `finra-py` version, Python version, operating system, and other relevant details.
+2. Describe the steps needed to reproduce the issue, the affected functionality, and relevant security impact.
+3. Provide a minimal reproducible example. If possible, isolate the issue to a small, self-contained script that uses only `finra-py`.
 
-### Describe Your Environment
+**IMPORTANT: Do not include API credentials, OAuth tokens, token-file contents, production data, personal information, or other confidential information in a vulnerability report.** See [Bug Reporting](https://finra.hawkberry.com/en/latest/help.html) for guidance on providing error and exception logs.
 
-- `finra-py` version
-- Python version
-- operating system
-- other relevant details
+### Disclosure
 
-### Steps to Reproduce the Vulnerability
+Please allow reasonable time for investigation and remediation before public disclosure. Confirmed security fixes are released through the normal project release process. Unless otherwise agreed to in writing, response and remediation timing depends on the nature and severity of the issue and is not a fixed service-level commitment. 
 
-Describe the steps needed to reproduce the issue, the affected functionality, and relevant security impact.
-
-### Code to Reproduce the Vulnerability
-
-Please provide a minimal example that reproduces the vulnerability. If possible, isolate the issue to a small, self-contained script that uses only `finra-py`.
-
-### Error/Exception Log
-
-**IMPORTANT:** Sanitize your code before sharing it. **NEVER share API credentials or the contents of your token file.**
-
-Replace all sensitive values with placeholders, including API credentials, OAuth tokens, token files, production data, personal information, or other confidential information in a report.
-
-See the [Bug Reporting facility](https://finra.hawkberry.com/en/latest/help.html) for guidance on providing error and exception logs.
-
-## Disclosure
-
-Please allow reasonable time for investigation and remediation before public disclosure. Confirmed security fixes are released through the normal project release process.

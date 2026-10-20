@@ -19,7 +19,7 @@ class Client(BaseClient):
     
     def __init__(
         self,
-        api_key: str,
+        api_key: Optional[str],
         session: Any,
         *,
         mock: bool=False,
@@ -55,7 +55,7 @@ class Client(BaseClient):
     
     @_log_wrapper("GET")
     def _get_request(self,
-        url: str,
+        url: str | httpx.URL,
         params: Optional[dict[str, Any]],
         headers: Optional[dict[str, str]]
         ) -> httpx.Response:
@@ -63,7 +63,7 @@ class Client(BaseClient):
     
     @_log_wrapper("POST")
     def _post_request(self,
-        url: str,
+        url: str | httpx.URL,
         data: Optional[dict[str, Any]],
         headers: Optional[dict[str, str]]
         ) -> httpx.Response:
@@ -71,7 +71,7 @@ class Client(BaseClient):
     
     @_log_wrapper("PUT")
     def _put_request(self,
-        url: str,
+        url: str | httpx.URL,
         data: Optional[dict[str, Any]],
         headers: Optional[dict[str, str]]
         ) -> httpx.Response:
@@ -79,7 +79,7 @@ class Client(BaseClient):
     
     @_log_wrapper("PATCH")
     def _patch_request(self,
-        url: str,
+        url: str | httpx.URL,
         data: Optional[dict[str, Any]],
         headers: Optional[dict[str, str]]
         ) -> httpx.Response:
@@ -87,7 +87,7 @@ class Client(BaseClient):
     
     @_log_wrapper("DELETE")
     def _delete_request(self,
-        url: str,
+        url: str | httpx.URL,
         _: Optional[dict[str, Any]],
         headers: Optional[dict[str, str]]
         ) -> httpx.Response:
@@ -96,7 +96,7 @@ class Client(BaseClient):
     @_log_wrapper("GET RESOURCE") # request for pre-signed URLs
     def _get_resource_request(
         self,
-        url: str,
+        url: str | httpx.URL,
         params: Optional[dict[str, Any]],
         headers: Optional[dict[str, str]]
         ) -> httpx.Response:
@@ -110,6 +110,7 @@ class Client(BaseClient):
         Fetch a new token from the `FINRA Identity Platform
         <https://developer.finra.org/docs#
         getting_started-api_platform_basics-authorization>`__.
+        Requires a token manager.
         
         :param args: Arguments passed to the ``token_write_func``
         :param kwds: Keyword arguments passed to the ``token_write_func``

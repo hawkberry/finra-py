@@ -29,8 +29,8 @@ class TokenManager:
     
     :param token: The raw token managed by this object
     :param created_timestamp: The timestamp when the token was created
-    :param token_write_func: Callable that accepts the raw token as an argument
-        and writes it to disk or another storage location
+    :param token_write_func: Callable that accepts the token as an argument and
+        writes it to disk or another storage location
     """
     
     def __init__(
@@ -86,7 +86,7 @@ class TokenManager:
         :return: The value returned by ``token_write_func``
         """
         self.token = token
-        self.created_timestamp = int(time.time())
+        self.created_timestamp = int(time.time()) # update created timestamp
         return self._token_write_func(
             self._wrap_metadata(token), *args, **kwds
             )
@@ -99,18 +99,18 @@ class TokenManager:
         ) -> Self:
         """
         Construct a new :py:class:`TokenManager` object from the metadata of
-        the provided ``token``. If the ``token`` has no metadata, a
-        ``ValueError`` is raised, indicating that the ``token`` is invalid, and
-        a new one must be created.
+        the provided ``token``. If the ``token`` does not have the expected
+        metadata, a ``ValueError`` is raised, indicating that the ``token`` is
+        invalid, and a new one must be created.
         
         :param token: The wrapped token, wrapped in metadata
-        :param token_write_func: Function that accepts a raw token and writes
-            it to disk or other persistent storage
+        :param token_write_func: Function that accepts a token and writes it to
+            disk or other persistent storage
         """
-        if "created_timestamp" not in token:
+        if not ("token" in token and "created_timestamp" in token):
             raise ValueError(
-                "WARNING: The token format has changed since this token "
-                "was created. Delete it and create a new one."
+                "The token does not contain the expected metadata fields. "
+                "Delete it and create a new one."
                 )
         
         return cls(

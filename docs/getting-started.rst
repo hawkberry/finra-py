@@ -59,7 +59,7 @@ The easiest way to create a client is with the :py:func:`get_client() <finra.aut
   c = get_client(
       api_key="API_KEY",                  # replace with your API key
       api_secret="API_SECRET",            # replace with your API secret
-      token_path="/tmp/finra/token.json"  # replace with your secure location
+      token_path="/path/to/token.json"    # replace with your secure location
       )
 
 For more information about creating clients, see :ref:`auth`. For details on basic client functionality, see :ref:`client`. For a thorough description of options for requesting datasets, see :ref:`query`.
@@ -144,7 +144,7 @@ When you're done with the client, connections should be closed properly to free 
   finally:
       c.close()               # close manually
 
-Alternatively, the :py:class:`Client <finra.client.Client>` can be used as a context manager.
+Alternatively, the :py:class:`Client <finra.client.Client>` can be used as a context manager and closes automatically when exiting the context block.
 
 .. code-block:: python
 
@@ -170,7 +170,7 @@ Security
 
 Please report security vulnerabilities privately using GitHub's Private Vulnerability Reporting, rather than as a normal bug report. See the `Security Policy <https://github.com/hawkberry/finra-py/blob/main/SECURITY.md>`__ for more information.
 
-The policy includes additional security information specific to ``finra-py``, including credential and token handling, sensitive data, diagnostic logging, dependency security, and supported releases.
+The policy includes additional security information specific to ``finra-py``, including credential and token handling, sensitive data, diagnostic logging, dependency security, release provenance, SBOMs, and supported releases.
 
 ++++++++++++++++++++
 FINRA API Consulting
@@ -180,5 +180,5 @@ Need help with a custom integration?
 
 As the author and maintainer of ``finra-py``, I provide consulting on FINRA API integrations, Web EFT migrations, compliance-related workflows, and market data systems.
 
-See the `consulting page <https://finra-py.readthedocs.io/en/latest/consulting.html>`__ for more information.
+See the `consulting page <https://finra.hawkberry.com/en/latest/consulting.html>`__ for more information.
 

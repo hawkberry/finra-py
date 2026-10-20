@@ -74,7 +74,7 @@ The following example builds an initial submission using :py:attr:`FilingStatus.
       f.set_filing_status(f.FilingStatus.SUBMITTED)  # finalize submission
        .set_filing_type(f.FilingType.INITIAL)        # initial filing
        .set_filing_data({...})                       # add some filing data
-  )                                                  # methods chained in-line
+  )                                                  # methods chained inline
   
   r = c.form_br_submission(filing=f)                 # submit the filing
   
@@ -113,7 +113,7 @@ The primary advantage of using draft submissions is that they can be updated and
       f.set_filing_status(f.FilingStatus.DRAFT)  # draft submission
        .set_filing_type(f.FilingType.INITIAL)    # initial filing
        .set_filing_data({...})                   # add some filing data
-  )                                              # methods chained in-line
+  )                                              # methods chained inline
   
   r = c.form_br_submission(filing=f)             # submit the draft
   
@@ -147,7 +147,7 @@ A server-side completeness check can be triggered for submissions in ``DRAFT`` s
       f.set_filing_status(f.FilingStatus.VALIDATE)  # validate submission
        .set_filing_type(f.FilingType.INITIAL)       # initial filing
        .set_filing_data({...})                      # add some filing data
-  )                                                 # methods chained in-line
+  )                                                 # methods chained inline
   
   r = c.form_br_submission(filing=f)                # validate the filing
   
@@ -355,9 +355,9 @@ Client-side validation is available through the :py:class:`Client <finra.client.
 
 Client-side validation uses the :py:class:`Validator <finra.filings.validator.Validator>` class to validate filing data and metadata on the client-side before it is submitted to the API. Client-side validation is completely optional, and is not intended as a replacement for the API's server-side validation process. However, it can be used as a supplemental tool to catch errors prior to submission.
 
-The :py:class:`Validator <finra.filings.validator.Validator>` class validates a filing's JSON object against its JSON Schema, which defines the expected structure and allowed values for the object. It is effectively a proxy for the ``jsonschema.Draft7Validator``, which can validate JSON objects against schemas that follow the `JSON Schema Draft 7 <https://json-schema.org/draft-07>`__ specification. See more information about the ``jsonschema`` validation process `here <https://python-jsonschema.readthedocs.io/en/stable/validate/>`__.
+The :py:class:`Validator <finra.filings.validator.Validator>` class validates a filing's JSON object against its JSON Schema, which defines the expected structure and allowed values for the object. It is effectively a proxy for the ``jsonschema.Draft7Validator`` class, which can validate JSON objects against schemas that follow the `JSON Schema Draft 7 <https://json-schema.org/draft-07>`__ specification. See more information about the ``jsonschema`` validation process `here <https://python-jsonschema.readthedocs.io/en/stable/validate/>`__.
 
-During client-side validation, the schemas are fetched directly from the API and stored in memory, and are accessible from the client's ``schema_registry`` attribute. This significantly reduces validation time because each schema component only needs to be fetched once. To free up resources when all validation is complete, and the schemas are no longer needed, just clear the schema registry.
+During client-side validation, the schemas are fetched directly from the API and stored in memory, and are accessible from the client's ``schema_registry`` attribute. This significantly reduces validation time because each schema component only needs to be fetched once. To free up resources when all validation is complete, and the schemas are no longer needed, just clear the schema registry. For more information about this design and implementation, see `ADR 0004 - Client-Side Submission Validation <https://github.com/hawkberry/finra-py/blob/main/docs/adr/0004-client-side-submission-validation.md>`__.
 
 To perform client-side validation within a client's submission method, set ``validate=True``. If the filing passes, it will then be submitted to the API. If it fails, a ``jsonschema.ValidationError`` will be raised.
 

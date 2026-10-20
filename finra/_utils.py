@@ -1,10 +1,14 @@
 from datetime import date, datetime, timezone
 from typing import Any, Callable
 
+import httpx
+
+
 __all__ = [
     "date_isoformat",
     "datetime_isoformat_ms",
     "datetime_naive",
+    "validate_url",
     "build_json_object",
     "LazyLog",
     ]
@@ -56,6 +60,34 @@ def datetime_naive(dt: date | datetime, tz=timezone.utc) -> datetime:
 
 
 ##############################################################################
+# SECURITY
+
+def validate_url(
+    url: str | httpx.URL,
+    allowed_hosts: tuple[str, ...]
+    ) -> httpx.URL:
+    """
+    Validate a URL before making an authenticated request.
+    
+    :param url:
+    :param allowed_hosts:
+    """
+    parsed = httpx.URL(url)
+    
+    if parsed.scheme != "https":
+        raise ValueError("URLs must use HTTPS")
+    
+    if parsed.username or parsed.password:
+        raise ValueError("URLs must not contain embedded credentials")
+    
+    if parsed.host.lower() not in allowed_hosts:
+        _allowed = ", ".join([f"'{host}'" for host in allowed_hosts])
+        raise ValueError(f"URLs must use an approved host: {_allowed}")
+    
+    return parsed
+
+
+##############################################################################
 # JSON
 
 def build_json_object(obj: object | Any) -> Any:
@@ -75,9 +107,18 @@ def build_json_object(obj: object | Any) -> Any:
     if isinstance(obj, list): # lists are processed recursively
         return [build_json_object(v) for v in obj]
     
+    try:
+        _obj = vars(obj)
+    except TypeError as exc:
+        exc.args = (
+            f"{exc}. The build method does not support type "
+            f"'{obj.__class__.__module__}.{obj.__class__.__qualname__}'.",
+            )
+        raise
+    
     return {
         k[1:]: build_json_object(v)
-        for k, v in vars(obj).items()
+        for k, v in _obj.items()
         if k[0] == "_" and v is not None
         } # objects have underscore attributes iterated recursively if not None
 

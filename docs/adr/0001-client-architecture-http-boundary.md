@@ -1,137 +1,122 @@
-# ADR: Client Architecture and HTTP Response Boundary
+# ADR 0001: Client Architecture and HTTP Response Boundary
 
 - **Status:** Accepted
-- **Date:** 2026-08-09
+- **Decision Date:** 2026-08-09
 
 ## Context
 
-`finra-py` provides a Python interface to the FINRA API Platform. The client is responsible for translating Python-level operations into requests understood by FINRA, including authentication, endpoint selection, dataset-specific parameters, filtering, sorting, pagination, partitions, notifications, and regulatory submissions.
+`finra-py` provides a Python interface to the FINRA API Platform. It translates Python operations into FINRA API requests and centralizes FINRA-specific behavior, including authentication, request construction, endpoint selection (data, metadata, partitions, and datasets), field selection, filtering, sorting, pagination, server-side asynchronous requests, content-type handling, dataset-specific parameters, notifications, regulatory filings, and submission functionality. This saves applications from implementing that functionality themselves.
 
-The client must provide enough FINRA-specific functionality to make these operations practical from Python without imposing a separate application-level interface for standard HTTP behavior.
+`finra-py` uses HTTPX for HTTP communication, a well-established Python library with support for synchronous and `asyncio`-based requests. It does not add a separate interface for standard HTTP behavior or replace HTTPX responses with `finra-py`-specific response objects or data models.
 
-In particular, applications should be able to use the capabilities of a dedicated FINRA client while retaining direct access to the HTTP response and its standard semantics.
+This keeps the division clear: `finra-py` handles FINRA-specific API behavior while returning standard `httpx.Response` objects directly to applications. Applications can inspect response status codes, headers, and content, and control any further processing, validation, or persistence. Higher-level features for specific FINRA API operations can still be added, provided they do not hide or replace the underlying `httpx.Response`.
 
 ## Data Flow
 
-                       Normal HTTP path:
-                    +----------------------+
-                    | Calling application  |
-                    +----------+-----------+
-                               |
-                               v
-                    +----------------------+
-                    |      finra-py        |
-                    +----------+-----------+
-                               |
-                      access token needed?
-                          /          \
-                        yes           no
-                        |              |
-                        v              |
-             +---------------------+   |
-             | FINRA Identity      |   |
-             | Platform (FIP)      |   |
-             +----------+----------+   |
-                        |              |               Async result retrieval (3rd leg):
-                   access token        |                   +----------------------+
-                        |              |                   |  Calling application |
-                        +------+-------+                   +----------------------+
-                               |                                      |
-                               v                                      v
-                    +----------------------+               +----------------------+
-                    |      finra-py        |               |      finra-py        |
-                    +----------+-----------+               +----------+-----------+
-                               |                                      |
-                      bearer-authenticated                   pre-signed result URL
-                          API request                                 |
-                               |                                      |
-                               v                                      v
-                    +----------------------+               +----------------------+
-                    | FINRA API Platform   |               | FINRA result resource|
-                    +----------+-----------+               +----------+-----------+
-                               |                                      |
-                          HTTP response                          HTTP response
-                               |                                      |
-                               v                                      v
-                    +----------------------+               +----------------------+
-                    |      finra-py        |               |      finra-py        |
-                    +----------+-----------+               +----------------------+
-                               |                                      |
-                               v                                      v
-                    +----------------------+               +----------------------+
-                    | Calling application  |               |  Calling application |
-                    +----------------------+               +----------------------+
+```text
+                 Normal HTTP path
+             ┌──────────────────────┐
+             │ Calling application  │
+             └──────────┬───────────┘
+                        ▼
+             ┌──────────────────────┐
+             │      finra-py        │
+             └──────────┬───────────┘
+                        │
+               access token needed?
+                   ╱          ╲
+                yes            no
+                 │              │
+                 ▼              │
+      ┌─────────────────────┐   │
+      │   FINRA Identity    │   │
+      │   Platform (FIP)    │   │
+      └──────────┬──────────┘   │             Async result retrieval (3rd leg)
+                 │              │                 ┌──────────────────────┐
+            access token        │                 │ Calling application  │
+                 └──────┬───────┘                 └──────────┬───────────┘
+                        ▼                                    ▼
+             ┌──────────────────────┐             ┌──────────────────────┐
+             │      finra-py        │             │      finra-py        │
+             └──────────┬───────────┘             └──────────┬───────────┘
+                        │                                    │
+               bearer-authenticated                 pre-signed result URL
+                   API request                               │
+                        │                                    │
+                        ▼                                    ▼
+             ┌──────────────────────┐             ┌──────────────────────┐
+             │  FINRA API Platform  │             │ Async Result Server  │
+             └──────────┬───────────┘             └──────────┬───────────┘
+                        │                                    │
+                  HTTP response                        HTTP response
+                        │                                    │
+                        ▼                                    ▼
+             ┌──────────────────────┐             ┌──────────────────────┐
+             │      finra-py        │             │      finra-py        │
+             └──────────┬───────────┘             └──────────┬───────────┘
+                        ▼                                    ▼
+             ┌──────────────────────┐             ┌──────────────────────┐
+             │ Calling application  │             │ Calling application  │
+             └──────────────────────┘             └──────────────────────┘
+```
 
 ## Decision
 
-`finra-py` will maintain a **direct, standards-based HTTP boundary** while providing **FINRA-specific interfaces for request construction and API operations**.
+**`finra-py` is FINRA-specific on the way in, and standard HTTPX on the way out.**
+
+`finra-py` communicates directly with FINRA’s API Platform and related resources over HTTPS. It provides FINRA-specific interfaces for constructing requests and performing API operations, and returns `httpx.Response` objects directly to the calling application.
 
 Specifically:
 
-- FINRA-specific authentication and request construction are handled by `finra-py`.
-- The client provides dedicated interfaces for the FINRA Query, Notification, and Submission APIs.
-- FINRA-specific concepts are represented through Python interfaces such as dataset-specific methods, enums, filters, and submission functionality where appropriate.
-- API requests return standard `httpx.Response` objects directly to the caller.
-- The client does not replace HTTP responses with a custom response type or impose a separate response-processing model.
-- Applications retain control over response status, headers, content, and payload processing.
-- OAuth 2.0 authentication and token lifecycle management are handled through the client's authentication facilities.
-- The client supports both synchronous and `asyncio`-based client operation.
-- The client does not prescribe how applications represent, transform, validate, persist, or otherwise consume API response data.
-- No maintainer-operated service sits between the calling application and the endpoints used by `finra-py`.
-
-## Rationale
-
-A dedicated FINRA client is valuable because the FINRA API has concepts and requirements that should not have to be reconstructed by every application. Authentication, endpoint selection, dataset parameters, filtering, pagination, partitions, notifications, submissions, and other FINRA-specific operations belong at the client interface.
-
-HTTP responses are different. HTTP already provides a well-established interface, and HTTPX provides a standard Python implementation of that interface. Replacing the response with a `finra-py`-specific abstraction would add another interface without solving a FINRA-specific problem.
-
-Returning `httpx.Response` therefore establishes a clear boundary:
-
-**FINRA-specific on the way in, standard HTTPX on the way out.**
-
-This gives applications the convenience of a dedicated FINRA client while preserving the control and familiarity of the underlying HTTP interface.
-
-The same principle applies to response processing. `finra-py` should not assume whether an application wants to deserialize JSON, inspect headers, handle particular status codes, persist raw responses, transform records into application models, or apply additional validation. Those are application concerns.
+1. `finra-py` handles FINRA-specific authentication and request construction.
+2. `finra-py` provides dedicated interfaces for the FINRA Query, Notification, and Submission APIs.
+3. `finra-py` represents FINRA-specific concepts through Python interfaces, **such as**:
+   a. dataset-specific methods
+   b. endpoint enums
+   c. field enums for selection and sorting
+   d. filter objects for value comparisons, domains, and date ranges
+   e. pagination parameters
+   f. parameters and methods for multi-leg server-side asynchronous requests
+   g. response content-type parameters
+   h. other dataset-specific parameters
+   i. filing objects for building regulatory submissions
+   j. submission functionality for regulatory filings
+4. `finra-py` does not introduce a custom response type or separate response-processing model. API requests return standard `httpx.Response` objects directly to the caller.
+5. Applications control how they handle response status, headers, and content, and how they process, represent, transform, validate, or persist response data.
+6. `finra-py` provides OAuth 2.0 authentication and token lifecycle management.
+7. `finra-py` provides synchronous and asynchronous (`asyncio`) clients.
+8. No maintainer-operated service sits between the calling application and FINRA API endpoints or related resources.
+9. For server-side asynchronous check status and result requests, `finra-py` restricts URL locations to approved hosts and disables automatic redirect following, to reduce the risk of exposing access tokens to unintended hosts.
 
 ## Consequences
 
 ### Positive
 
 - Applications do not need to implement FINRA-specific request construction themselves.
-- Standard HTTPX response behavior remains available to applications.
-- Applications are not coupled to a `finra-py` response model.
+- Applications retain access to standard `httpx.Response` behavior.
+- Applications are not coupled to a `finra-py`-specific response model.
 - FINRA-specific functionality can be exposed through purpose-built Python interfaces without obscuring the HTTP layer.
-- Applications retain control over response processing and data representation.
+- Applications control how responses are processed and how data is represented.
 - The client has a clearly defined boundary between FINRA-specific behavior and general HTTP behavior.
-- Synchronous and `asyncio` client usage can be supported using the same `finra-py` `BaseClient` class by using either synchronous or asynchronous HTTPX clients.
+- Synchronous and `asyncio`-based operation use the same underlying `finra-py` `BaseClient` class with either a synchronous or asynchronous HTTPX client.
+- Asynchronous URL validation and disabled automatic redirects reduce the risk of exposing access tokens to unintended hosts.
 
 ### Negative
 
 - Applications are responsible for processing returned responses.
 - Applications must understand standard HTTP response semantics.
-- `finra-py` does not automatically impose a single Python representation for all returned FINRA data.
-- Applications requiring domain-specific models or additional response processing must implement those concerns themselves.
+- Applications that require domain-specific models or additional response processing must implement those themselves.
 
 ## Alternatives Considered
 
 ### Raw HTTPX Requests
 
-Applications could use HTTPX directly and construct FINRA API requests themselves.
+Client query methods could have applications construct FINRA API requests themselves using raw HTTPX. This would preserve the HTTP boundary, but each application would need to implement FINRA-specific behavior independently, including all of the features implemented by `finra-py` listed in the Context section above.
 
-This would preserve the standard HTTP boundary but would require each application to independently implement FINRA-specific authentication, endpoint construction, dataset parameters, filtering, pagination, partitions, notifications, submissions, and related behavior.
+This was rejected because it would require applications to implement the core FINRA API functionality themselves.
 
-This was rejected because it duplicates FINRA-specific client functionality across applications.
+### Custom Responses and Data Models
 
-### Custom Response and Data Abstraction
+The client could convert `httpx.Response` objects into `finra-py`-specific response objects or data models.
 
-The client could convert HTTP responses into `finra-py`-specific response objects or automatically transform returned data into higher-level Python models.
-
-This was rejected because it would replace an established HTTP interface with a library-specific representation and would impose assumptions about how applications should consume FINRA data.
-
-The application, rather than the client library, should determine how returned data is represented and processed.
-
-## Scope
-
-This decision establishes the architectural boundary between FINRA-specific client functionality and standard HTTP behavior.
-
-It does not prohibit higher-level functionality where that functionality addresses a specific FINRA API requirement. Such functionality should preserve the direct HTTP response boundary unless there is a separate architectural decision establishing otherwise.
+This was rejected because it would replace the established `httpx.Response` interface with a library-specific representation and would impose assumptions about how applications should consume FINRA data. Applications should determine how returned data is represented and processed, rather than the client library.

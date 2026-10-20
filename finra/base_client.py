@@ -15,7 +15,8 @@ import httpx
 
 from . import _enums
 from ._utils import (
-    date_isoformat, datetime_isoformat_ms, datetime_naive, LazyLog,
+    LazyLog, date_isoformat, datetime_isoformat_ms, datetime_naive,
+    validate_url,
     )
 from .enum_converter import _add_require_enums_docs, E, EnumConverter, EnumStr
 from .exceptions import MockException, QATestEnvException, _type_error
@@ -28,7 +29,7 @@ from .filings.form_u5 import FormU5
 from .filings.non_registered_fingerprint import NonRegisteredFingerprint
 from .filings.validator import Validator
 from .log_redactor import (
-    _LOG_REDACTOR, register_redactions, register_redactions_from_response,
+    register_redactions, register_redactions_from_response,
     )
 from .token_manager import TokenManager, TokenType
 
@@ -64,6 +65,26 @@ SortFieldsType: TypeAlias = _SortFieldsType[E] | Iterable[_SortFieldsType[E]]
 _TZ = ZoneInfo("America/New_York") # FINRA API server timezone
 
 
+# Allowed hosts for asynchronous check status URLs
+_CHECK_STATUS_WHITELIST = (
+    "api.finra.org",
+    "api-int.finra.org",
+    "api-int.qa.finra.org",
+    )
+
+
+# Allowed hosts for asynchronous result URLs
+_PROD_RESULT_WHITELIST = (
+    "5101-9919-3688-rampweb.s3.amazonaws.com",
+    "5101-9919-3688-dapi.s3.amazonaws.com",
+    )
+
+_QA_RESULT_WHITELIST = (
+    "1422-4800-0760-rampweb.s3.amazonaws.com",
+    "1422-4800-0760-dapi.s3.amazonaws.com",
+    )
+
+
 ##############################################################################
 # LOGGING
 
@@ -81,7 +102,6 @@ _REQUEST_COUNTER = count()
 # Required: request_type string for API calls
 def _log_wrapper(request_type: str) -> Callable:
     logger = get_logger()
-    
     log_resp = "%s: %s response: %s, content=%s"
     
     def log_response(response, request_count) -> None:
@@ -116,7 +136,7 @@ def _log_wrapper(request_type: str) -> Callable:
             "%s: %s to %s, params=%s"
             if request_type == "GET"
             else "%s: %s to %s, data=%s"
-            ) # POST, PATCH, PUT
+            )
         
         def log_request(url, data) -> int:
             request_count = next(_REQUEST_COUNTER)
@@ -132,14 +152,15 @@ def _log_wrapper(request_type: str) -> Callable:
             
             @wraps(func)
             async def wrapper(self, url, data, headers) -> httpx.Response:
-                debug = logger.level <= logging.DEBUG
+                debug = logger.isEnabledFor(logging.DEBUG)
                 if debug:
                     request_count = log_request(url, data)
                 try:
                     response = await func(self, url, data, headers)
                 except Exception:
-                    logging.error(
-                        "%s: %s", request_count, request_type, exc_info=True
+                    logger.error(
+                        "%s: %s", request_count if debug else -1,
+                        request_type, exc_info=True
                         )
                     raise
                 
@@ -151,14 +172,15 @@ def _log_wrapper(request_type: str) -> Callable:
             
             @wraps(func)
             def wrapper(self, url, data, headers) -> httpx.Response:
-                debug = logger.level <= logging.DEBUG
+                debug = logger.isEnabledFor(logging.DEBUG)
                 if debug:
                     request_count = log_request(url, data)
                 try:
                     response = func(self, url, data, headers)
                 except Exception:
-                    logging.error(
-                        "%s: %s", request_count, request_type, exc_info=True
+                    logger.error(
+                        "%s: %s", request_count if debug else -1,
+                        request_type, exc_info=True
                         )
                     raise
                 
@@ -176,7 +198,8 @@ def _log_wrapper(request_type: str) -> Callable:
 
 def _add_client_init_docs(cls: type, session_info: Any) -> None:
     init_params = f"""
-:param api_key: FINRA API key
+:param api_key: DEPRECATED. Unused. Retained for backward compatibility and
+    will be removed as an argument in Version 2.0.
 :param session: {session_info} configured with FINRA API credentials
     and token information
 :param mock: Option to use Mock API datasets. This requires the session to be
@@ -213,11 +236,13 @@ def _add_params_docs(
     limit_sync_max: Optional[int]=5_000,
     limit_async_max: Optional[int]=100_000
     ) -> None:
+    
     _limit_default = format(limit_default, ",")
     if limit_sync_max is not None:
         _limit_sync_max = format(limit_sync_max, ",")
     if limit_async_max is not None:
         _limit_async_max = format(limit_async_max, ",")
+    
     _params = []
     for p in params:
         
@@ -437,8 +462,8 @@ class BaseClient(EnumConverter, ABC):
     
     def __init__(
         self,
-        api_key: str,
-        session: Any, # authlib typing stubs are janky
+        api_key: Optional[str], # DEPRECATED, will be removed in v2.0
+        session: Any, # authlib oauth2 or unauthenticated httpx
         *, mock: bool=False,
         test_environment: bool=False,
         token_manager: Optional[TokenManager]=None,
@@ -449,6 +474,7 @@ class BaseClient(EnumConverter, ABC):
         super().__init__(require_enums)
         
         self._session = session
+        self._session.follow_redirects = False # explicitly set
         
         if test_environment: # QA Test Environment
             self._base_url = "https://api-int.qa.finra.org"
@@ -463,8 +489,6 @@ class BaseClient(EnumConverter, ABC):
         self.set_timeout(timeout) # set default timeout, in seconds
         self.set_default_accept_json(accept_json) # set default accept type
         
-        _LOG_REDACTOR.register(api_key, "API_KEY")
-    
     
     ##########################################################################
     # ABSTRACT
@@ -472,7 +496,7 @@ class BaseClient(EnumConverter, ABC):
     @abstractmethod
     def _get_request(
         self,
-        url: str,
+        url: str | httpx.URL,
         params: Optional[dict[str, Any]],
         headers: Optional[dict[str, str]]
         ):
@@ -481,7 +505,7 @@ class BaseClient(EnumConverter, ABC):
     @abstractmethod
     def _post_request(
         self,
-        url: str,
+        url: str | httpx.URL,
         data: Optional[dict[str, Any]],
         headers: Optional[dict[str, str]]
         ):
@@ -490,7 +514,7 @@ class BaseClient(EnumConverter, ABC):
     @abstractmethod
     def _put_request(
         self,
-        url: str,
+        url: str | httpx.URL,
         data: Optional[dict[str, Any]],
         headers: Optional[dict[str, str]]
         ):
@@ -499,7 +523,7 @@ class BaseClient(EnumConverter, ABC):
     @abstractmethod
     def _patch_request(
         self,
-        url: str,
+        url: str | httpx.URL,
         data: Optional[dict[str, Any]],
         headers: Optional[dict[str, str]]
         ):
@@ -508,7 +532,7 @@ class BaseClient(EnumConverter, ABC):
     @abstractmethod
     def _delete_request(
         self,
-        url: str,
+        url: str | httpx.URL,
         _: Optional[dict[str, Any]],
         headers: Optional[dict[str, str]]
         ):
@@ -517,7 +541,7 @@ class BaseClient(EnumConverter, ABC):
     @abstractmethod
     def _get_resource_request(
         self,
-        url: str,
+        url: str | httpx.URL,
         params: Optional[dict[str, Any]],
         headers: Optional[dict[str, str]]
         ):
@@ -594,7 +618,6 @@ class BaseClient(EnumConverter, ABC):
         register_redactions(token)
         if self._token_manager is None:
             raise ValueError("Token Manager not set")
-        
         return self._token_manager.update_token(token, *args, **kwds)
     
     def get_timeout(self) -> Optional[float]:
@@ -658,7 +681,7 @@ class BaseClient(EnumConverter, ABC):
     ##########################################################################
     # ASYNC REQUEST METHODS
     
-    def get_async_request_status(self, check_status_link: str):
+    def get_async_request_status(self, check_status_link: str | httpx.URL):
         """
         Second leg: check the current status of an asynchronous request.
         
@@ -668,19 +691,19 @@ class BaseClient(EnumConverter, ABC):
         
         Helper functions for extracting metadata from responses are available
         in the :py:mod:`utils <finra.utils>` module. Specifically see:
-        :py:func:`extract_location() <finra.utils.extract_location>` and
-        :py:func:`extract_check_status_link()
-        <finra.utils.extract_check_status_link>`.
+        
+        - :py:func:`extract_location() <finra.utils.extract_location>`
+        - :py:func:`extract_check_status_link()
+          <finra.utils.extract_check_status_link>`
         
         See :ref:`async_requests` for more information and examples.
         
         :param check_status_link: Check Status Link URL
         """
-        return self._get_request(
-            check_status_link, None, self._prepare_headers(True, None)
-            )
+        url = validate_url(check_status_link, _CHECK_STATUS_WHITELIST)
+        return self._get_request(url, None, self._prepare_headers(True, None))
     
-    def get_async_result(self, result_link: str):
+    def get_async_result(self, result_link: str | httpx.URL):
         """
         Final leg: retrieve the result of a completed asynchronous request.
         
@@ -691,17 +714,22 @@ class BaseClient(EnumConverter, ABC):
         Helper functions for extracting metadata from response objects are
         available in the :py:mod:`utils <finra.utils>` module.
         Specifically see:
-        :py:func:`extract_status() <finra.utils.extract_status>`,
-        :py:func:`extract_result_link() <finra.utils.extract_result_link>`, and
-        :py:func:`extract_expires() <finra.utils.extract_expires>`.
+        
+        - :py:func:`extract_status() <finra.utils.extract_status>`
+        - :py:func:`extract_result_link() <finra.utils.extract_result_link>`
+        - :py:func:`extract_expires() <finra.utils.extract_expires>`
         
         See :ref:`async_requests` for more information and examples.
         
         :param result_link: Result Link URL
         """
+        if self.test_environment:
+            url = validate_url(result_link, _QA_RESULT_WHITELIST)
+        else:
+            url = validate_url(result_link, _PROD_RESULT_WHITELIST)
         if not getattr(self, "_resource_session", None):
             self._set_resource_session()
-        return self._get_resource_request(result_link, None, None)
+        return self._get_resource_request(url, None, None)
     
     
     ##########################################################################
@@ -993,8 +1021,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Aggregated ATS trade data for NMS stocks that meets certain share based
-        and dollar based thresholds.
+        Aggregated ATS trade data for NMS stocks that meets certain share and
+        dollar based thresholds.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1031,7 +1059,7 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Aggregated OTC (Non-ATS) trade data for NMS stocks that meets certain
-        share based and dollar based thresholds.
+        share and dollar based thresholds.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1074,14 +1102,14 @@ class BaseClient(EnumConverter, ABC):
         
         `FINRA Rule 4560
         <https://www.finra.org/rules-guidance/rulebooks/finra-rules/4560>`__
-        requires FINRA member firms to report their short
-        positions in all over-the-counter (OTC) equity securities to FINRA.
-        OTC short interest is available for equities by issue, or by short
-        position, for a one year rolling window based on the settlement date.
+        requires FINRA member firms to report their short positions in all OTC
+        equity securities to FINRA twice a month. OTC short interest is
+        available for equities by issue, or by short position, for a one year
+        rolling window based on the settlement date.
         
-        According to FINRA, the Consolidated Short Interest data should be
-        available by 4:40 PM ET on the publication date. For the publication
-        schedule, see `here <https://www.finra.org/filing-reporting/
+        According to FINRA, the data should be available by 4:40 PM ET on the
+        publication date. See the `publication schedule
+        <https://www.finra.org/filing-reporting/
         regulatory-filing-systems/short-interest>`__.
         
         Requires Public, Firm or Organization API credentials.
@@ -1125,7 +1153,8 @@ class BaseClient(EnumConverter, ABC):
         short sale volume.
         
         Daily short sale aggregated volume by security for all short sale
-        trades executed and reported to a FINRA trade reporting facility.
+        trades executed and reported to a FINRA trade reporting facility. Data
+        is only provided for a 12-month rolling window.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1211,7 +1240,7 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Weekly aggregate OTC (ATS and non-ATS) trade data reported by firms and
-        ATSs subject to FINRA trade-reporting requirements.
+        ATSs that are subject to FINRA trade-reporting requirements.
         
         The production dataset contains a twelve month rolling window of data.
         
@@ -1267,11 +1296,10 @@ class BaseClient(EnumConverter, ABC):
         
         Due to the volume of data, use an async request (by setting
         ``async_request=True``) whenever querying time periods that exceed one
-        week, or if timeout errors occur. Data older than one year is static
-        and is not updated. Do not repeatedly download older data expecting
-        updates.
+        week, or if timeout errors occur. Historical data is static and not
+        updated. Do not repeatedly download older data expecting updates.
         
-        In addition, this dataset does not support sorting or filtering.
+        This dataset does not support sorting or filtering.
         
         No mock API available.
         
@@ -1395,8 +1423,8 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Monthly aggregate OTC (non-ATS) trade data reported by firms subject to
-        FINRA trade-reporting requirements.
+        Monthly aggregate OTC (non-ATS) trade data reported by firms that are
+        subject to FINRA trade-reporting requirements.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1436,12 +1464,11 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        OTC Daily List is a list of new issues, deleted issues, symbol and name
-        changes, and other corporate actions for over-the-counter (OTC) equity
-        securities, as well as historical OTC Bulletin Board (OTCBB)
-        securities. OTCBB was a FINRA interdealer quotation system that was
-        retired in November 2021. The dataset provides the same data as
-        available at `OTCE Daily List
+        The OTC Daily List covers new and deleted issues, symbol and name
+        changes, and other corporate actions involving OTC equity securities,
+        along with historical OTC Bulletin Board (OTCBB) securities. OTCBB was
+        a FINRA interdealer quotation system, retired in November 2021. This
+        dataset contains the same data as the `OTCE Daily List
         <https://otce.finra.org/otce/dailyList>`__.
         
         Requires Public, Firm or Organization API credentials.
@@ -1479,17 +1506,18 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Daily pricing statistics for Agency Pass-Thru Mortgage-Backed
-        Securities (MBS) traded through To-Be-Announced (TBA), Standardized
-        Trade Information Protocol (STIP), and Dollar Roll transactions.
-        
-        This dataset covers Single Family 15-year and 30-year pools issued by
-        UMBS (Uniform MBS, the joint Fannie Mae / Freddie Mac security), FHLMC
-        (Freddie Mac), and GNMA (Ginnie Mae).
+        Daily pricing statistics for Single Family 15-year and 30-year pools
+        issued by UMBS (Uniform MBS, the joint Fannie Mae / Freddie Mac
+        security), FHLMC (Freddie Mac), and GNMA (Ginnie Mae), segmented by
+        agency issuer, and aggregated by coupon rate bucket and settlement
+        month.
         
         Returned data follows the `Agency TBA Pricing schema
         <https://schemas.api.finra.org/v1/
         fixedIncomeMarket/agencyTbaPricing.json>`__.
+        
+        See `dataset details <https://developer.finra.org/docs#
+        query_api-fixed_income-_agency_pass_thru_tba_pricing_>`__.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1520,12 +1548,15 @@ class BaseClient(EnumConverter, ABC):
         version: Optional[int]=None
         ):
         """
-        Daily pricing statistics for Agency Collateralized Mortgage Obligation
-        (CMO), stratified by deal vintage.
+        Daily pricing statistics for Agency Collateralized Mortgage Obligations
+        (CMOs), segmented by agency issuer and deal vintage bucket.
         
         Returned data follows the `Agency CMO Pricing schema
         <https://schemas.api.finra.org/v1/
         fixedIncomeMarket/agencyCmoPricing.json>`__.
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-fixed_income-agency_cmo_pricing_by_deal_vintage_>`__.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1637,11 +1668,14 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Daily trading activity statistics for Agency Mortgage-Backed Securities
-        (MBS), stratified by product type.
+        (MBS), segmented by agency issuer and product type.
         
         Returned data follows the `Agency MBS Trading Activity schema
         <https://schemas.api.finra.org/v1/
         fixedIncomeMarket/agencyMbsTradingActivity.json>`__.
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-fixed_income-agency_mbs_trading_activity_>`__.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1675,11 +1709,16 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Daily pricing statistics for Agency Pass-Thru adjustable-rate (ARM) and
-        hybrid Mortgage-Backed Securities (MBS).
+        hybrid Mortgage-Backed Securities (MBS), segmented by agency issuer and
+        fixed-rate period.
         
         Returned data follows the `Agency MBS ARM Hybrid Pricing schema
         <https://schemas.api.finra.org/v1/
         fixedIncomeMarket/agencyMbsArmHybridPricing.json>`__.
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-fixed_income-agency_pass_thru_arm_and_hybrid_mbs_pricing_>`__
+        .
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1713,14 +1752,20 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Daily pricing statistics for Agency Pass-Thru fixed-rate
-        Mortgage-Backed Securities (MBS).
+        Mortgage-Backed Securities (MBS), segmented by agency issuer and
+        aggregated by coupon rate bucket.
         
-        This dataset covers Single Family 15-year, Single Family 30-year, and
-        other fixed-rate term variants for UMBS, FHLMC, and GNMA. 
+        This dataset covers fixed-rate products for Single Family 15-year,
+        Single Family 30-year, and other fixed-rate term variants for UMBS,
+        FHLMC, and GNMA. 
         
         Returned data follows the `Agency MBS Pricing schema
         <https://schemas.api.finra.org/v1/
         fixedIncomeMarket/agencyMbsPricing.json>`__.
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-fixed_income-agency_pass_thru_specified_pool_mbs_pricing_>`__
+        .
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -1756,12 +1801,15 @@ class BaseClient(EnumConverter, ABC):
         """
         Daily pricing statistics for Collateralized Bond Obligations (CBOs),
         Collateralized Debt Obligations (CDOs), and Collateralized Loan
-        Obligations (CLOs), stratified by product type, deal vintage and
-        credit tier.
+        Obligations (CLOs), segmented by product type, credit rating tier, and
+        deal vintage bucket.
         
         Returned data follows the `Collateralized Obligation Pricing schema
         <https://schemas.api.finra.org/v1/
         fixedIncomeMarket/collateralizedObligationPricing.json>`__.
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-fixed_income-cbo__cdo__clo_pricing_>`__.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -2013,11 +2061,14 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Daily pricing statistics for Commercial Mortgage-Backed Securities
-        (CMBS), stratified by product type and deal vintage.
+        (CMBS), segmented by product type and deal vintage bucket.
         
         Returned data follows the `Daily CMBS Pricing schema
         <https://schemas.api.finra.org/v1/
         fixedIncomeMarket/dailyCmbsPricing.json>`__.
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-fixed_income-daily_cmbs_pricing_by_deal_vintage_>`__.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -2049,12 +2100,15 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Daily pricing statistics for Non-Agency Collateralized Mortgage
-        Obligations (CMOs) and Asset-Backed Securities (ABS), stratified by
-        product type.
+        Obligations (CMOs) and Asset-Backed Securities (ABS), segmented by
+        credit quality and product type.
         
         Returned data follows the `Non-Agency CMO ABS Pricing schema
         <https://schemas.api.finra.org/v1/
         fixedIncomeMarket/nonAgencyCmoAbsPricing.json>`__.
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-fixed_income-non_agency_cmo_and_abs_pricing_by_product_>`__.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -2088,11 +2142,15 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Daily pricing statistics for Non-Agency Collateralized Mortgage
-        Obligation (CMO) P&I securities, stratified by deal vintage.
+        Obligation (CMO) P&I securities, segmented by credit quality and deal
+        vintage bucket.
         
         Returned data follows the `Non-Agency CMO Vintage Pricing schema
         <https://schemas.api.finra.org/v1/
         fixedIncomeMarket/nonAgencyCmoVintagePricing.json>`__.
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-fixed_income-non_agency_cmo_pricing_by_deal_vintage_>`__.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -2176,6 +2234,9 @@ class BaseClient(EnumConverter, ABC):
         <https://schemas.api.finra.org/v1/
         fixedIncomeMarket/securitizedProductErrata.json>`__.
         
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-fixed_income-securitized_products_data_errata_>`__.
+        
         Requires Public, Firm or Organization API credentials.
         """
         return self._query(
@@ -2212,12 +2273,16 @@ class BaseClient(EnumConverter, ABC):
         """
         Daily trading activity statistics for securitized products other than
         Agency Pass-Thru Mortgage-Backed Securities (MBS), including Non-Agency
-        MBS and Commercial Mortgage-Backed Securities (CMBS), stratified by
-        product type.
+        MBS and Commercial Mortgage-Backed Securities (CMBS), segmented by
+        credit quality and product type.
         
         Returned data follows the `Securitized Product Trading Activity schema
         <https://schemas.api.finra.org/v1/
         fixedIncomeMarket/securitizedProductTradingActivity.json>`__.
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-fixed_income-
+        securitized_products_trading_activity___non_agency_and_cmbs_>`__.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -2331,11 +2396,14 @@ class BaseClient(EnumConverter, ABC):
         ):
         """
         Weekly pricing statistics for Agency Commercial Mortgage-Backed
-        Securities (CMBS), stratified by product type and deal vintage.
+        Securities (CMBS), segmented by product type and deal vintage year.
         
         Returned data follows the `Weekly CMBS Pricing schema
         <https://schemas.api.finra.org/v1/
         fixedIncomeMarket/weeklyCmbsPricing.json>`__.
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-fixed_income-weekly_cmbs_pricing_by_deal_vintage_>`__.
         
         Requires Public, Firm or Organization API credentials.
         """
@@ -2660,13 +2728,14 @@ class BaseClient(EnumConverter, ABC):
         CRD accounting transactions of the requesting firm for a given date
         range, up to 30 days prior to today.
         
-        Returned data follows the `Accounting schema
-        <https://static.rampweb.finra.org/schemas/accounting.json>`__.
-        
         The ``start_date`` cannot be more than 30 days prior to today's date in
         the Eastern timezone.
         
-        This dataset only supports synchronous requests.
+        Returned data follows the `Accounting schema
+        <https://static.rampweb.finra.org/schemas/accounting.json>`__.
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-accounting>`__.
         
         Requires Firm API credentials.
         
@@ -2730,9 +2799,10 @@ class BaseClient(EnumConverter, ABC):
         arguments when querying the :py:attr:`Endpoint.DATA` resource endpoint,
         but no more than 25 per call.
         
-        This dataset only supports synchronous requests.
-        
         No mock API available.
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-altered_ssn_and_dob>`__.
         
         Requires Firm API credentials.
         
@@ -2793,7 +2863,8 @@ class BaseClient(EnumConverter, ABC):
         The ``start_datetime`` cannot be more than 30 days prior to today's
         date in the Eastern timezone.
         
-        This dataset only supports synchronous requests.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-branch_delta>`__.
         
         Requires Firm API credentials.
         
@@ -2851,8 +2922,6 @@ class BaseClient(EnumConverter, ABC):
         """
         List active branches for the requesting firm.
         
-        This dataset only supports synchronous requests.
-        
         Requires Firm API credentials.
         """
         return self._get_query(
@@ -2875,44 +2944,28 @@ class BaseClient(EnumConverter, ABC):
         Provides comprehensive information about all broker-dealer firms
         registered with and regulated by FINRA.
         
-        The dataset mirrors what is publicly available through FINRA's
-        `BrokerCheck <https://www.finra.org/brokercheck>`__ service. However,
-        it returns only firms actively registered with FINRA, as well as firms
-        for which a termination request has been received. It will not return
-        terminated firms. Each firm record provides rich details including:
-        
-         - Registration Information: CRD number, SEC number, legal status, and
-           registration status dates.
-         - Business Details: Legal name, DBA name, types of business
-           activities, and contact addresses.
-         - Geographic Coverage: States where the firm is registered to conduct
-           business.
-         - Ownership Structure: Information on owners, officers, and control
-           persons with ownership percentages.
-         - Form BD Data: Key regulatory form responses and disclosures.
-        
-        Returned data follows the `Broker Dealer Firm List schema
-        <https://static.rampweb.finra.org
-        /schemas/brokerdealerfirmlist.json>`__.
-        
         To retrieve data about a specific firm pass the firm's
         ``firm_crd_number`` as an argument when querying the
         :py:attr:`Endpoint.DATA` resource endpoint. Otherwise, all firms are
         returned with pagination attributes included in the response headers.
         
-        Helper functions for extracting values from response headers are
-        available in the :py:mod:`utils <finra.utils>` module.
-        Specifically see:
-        :py:func:`extract_record_limit() <finra.utils.extract_record_limit>`,
-        :py:func:`extract_record_offset() <finra.utils.extract_record_offset>`,
-        and
-        :py:func:`extract_record_total() <finra.utils.extract_record_total>`.
+        This dataset has unique record limits. See parameters below. Helper
+        functions for extracting values from response headers are available in
+        the :py:mod:`utils <finra.utils>` module. Specifically see:
+        
+        - :py:func:`extract_record_limit() <finra.utils.extract_record_limit>`
+        - :py:func:`extract_record_offset()
+          <finra.utils.extract_record_offset>`
+        - :py:func:`extract_record_total() <finra.utils.extract_record_total>`
+        
+        Returned data follows the `Broker Dealer Firm List schema
+        <https://static.rampweb.finra.org/schemas/brokerdealerfirmlist.json>`__
+        .
         
         This dataset does not have a :py:attr:`Endpoint.METADATA` endpoint.
         
-        This dataset only supports synchronous requests.
-        
-        This dataset has unique record limits. See parameters below.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-broker_dealer_firm_list_>`__.
         
         Requires Firm or Organization API credentials.
         """
@@ -2955,7 +3008,8 @@ class BaseClient(EnumConverter, ABC):
         Returned data follows the `Composite Branch schema
         <https://static.rampweb.finra.org/schemas/branchcomposite.json>`__.
         
-        This dataset only supports synchronous requests.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-composite_branch>`__.
         
         Requires Firm API credentials.
         
@@ -3011,7 +3065,8 @@ class BaseClient(EnumConverter, ABC):
         Returned data follows the `Composite Individual schema
         <https://static.rampweb.finra.org/schemas/individualcomposite.json>`__.
         
-        This dataset only supports synchronous requests.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-composite_individual>`__.
         
         Requires Firm API credentials.
         
@@ -3073,46 +3128,22 @@ class BaseClient(EnumConverter, ABC):
         the same as :py:meth:`BaseClient.get_composite_individual`, but wrapped
         with additional metadata.
         
-        This dataset only supports asynchronous requests. The first response
-        returns a ``request_id`` in the response body, which must be passed
-        back to this method as an argument in order to check the result status.
+        This dataset only supports asynchronous requests. The second leg of
+        the request flow is handled natively within this method. See
+        :ref:`native_async_requests` for detailed instructions on retrieving
+        the result file.
         
-        If the result is not ready when the result status is checked, the
-        response will contain the check status link. After waiting awhile, pass
-        the ``request_id`` back to this method again to re-check the status.
-        FINRA recommends polling no more than once per minute.
-        
-        When the request returns with status ``complete``, the result is ready.
-        The response will also contain the **pre-signed** result URL, which can
-        be passed to the :py:meth:`BaseClient.get_async_result` method to fetch
-        the result. The **pre-signed** URL is valid for only 30 minutes after
-        the call is made, after which the URL will no longer be valid and a new
-        call to this method must be made with the same ``request_id``.
-        
-        The result file will return with either a ``success`` or ``failed``
-        status in the response body. If the status is ``success``, it will also
-        include the seed file data. If the status is ``failed``, it will
-        include error messages.
-        
-        Helper functions for extracting metadata from response objects are
-        available in the :py:mod:`utils <finra.utils>` module.
-        Specifically see:
-        :py:func:`extract_request_id() <finra.utils.extract_request_id>`,
-        :py:func:`extract_check_status_link()
-        <finra.utils.extract_check_status_link>`,
-        :py:func:`extract_status() <finra.utils.extract_status>`,
-        :py:func:`extract_result_link() <finra.utils.extract_result_link>`,
+        When the result file is retrieved, it will contain either a ``success``
+        or ``failed`` status in body. If the status is ``success``, it will
+        also include the seed file data. If the status is ``failed``, it will
+        include error messages, which can be extracted using
         :py:func:`extract_error_messages()
-        <finra.utils.extract_error_messages>`, and
-        :py:func:`extract_expires_isoformat()
-        <finra.utils.extract_expires_isoformat>`.
-        
-        See the `API documentation <https://developer.finra.org/
-        docs#query_api-registration-composite_individual_seed>`__ for more
-        information about this dataset, including URLs that you may need to
-        whitelist in order to retrieve the results.
+        <finra.utils.extract_error_messages>`.
         
         No mock API available.
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-composite_individual_seed>`__.
         
         Requires Firm API credentials.
         
@@ -3171,7 +3202,8 @@ class BaseClient(EnumConverter, ABC):
         Returned data follows the `FinPro Tasks schema
         <https://schemas.api.finra.org/v1/finproGW/finproTasks.json>`__.
         
-        This dataset only supports synchronous requests.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-finpro_tasks_>`__.
         
         Requires Firm API credentials.
         """
@@ -3215,39 +3247,15 @@ class BaseClient(EnumConverter, ABC):
         Returned data follows the `Firm Renewal schema
         <https://static.rampweb.qa.finra.org/schemas/firmrenewal.json>`__.
         
-        This dataset only supports asynchronous requests. The first response
-        returns a ``request_id`` in the response body, which must be passed
-        back to this method as an argument in order to check the result status.
-        
-        If the result is not ready when the result status is checked, the
-        response will contain the check status link. After waiting awhile, pass
-        the ``request_id`` back to this method again to re-check the status.
-        FINRA recommends polling no more than once per minute.
-        
-        When the request returns with status ``complete``, the result is ready.
-        The response will also contain the **pre-signed** result URL, which can
-        be passed to the :py:meth:`BaseClient.get_async_result` method to fetch
-        the result. The **pre-signed** URL is valid for only 30 minutes after
-        the call is made, after which the URL will no longer be valid and a new
-        call to this method must be made with the same ``request_id``.
-        
-        Helper functions for extracting metadata from response objects are
-        available in the :py:mod:`utils <finra.utils>` module.
-        Specifically see:
-        :py:func:`extract_request_id() <finra.utils.extract_request_id>`,
-        :py:func:`extract_check_status_link()
-        <finra.utils.extract_check_status_link>`,
-        :py:func:`extract_status() <finra.utils.extract_status>`,
-        :py:func:`extract_result_link() <finra.utils.extract_result_link>`, and
-        :py:func:`extract_expires_isoformat()
-        <finra.utils.extract_expires_isoformat>`.
-        
-        See the `API documentation <https://developer.finra.org/
-        docs#query_api-registration-firm_renewal>`__ for more information about
-        this dataset, including URLs that you may need to whitelist in order to
-        retrieve the results.
+        This dataset only supports asynchronous requests. The second leg of
+        the request flow is handled natively within this method. See
+        :ref:`native_async_requests` for detailed instructions on retrieving
+        the result file.
         
         No mock API available.
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-firm_renewal>`__.
         
         Requires Firm API credentials.
         """
@@ -3296,7 +3304,8 @@ class BaseClient(EnumConverter, ABC):
         
         Version 1: Deprecated with Retirement Date: March 31, 2027
         
-        This dataset only supports synchronous requests.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-individual_delta>`__.
         
         Requires Firm API credentials.
         
@@ -3377,7 +3386,8 @@ class BaseClient(EnumConverter, ABC):
         <https://fingerprints.finra.org/
         schema/data/group/registration/name/fingerprint>`__.
         
-        This dataset only supports synchronous requests.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-individual_fingerprint>`__.
         
         Requires Fingerprint or QA Test Environment API credentials.
         """
@@ -3456,18 +3466,14 @@ class BaseClient(EnumConverter, ABC):
         
         No partition field.
         
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-individual_pre_registration_search>`__.
+        
         Requires Firm API credentials.
         
         .. note::
             - SSN must be provided if the registered individual has an SSN.
             - DOB does not include the year; it is ignored by the client.
-            - According to FINRA: *"The purpose of this dataset is to support
-              the pre-registration process for firms. It is not to be used for
-              downloading bulk data or for other pre-hire purposes. Each
-              request is logged and audited by the API Platform. FINRA reserves
-              the right to throttle or disable any API connection that appears
-              to be making excessive requests that do not fit normal usage
-              patterns for pre-registration searches."*
         """
         if (endpoint is None
             or endpoint == self.Endpoint.DATA
@@ -3556,10 +3562,10 @@ class BaseClient(EnumConverter, ABC):
         The returned data follows the `Form U4 schema
         <https://ramp-schemas.datacollection.finra.org/
         forms/u4/models/0.0.1/u4.json>`__. This dataset also supports
-        :py:attr:`Endpoint.METADATA`. However, it contains an unwieldy 892
-        fields, and the query method does not support requesting a subset of
-        those fields or sorting. Therefore, as a design choice, an enum has not
-        been included for this dataset.
+        :py:attr:`Endpoint.METADATA`, however it contains an unwieldy 892
+        fields and the query method does not support requesting a subset of
+        those fields, filtering, or sorting. Therefore, as a design choice, an
+        enum has not been implemented for this dataset solely for relabeling.
         
         This dataset only supports asynchronous requests. See
         :ref:`async_requests` for information on how to retrieve the results.
@@ -3568,17 +3574,14 @@ class BaseClient(EnumConverter, ABC):
         for more information about this dataset, including URLs that you may
         need to whitelist in order to retrieve the results.
         
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-individual_pre_registration_search_v2>`__.
+        
         Requires Firm API credentials.
         
         .. note::
             - SSN must be provided if the registered individual has an SSN.
             - DOB does not include the year; it is ignored by the client.
-            - FINRA states that this dataset is intended for firms'
-              pre-registration activities and is not intended for bulk-data
-              downloads or other pre-hire uses. Requests are logged and
-              audited, and FINRA may throttle or disable API connections that
-              make excessive requests inconsistent with normal pre-registration
-              search activity.
         """
         filters: Optional[FiltersDictType]
         if (endpoint is None
@@ -3665,6 +3668,9 @@ class BaseClient(EnumConverter, ABC):
         
         No partition field.
         
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-individual_registration_validation>`__.
+        
         Requires Firm, Organization or SRO API credentials.
         """
         if (endpoint is None
@@ -3713,14 +3719,17 @@ class BaseClient(EnumConverter, ABC):
         Returned data follows the individual registration validation details
         schemas:
         
-         - `API Version 1 schema <https://schemas.api.finra.org/
-           IndividualRegistrationValidationDetails.json>`__
-         - `API Version 2 schema <https://schemas.api.finra.org/v2/
-           IndividualRegistrationValidationDetails.json>`__
+        - `API Version 1 schema <https://schemas.api.finra.org/
+          IndividualRegistrationValidationDetails.json>`__
+        - `API Version 2 schema <https://schemas.api.finra.org/v2/
+          IndividualRegistrationValidationDetails.json>`__
         
         Defaults to API Version 2.
         
         API Version 1: Deprecated with Retirement Date: July 31, 2026
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-individual_registration_validation_details>`__.
         
         Requires SRO API credentials.
         """
@@ -3795,6 +3804,9 @@ class BaseClient(EnumConverter, ABC):
         Defaults to API Version 2.
         
         API Version 1: Deprecated with Retirement Date: June 30, 2026
+        
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-registered_individual_search>`__.
         
         Requires Firm, Organization or SRO API credentials.
         """
@@ -3890,20 +3902,14 @@ class BaseClient(EnumConverter, ABC):
         <https://ramp-schemas.datacollection.finra.org/
         forms/u4/models/0.0.1/u4.json>`__.
         
-        This dataset only supports synchronous requests.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-registration-u4_form_prefill>`__.
         
         Requires Firm API credentials.
         
         .. note::
             - SSN must be provided if the registered individual has an SSN.
             - DOB does not include the year; it is ignored by the client.
-            - According to FINRA: *"The purpose of this dataset is to support
-              the support U4 initial prefill process for firms. It is not to be
-              used for downloading bulk data or for other pre-hire purposes.
-              Each request is logged and audited by the API Platform. FINRA
-              reserves the right to throttle or disable any API connection that
-              appears to be making excessive requests that do not fit normal
-              usage patterns for pre-registration searches."*
         """
         filters: Optional[FiltersDictType]
         if (endpoint is None
@@ -3980,7 +3986,8 @@ class BaseClient(EnumConverter, ABC):
         <https://schemas.api.finra.org/v1/
         reportCard/traceSovereignSummary.json>`__.
         
-        This dataset only supports synchronous requests.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-trace_report_cards-trace_foreign_sovereign_debt_summary>`__.
         
         Requires Firm API credentials.
         
@@ -4044,46 +4051,18 @@ class BaseClient(EnumConverter, ABC):
         dataset is a monthly status report for transactions in agency debt
         that a member firm reported to TRACE.
         
-        This dataset accompanies :py:meth:`get_trace_agency_debt_summary`
-        as a tool to help firms analyze and improve compliance-related
-        activities associated with reporting transactions via TRACE.
-        
-        Returned data follows the `TRACE Agency Debt Details schema
-        <https://schemas.api.finra.org/v1/
+        Data is returned in CSV format and follows the
+        `TRACE Agency Debt Details schema <https://schemas.api.finra.org/v1/
         reportCard/traceAgencyDetail.json>`__.
         
-        The dataset only supports asynchronous requests, and returns data in
-        CSV format. Retrieving data from this endpoint is a three-step process:
+        This dataset only supports asynchronous requests. The second leg of
+        the request flow is handled natively within this method. See
+        :ref:`native_async_requests` for detailed instructions on retrieving
+        the result file.
         
-         - Submit a file request: Initiate the asynchronous request and
-           receive a ``request_id`` in the response body.
-         - Poll for status: Pass the ``request_id`` back to this method as a
-           keyword argument to check whether the file is ready. If the result
-           is not ready, the response will return the check status link. Repeat
-           this step until the response returns with a status of ``complete``.
-         - Download the file: When the response returns with a value of
-           ``complete``, the result is ready. The response will also contain a
-           **pre-signed** result URL, which can be passed to the
-           :py:meth:`BaseClient.get_async_result` method to download the CSV.
-           The **pre-signed** download URL will expire after 30 minutes.
-        
-        Helper functions for extracting metadata from response objects are
-        available in the :py:mod:`utils <finra.utils>` module.
-        Specifically see:
-        :py:func:`extract_request_id() <finra.utils.extract_request_id>`,
-        :py:func:`extract_request_timestamp_dt()
-        <finra.utils.extract_request_timestamp_dt>`,
-        :py:func:`extract_check_status_link()
-        <finra.utils.extract_check_status_link>`,
-        :py:func:`extract_status() <finra.utils.extract_status>`,
-        :py:func:`extract_result_link() <finra.utils.extract_result_link>`, and
-        :py:func:`extract_expires_isoformat()
-        <finra.utils.extract_expires_isoformat>`.
-        
-        See the `API documentation
-        <https://developer.finra.org/docs#query_api-trace_report_cards-
-        trace_quality_of_markets_report_card_for_agency_debt_detail>`__
-        for more information about this dataset.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-trace_report_cards-
+        trace_quality_of_markets_report_card_for_agency_debt_detail>`__.
         
         Requires Firm API credentials.
         
@@ -4153,7 +4132,9 @@ class BaseClient(EnumConverter, ABC):
         <https://schemas.api.finra.org/v1/
         reportCard/traceAgencySummary.json>`__.
         
-        This dataset only supports synchronous requests.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-trace_report_cards-
+        trace_quality_of_markets_report_card_for_agency_debt_summary>`__.
         
         Requires Firm API credentials.
         
@@ -4214,49 +4195,21 @@ class BaseClient(EnumConverter, ABC):
         """
         The TRACE Quality of Markets Report Cards for Treasuries Details
         dataset is a monthly status report for transactions in treasuries
-        that a member firm reported to TRACE.
+        that a member firm reported to TRACE. It is posted no later than the
+        13th business day of the month.
         
-        This dataset accompanies :py:meth:`get_trace_treasuries_summary`
-        as a tool to help firms analyze and improve compliance-related
-        activities associated with reporting transactions via TRACE.
-        This report is posted no later than the 13th business day of the month.
-        
-        Returned data follows the `TRACE Treasuries Details schema
-        <https://schemas.api.finra.org/v1/
+        Data is returned in CSV format and follows the
+        `TRACE Treasuries Details schema <https://schemas.api.finra.org/v1/
         reportCard/traceTreasuriesDetail.json>`__.
         
-        The dataset only supports asynchronous requests, and returns data in
-        CSV format. Retrieving data from this endpoint is a three-step process:
+        This dataset only supports asynchronous requests. The second leg of
+        the request flow is handled natively within this method. See
+        :ref:`native_async_requests` for detailed instructions on retrieving
+        the result file.
         
-         - Submit a file request: Initiate the asynchronous request and
-           receive a ``request_id`` in the response body.
-         - Poll for status: Pass the ``request_id`` back to this method as a
-           keyword argument to check whether the file is ready. If the result
-           is not ready, the response will return the check status link. Repeat
-           this step until the response returns with a status of ``complete``.
-         - Download the file: When the response returns with a value of
-           ``complete``, the result is ready. The response will also contain a
-           **pre-signed** result URL, which can be passed to the
-           :py:meth:`BaseClient.get_async_result` method to download the CSV.
-           The **pre-signed** download URL will expire after 30 minutes.
-        
-        Helper functions for extracting metadata from response objects are
-        available in the :py:mod:`utils <finra.utils>` module.
-        Specifically see:
-        :py:func:`extract_request_id() <finra.utils.extract_request_id>`,
-        :py:func:`extract_request_timestamp_dt()
-        <finra.utils.extract_request_timestamp_dt>`,
-        :py:func:`extract_check_status_link()
-        <finra.utils.extract_check_status_link>`,
-        :py:func:`extract_status() <finra.utils.extract_status>`,
-        :py:func:`extract_result_link() <finra.utils.extract_result_link>`, and
-        :py:func:`extract_expires_isoformat()
-        <finra.utils.extract_expires_isoformat>`.
-        
-        See the `API documentation
-        <https://developer.finra.org/docs#query_api-trace_report_cards-
-        trace_quality_of_markets_report_card_treasuries_detail>`__
-        for more information about this dataset.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-trace_report_cards-
+        trace_quality_of_markets_report_card_treasuries_detail>`__.
         
         Requires Firm API credentials.
         
@@ -4308,14 +4261,16 @@ class BaseClient(EnumConverter, ABC):
         """
         The TRACE Quality of Markets Report Cards for Treasuries Summary
         dataset is a monthly status report for transactions in treasuries
-        that a member firm reported to TRACE. This report is posted no later
-        than the 13th business day of the month. 
+        that a member firm reported to TRACE. It is posted no later than the
+        13th business day of the month.
         
         Returned data follows the `TRACE Treasuries Summary schema
         <https://schemas.api.finra.org/v1/
         reportCard/traceTreasuriesSummary.json>`__.
         
-        This dataset only supports synchronous requests.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-trace_report_cards-
+        trace_quality_of_markets_report_card_treasuries_summary>`__.
         
         Requires Firm API credentials.
         
@@ -4368,46 +4323,19 @@ class BaseClient(EnumConverter, ABC):
         dataset is a monthly status report for transactions in corporate bonds
         that a member firm reported to TRACE.
         
-        This dataset accompanies :py:meth:`get_trace_corporate_bonds_summary`
-        as a tool to help firms analyze and improve compliance-related
-        activities associated with reporting transactions via TRACE.
-        
-        Returned data follows the `TRACE Corporate Bonds Details schema
+        Data is returned in CSV format and follows the
+        `TRACE Corporate Bonds Details schema
         <https://schemas.api.finra.org/v1/
         reportCard/traceCorporateBondDetail.json>`__.
         
-        The dataset only supports asynchronous requests, and returns data in
-        CSV format. Retrieving data from this endpoint is a three-step process:
+        This dataset only supports asynchronous requests. The second leg of
+        the request flow is handled natively within this method. See
+        :ref:`native_async_requests` for detailed instructions on retrieving
+        the result file.
         
-         - Submit a file request: Initiate the asynchronous request and
-           receive a ``request_id`` in the response body.
-         - Poll for status: Pass the ``request_id`` back to this method as a
-           keyword argument to check whether the file is ready. If the result
-           is not ready, the response will return the check status link. Repeat
-           this step until the response returns with a status of ``complete``.
-         - Download the file: When the response returns with a value of
-           ``complete``, the result is ready. The response will also contain a
-           **pre-signed** result URL, which can be passed to the
-           :py:meth:`BaseClient.get_async_result` method to download the CSV.
-           The **pre-signed** download URL will expire after 30 minutes.
-        
-        Helper functions for extracting metadata from response objects are
-        available in the :py:mod:`utils <finra.utils>` module.
-        Specifically see:
-        :py:func:`extract_request_id() <finra.utils.extract_request_id>`,
-        :py:func:`extract_request_timestamp_dt()
-        <finra.utils.extract_request_timestamp_dt>`,
-        :py:func:`extract_check_status_link()
-        <finra.utils.extract_check_status_link>`,
-        :py:func:`extract_status() <finra.utils.extract_status>`,
-        :py:func:`extract_result_link() <finra.utils.extract_result_link>`, and
-        :py:func:`extract_expires_isoformat()
-        <finra.utils.extract_expires_isoformat>`.
-        
-        See the `API documentation
-        <https://developer.finra.org/docs#query_api-trace_report_cards-
-        trace_quality_of_markets_report_cards_for_corporate_bonds_detail>`__
-        for more information about this dataset.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-trace_report_cards-
+        trace_quality_of_markets_report_cards_for_corporate_bonds_detail>`__.
         
         Requires Firm API credentials.
         
@@ -4477,7 +4405,9 @@ class BaseClient(EnumConverter, ABC):
         <https://schemas.api.finra.org/v1/
         reportCard/traceCorporateBondSummary.json>`__.
         
-        This dataset only supports synchronous requests.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-trace_report_cards-
+        trace_quality_of_markets_report_cards_for_corporate_bonds_summary>`__.
         
         Requires Firm API credentials.
         
@@ -4543,47 +4473,20 @@ class BaseClient(EnumConverter, ABC):
         Asset Backed Securities, Mortgage Backed Securities and other similar
         securities.
         
-        This dataset accompanies
-        :py:meth:`get_trace_securitized_products_summary`
-        as a tool to help firms analyze and improve compliance-related
-        activities associated with reporting transactions via TRACE.
-        
-        Returned data follows the `TRACE Securitized Products Details schema
+        Data is returned in CSV format and follows the
+        `TRACE Securitized Products Details schema
         <https://schemas.api.finra.org/v1/
         reportCard/traceSecuritizedProductDetail.json>`__.
         
-        The dataset only supports asynchronous requests, and returns data in
-        CSV format. Retrieving data from this endpoint is a three-step process:
+        This dataset only supports asynchronous requests. The second leg of
+        the request flow is handled natively within this method. See
+        :ref:`native_async_requests` for detailed instructions on retrieving
+        the result file.
         
-         - Submit a file request: Initiate the asynchronous request and
-           receive a ``request_id`` in the response body.
-         - Poll for status: Pass the ``request_id`` back to this method as a
-           keyword argument to check whether the file is ready. If the result
-           is not ready, the response will return the check status link. Repeat
-           this step until the response returns with a status of ``complete``.
-         - Download the file: When the response returns with a value of
-           ``complete``, the result is ready. The response will also contain a
-           **pre-signed** result URL, which can be passed to the
-           :py:meth:`BaseClient.get_async_result` method to download the CSV.
-           The **pre-signed** download URL will expire after 30 minutes.
-        
-        Helper functions for extracting metadata from response objects are
-        available in the :py:mod:`utils <finra.utils>` module.
-        Specifically see:
-        :py:func:`extract_request_id() <finra.utils.extract_request_id>`,
-        :py:func:`extract_request_timestamp_dt()
-        <finra.utils.extract_request_timestamp_dt>`,
-        :py:func:`extract_check_status_link()
-        <finra.utils.extract_check_status_link>`,
-        :py:func:`extract_status() <finra.utils.extract_status>`,
-        :py:func:`extract_result_link() <finra.utils.extract_result_link>`, and
-        :py:func:`extract_expires_isoformat()
-        <finra.utils.extract_expires_isoformat>`.
-        
-        See the `API documentation
-        <https://developer.finra.org/docs#query_api-trace_report_cards-
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-trace_report_cards-
         trace_quality_of_markets_report_cards_for_securitized_products_detail>`__
-        for more information about this dataset.
+        .
         
         Requires Firm API credentials.
         
@@ -4661,7 +4564,10 @@ class BaseClient(EnumConverter, ABC):
         <https://schemas.api.finra.org/v1/
         reportCard/traceSecuritizedProductSummary.json>`__.
         
-        This dataset only supports synchronous requests.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-trace_report_cards-
+        trace_quality_of_markets_report_cards_for_securitized_products_summary>`__
+        .
         
         Requires Firm API credentials.
         
@@ -4731,7 +4637,9 @@ class BaseClient(EnumConverter, ABC):
         Summary schema <https://schemas.api.finra.org/v1/
         reportCard/TRACEEXECUTIONTIMEDIFFERENCETREASURIESFIRMSUMMARY.json>`__.
         
-        This dataset only supports synchronous requests.
+        See `datasets details <https://developer.finra.org/docs#
+        query_api-trace_report_cards-
+        trace_treasuries_execution_time_difference_summary>`__.
         
         Requires Firm API credentials.
         
@@ -4834,6 +4742,9 @@ class BaseClient(EnumConverter, ABC):
          - If neither datetimes are provided, only notifications published
            within the last month are returned.
         
+        See `event type details <https://developer.finra.org/docs#
+        notification_api-finra_content-finra_rulebook_notification>`__.
+        
         Requires Firm or Organization API credentials.
         
         :param start_datetime: Datetime of the start of the query window
@@ -4871,6 +4782,9 @@ class BaseClient(EnumConverter, ABC):
            within last 12 months up to the ``end_datetime`` are returned.
          - If neither datetimes are provided, only notifications published
            within the last month are returned.
+        
+        See `event type details <https://developer.finra.org/docs#
+        notification_api-operation-draft_registration_filing>`__.
         
         Requires Firm API credentials.
         
@@ -5012,12 +4926,16 @@ class BaseClient(EnumConverter, ABC):
         Helper functions for extracting metadata from submission responses are
         available in the :py:mod:`utils <finra.utils>` module.
         Specifically see:
-        :py:func:`extract_filing_request_id()
-        <finra.utils.extract_filing_request_id>`,
-        :py:func:`extract_filing_result_status()
-        <finra.utils.extract_filing_result_status>`, and
-        :py:func:`extract_filing_result_status_description()
-        <finra.utils.extract_filing_result_status_description>`.
+        
+        - :py:func:`extract_filing_request_id()
+          <finra.utils.extract_filing_request_id>`
+        - :py:func:`extract_filing_result_status()
+          <finra.utils.extract_filing_result_status>`
+        - :py:func:`extract_filing_result_status_desc()
+          <finra.utils.extract_filing_result_status_desc>`
+        
+        See `submission type details <https://developer.finra.org/docs#
+        submission_api-registration-create_individual>`__.
         
         Requires Firm API credentials.
         """
@@ -5079,12 +4997,16 @@ class BaseClient(EnumConverter, ABC):
         Helper functions for extracting metadata from submission responses are
         available in the :py:mod:`utils <finra.utils>` module.
         Specifically see:
-        :py:func:`extract_filing_request_id()
-        <finra.utils.extract_filing_request_id>`,
-        :py:func:`extract_filing_result_status()
-        <finra.utils.extract_filing_result_status>`, and
-        :py:func:`extract_filing_result_status_description()
-        <finra.utils.extract_filing_result_status_description>`.
+        
+        - :py:func:`extract_filing_request_id()
+          <finra.utils.extract_filing_request_id>`
+        - :py:func:`extract_filing_result_status()
+          <finra.utils.extract_filing_result_status>`
+        - :py:func:`extract_filing_result_status_desc()
+          <finra.utils.extract_filing_result_status_desc>`
+        
+        See `submission type details <https://developer.finra.org/docs#
+        submission_api-registration-br>`__.
         
         Requires Firm API credentials.
         """
@@ -5138,12 +5060,16 @@ class BaseClient(EnumConverter, ABC):
         Helper functions for extracting metadata from submission responses are
         available in the :py:mod:`utils <finra.utils>` module.
         Specifically see:
-        :py:func:`extract_filing_request_id()
-        <finra.utils.extract_filing_request_id>`,
-        :py:func:`extract_filing_result_status()
-        <finra.utils.extract_filing_result_status>`, and
-        :py:func:`extract_filing_result_status_description()
-        <finra.utils.extract_filing_result_status_description>`.
+        
+        - :py:func:`extract_filing_request_id()
+          <finra.utils.extract_filing_request_id>`
+        - :py:func:`extract_filing_result_status()
+          <finra.utils.extract_filing_result_status>`
+        - :py:func:`extract_filing_result_status_desc()
+          <finra.utils.extract_filing_result_status_desc>`
+        
+        See `submission type details <https://developer.finra.org/docs#
+        submission_api-registration-u4>`__.
         
         Requires Firm API credentials.
         """
@@ -5198,12 +5124,16 @@ class BaseClient(EnumConverter, ABC):
         Helper functions for extracting metadata from submission responses are
         available in the :py:mod:`utils <finra.utils>` module.
         Specifically see:
-        :py:func:`extract_filing_request_id()
-        <finra.utils.extract_filing_request_id>`,
-        :py:func:`extract_filing_result_status()
-        <finra.utils.extract_filing_result_status>`, and
-        :py:func:`extract_filing_result_status_description()
-        <finra.utils.extract_filing_result_status_description>`.
+        
+        - :py:func:`extract_filing_request_id()
+          <finra.utils.extract_filing_request_id>`
+        - :py:func:`extract_filing_result_status()
+          <finra.utils.extract_filing_result_status>`
+        - :py:func:`extract_filing_result_status_desc()
+          <finra.utils.extract_filing_result_status_desc>`
+        
+        See `submission type details <https://developer.finra.org/docs#
+        submission_api-registration-u5>`__.
         
         Requires Firm API credentials.
         """
@@ -5260,12 +5190,16 @@ class BaseClient(EnumConverter, ABC):
         Helper functions for extracting metadata from submission responses are
         available in the :py:mod:`utils <finra.utils>` module.
         Specifically see:
-        :py:func:`extract_filing_request_id()
-        <finra.utils.extract_filing_request_id>`,
-        :py:func:`extract_filing_result_status()
-        <finra.utils.extract_filing_result_status>`, and
-        :py:func:`extract_filing_result_status_description()
-        <finra.utils.extract_filing_result_status_description>`.
+        
+        - :py:func:`extract_filing_request_id()
+          <finra.utils.extract_filing_request_id>`
+        - :py:func:`extract_filing_result_status()
+          <finra.utils.extract_filing_result_status>`
+        - :py:func:`extract_filing_result_status_desc()
+          <finra.utils.extract_filing_result_status_desc>`
+        
+        See `datasets details <https://developer.finra.org/docs#
+        submission_api-registration-nrf>`__.
         
         Requires Firm API credentials.
         """

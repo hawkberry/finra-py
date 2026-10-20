@@ -10,11 +10,15 @@ For details on accessing the FINRA API, see :ref:`api_access` and see :ref:`auth
 
 See :py:mod:`finra.base_client` module for complete reference documentation.
 
+`finra-py` is FINRA-specific on the way in, and standard HTTPX on the way out.
+
+The client communicates directly with the FINRA API and related resources, and returns the API's responses directly to you as standard ``httpx.Response`` objects. `finra-py` does not introduce a custom response type or data model. Applications control how they handle responses, and how they process and persist response data. For more information about this design and implementation, see `ADR 0001 - Client Architecture and HTTP Response Boundary <https://github.com/hawkberry/finra-py/blob/main/docs/adr/0001-client-architecture-http-boundary.md>`__.
+
 Each dataset has its own method for requesting data.
 
 Many FINRA API parameters accept a defined set of values, for example the field names for each dataset. Rather than requiring users to manually enter these values, ``finra-py`` represents them using enums from Python's `enum <https://docs.python.org/3/library/enum.html>`__ module. The reason for this design choice is that requests with unrecognized values will be rejected by the API, which would be a common source of error and frustration for users. Using enums to manage these values avoids common errors and simplifies access to the datasets. A dataset's enum is typically displayed in the reference documentation just above its associated query method. With a few exceptions, each dataset has its own enum containing all of its available field names.
 
-If a value is passed other than a member of the expected enum, a ``TypeError`` will be raised. This functionality can be disabled on the client by setting ``require_enums=False`` during creation, or via its :py:meth:`set_require_enums() <finra.enum_converter.EnumConverter.set_require_enums>` method. Several other classes in this library have the same functionality, including the :py:class:`Filter <finra.filters.Filter>` class (see :ref:`filters`), and the filing classes used by :ref:`submission` methods. In general, disabling this constraint should not be necessary, however it may be useful if you notice the API accepts a value that is not yet supported by this library. If you do find a value that is not supported here, please open an issue on the ``finra-py`` `Issues Page <https://github.com/hawkberry/finra-py/issues>`__ on GitHub and describe your findings.
+If a value is passed other than a member of the expected enum, a ``TypeError`` will be raised. This functionality can be disabled on the client by setting ``require_enums=False`` during creation, or via its :py:meth:`set_require_enums() <finra.enum_converter.EnumConverter.set_require_enums>` method. Several other classes in this library have the same functionality, including the :py:class:`Filter <finra.filters.Filter>` class (see :ref:`filters`), and the filing classes used by :ref:`submission` methods. In general, disabling this constraint should not be necessary, however it may be useful if you notice the API accepts a value that is not yet supported by this library. For more information about this design and implementation, see `ADR 0003 - Enum-Based Representation of FINRA API Values <https://github.com/hawkberry/finra-py/blob/main/docs/adr/0003-enum-based-representation-finra-api-values.md>`__.
 
 Additionally, almost all :ref:`query` datasets support multiple :ref:`endpoints` for accessing information about them. Parameters that are required when querying the :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>` endpoint can be provided as arguments or by keyword. Optional parameters must be provided using keywords. Any deviation from this convention is described in the reference documentation.
 
@@ -26,7 +30,7 @@ This client also supports the API's server-side asynchronous request flow. This 
 Asyncio Support
 +++++++++++++++
 
-In addition to the standard synchronous client, this library provides an asynchronous client for improved throughput with I/O-bound applications. To learn about asynchronous I/O, see Python's `asyncio <https://docs.python.org/3/library/asyncio.html#module-asyncio>`__ module. 
+In addition to the standard synchronous client, this library provides an asynchronous client for improved throughput with I/O-bound applications. To learn about asynchronous I/O, see Python's `asyncio <https://docs.python.org/3/library/asyncio.html#module-asyncio>`__ module.
 
 To create a configured instance of :py:class:`AsyncClient <finra.async_client.AsyncClient>`, use :py:func:`await get_async_client() <finra.auth.get_async_client>`.
 
@@ -37,10 +41,10 @@ To create a configured instance of :py:class:`AsyncClient <finra.async_client.As
   c = await get_async_client(
       api_key="API_KEY",
       api_secret="API_SECRET",
-      token_path="/tmp/finra/token.json"
+      token_path="/path/to/token.json"
       )
 
-An :py:class:`AsyncClient <finra.async_client.AsyncClient>` can also be created by setting ``is_asyncio=True`` in :py:func:`get_client() <finra.auth.get_client>`, but this uses the synchronous client to perform the initial token fetch, which will block other coroutines.
+An :py:class:`AsyncClient <finra.async_client.AsyncClient>` can also be created by setting ``is_asyncio=True`` in :py:func:`get_client() <finra.auth.get_client>`, however this uses the synchronous client to perform the initial token fetch, which will block other coroutines. This creation function can be used if the ``asyncio`` loop is created *after* the :py:class:`AsyncClient <finra.async_client.AsyncClient>`.
 
 .. code-block:: python
 
@@ -49,11 +53,11 @@ An :py:class:`AsyncClient <finra.async_client.AsyncClient>` can also be created 
   c = get_client(
       api_key="API_KEY",
       api_secret="API_SECRET",
-      token_path="/tmp/finra/token.json",
+      token_path="/path/to/token.json",
       is_asyncio=True
       )
 
-The :py:class:`AsyncClient <finra.async_client.AsyncClient>` uses an asynchronous OAuth2 session to make requests, and returns awaitable coroutines. A coroutine must be awaited to execute an API request and receive an ``httpx.Response`` object. While waiting for the API server to respond, other coroutines and tasks can be executed concurrently and will not be blocked.
+Every request method that normally performs a ``GET``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE`` is asynchronous in the :py:class:`AsyncClient <finra.async_client.AsyncClient>`, including server-side asynchronous request methods. The :py:class:`AsyncClient <finra.async_client.AsyncClient>` uses an asynchronous OAuth2 session to make requests, and returns awaitable coroutines. A coroutine must be awaited to execute an API request and receive an ``httpx.Response`` object. While waiting for the API server to respond, other coroutines and tasks can be executed concurrently and will not be blocked.
 
 .. code-block:: python
 
@@ -73,7 +77,7 @@ Close the HTTP connection pool by calling :py:meth:`await AsyncClient.close() <f
   finally:
       await c.close()   # close manually
 
-Alternatively, the :py:class:`AsyncClient <finra.client.AsyncClient>` can be used as an asynchronous context manager.
+Alternatively, the :py:class:`AsyncClient <finra.async_client.AsyncClient>` can be used as an asynchronous context manager and closes automatically when exiting the context block.
 
 .. code-block:: python
 

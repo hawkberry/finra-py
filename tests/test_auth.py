@@ -112,12 +112,20 @@ class TestTokenManager(unittest.TestCase):
         self.assertEqual(token_manager.token, token['token'])
         
     @no_duplicates
-    def test_reject_tokens_without_created_timestamp(self):
+    def test_reject_tokens_without_correct_metadata_fields(self):
+        token = {'created_timestamp': '1'}
+        with self.assertRaisesRegex(
+            ValueError,
+            "The token does not contain the expected metadata fields. "
+            "Delete it and create a new one."
+            ):
+            TokenManager.from_wrapped_token(token, None)
+        
         token = {'token': '1'}
         with self.assertRaisesRegex(
             ValueError,
-            "WARNING: The token format has changed since this token "
-            "was created. Delete it and create a new one."
+            "The token does not contain the expected metadata fields. "
+            "Delete it and create a new one."
             ):
             TokenManager.from_wrapped_token(token, None)
 

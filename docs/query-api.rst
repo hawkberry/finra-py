@@ -231,7 +231,7 @@ A compare filter can be used to create a condition for comparing specific field 
               date(2025, 1, 6),         # partition value (Monday)
               Filter.CompareType.EQUAL  # not necessary, this is the default
               )
-          .add_compare(                 # chain another filter in-line
+          .add_compare(                 # chain another filter inline
               e.TOTAL_TRADES,
               10_000,
               Filter.CompareType.GREATER
@@ -497,7 +497,11 @@ The :py:mod:`finra.utils` module provides functions to simplify handling respons
       if offset >= record_total:  # all records have been retrieved
           break
 
-Three additional response headers may also be useful: see :py:func:`extract_response_payload_max_size() <finra.utils.extract_response_payload_max_size>`, :py:func:`extract_total_records_on_page() <finra.utils.extract_total_records_on_page>`, and :py:func:`extract_finra_api_request_id() <finra.utils.extract_finra_api_request_id>`.
+Three additional response headers may also be useful:
+
+- :py:func:`extract_response_payload_max_size() <finra.utils.extract_response_payload_max_size>`
+- :py:func:`extract_total_records_on_page() <finra.utils.extract_total_records_on_page>`
+- :py:func:`extract_finra_api_request_id() <finra.utils.extract_finra_api_request_id>`
 
 .. _async_requests:
 
@@ -559,11 +563,28 @@ Read more about `Request Types <https://developer.finra.org/docs#query_api-api_b
 
 .. _native_async_requests:
 
------------------------
-Natively Async Requests
------------------------
+--------------------------------------
+Dataset-Specific Asynchronous Requests
+--------------------------------------
 
-A few datasets do not follow the operation flow described above, and instead handle the second leg of the asynchronous request natively through their own API endpoint. For these datasets, extract the ``request_id`` from the response in the first leg, and pass it back to the same query method to check the status of the request. Notable examples that implement this pattern include :py:meth:`Client.get_composite_individual_seed() <finra.base_client.BaseClient.get_composite_individual_seed>` in the Registration group, as well as most of the :ref:`submission` endpoints. See the client's reference documentation for details about specific datasets.
+Several Query API datasets follow a different asynchronous request flow than the one described above, and instead handle the second leg natively through their own API endpoint. Datasets that implement this pattern include :py:meth:`Client.get_composite_individual_seed() <finra.base_client.BaseClient.get_composite_individual_seed>` and :py:meth:`Client.get_firm_renewal() <finra.base_client.BaseClient.get_firm_renewal>` in the Registration group, and the Details datasets in the TRACE Report Card group.
+
+These datasets use the following three-step request process:
+
+1. Make the initial asynchronous request through the dataset's query method. The first response will contain a ``request_id`` in the response body, which can be extracted using :py:func:`extract_request_id() <finra.utils.extract_request_id>`.
+
+2. Pass the ``request_id`` back to the same query method in order to check the result status. The result status can be extracted from the response using :py:func:`extract_status() <finra.utils.extract_status>`. If the result is not ready, the response will also contain the check status link. After waiting awhile, pass the ``request_id`` back to this method again to re-check the status. FINRA recommends polling no more than once per minute.
+
+3. When the request returns with status ``complete``, the result is ready. The response will also contain the **pre-signed** result URL, which can be extracted using :py:func:`extract_result_link() <finra.utils.extract_result_link>`. Pass the result URL to the :py:meth:`BaseClient.get_async_result() <finra.base_client.BaseClient.get_async_result>` method to fetch the result. The **pre-signed** URL is valid for only 30 minutes after the call is made. After expiration, the URL will no longer be valid, and a new result URL must be retrieved by passing the original ``request_id`` back to the dataset's query method.
+
+Common helper functions for extracting metadata from response objects are available in the :py:mod:`utils <finra.utils>` module. Specifically, for these datasets see:
+
+- :py:func:`extract_request_id() <finra.utils.extract_request_id>`
+- :py:func:`extract_request_timestamp_dt() <finra.utils.extract_request_timestamp_dt>`
+- :py:func:`extract_check_status_link() <finra.utils.extract_check_status_link>`
+- :py:func:`extract_status() <finra.utils.extract_status>`
+- :py:func:`extract_result_link() <finra.utils.extract_result_link>`
+- :py:func:`extract_expires_isoformat() <finra.utils.extract_expires_isoformat>`
 
 .. _content_types:
 

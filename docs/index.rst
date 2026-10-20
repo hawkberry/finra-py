@@ -37,7 +37,6 @@ Table of Contents
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
    
    getting-started
    auth
@@ -48,6 +47,13 @@ Table of Contents
    help
    finra-changelog
    reference
+
+++++++++++++++++++
+Indices and Search
+++++++++++++++++++
+
+* :ref:`genindex`
+* :ref:`search`
 
 .. rubric:: Disclaimer
 

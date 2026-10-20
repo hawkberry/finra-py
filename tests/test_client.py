@@ -1553,50 +1553,50 @@ def _test_notification_get_with_params(method, group, name, test_case):
 
 # Callbacks to make filing objects
 def _make_create_individual():
-    filing = CreateIndividual()
-    filing.set_filing_data({})
-    return filing
+    f = CreateIndividual()
+    f.set_filing_data({})
+    return f
 
 
 def _make_form_br():
-    filing = FormBR()
-    filing.set_filing_status(FormBR.FilingStatus.SUBMITTED)
-    filing.set_filing_type(FormBR.FilingType.INITIAL)
-    filing.set_filing_data({
+    f = FormBR()
+    f.set_filing_status(f.FilingStatus.SUBMITTED)
+    f.set_filing_type(f.FilingType.INITIAL)
+    f.set_filing_data({
         'branch': {
             'identifyingInformation': {
                 'branchCrdNumber': 12345,
                 },
             },
         })
-    return filing
+    return f
 
 
 def _make_form_u4():
-    filing = FormU4()
-    filing.set_filing_status(FormU4.FilingStatus.SUBMITTED)
-    filing.set_filing_type(FormU4.FilingType.INITIAL)
-    filing.set_individual_crd_number(1234567)
-    filing.set_date_of_birth(DATE)
-    filing.set_filing_data({})
-    return filing
+    f = FormU4()
+    f.set_filing_status(f.FilingStatus.SUBMITTED)
+    f.set_filing_type(f.FilingType.INITIAL)
+    f.set_individual_crd_number(1234567)
+    f.set_date_of_birth(DATE)
+    f.set_filing_data({})
+    return f
 
 
 def _make_form_u5():
-    filing = FormU5()
-    filing.set_filing_status(FormU5.FilingStatus.SUBMITTED)
-    filing.set_filing_type(FormU5.FilingType.FULL)
-    filing.set_individual_crd_number(1234567)
-    filing.set_date_of_birth(DATE)
-    filing.set_filing_data({})
-    return filing
+    f = FormU5()
+    f.set_filing_status(f.FilingStatus.SUBMITTED)
+    f.set_filing_type(f.FilingType.FULL)
+    f.set_individual_crd_number(1234567)
+    f.set_date_of_birth(DATE)
+    f.set_filing_data({})
+    return f
 
 
 def _make_nrf():
-    filing = NonRegisteredFingerprint()
-    filing.set_filing_type(NonRegisteredFingerprint.FilingType.INITIAL)
-    filing.set_filing_data({})
-    return filing
+    f = NonRegisteredFingerprint()
+    f.set_filing_type(f.FilingType.INITIAL)
+    f.set_filing_data({})
+    return f
 
 
 SUBMISSION = {
@@ -1668,13 +1668,13 @@ def _test_submission_post_filing_obj(
     ):
     test_case.mock_session.post.return_value = test_case.response
     
-    filing = make_filing()
-    result = getattr(test_case.client, method)(filing=filing)
+    f = make_filing()
+    result = getattr(test_case.client, method)(filing=f)
     
     test_case.assertEqual(result, test_case.response)
     test_case.mock_session.post.assert_called_once_with(
         test_case.base_url + f"/v1/submissions/filings/{group}/{name}",
-        json=filing.build(), headers={"Accept": "application/json"}
+        json=f.build(), headers={"Accept": "application/json"}
         )
 
 
@@ -1696,15 +1696,15 @@ def _test_submission_post_filing_json(
 def _test_submission_post_missing_filing_data_ops(
     method, make_filing, test_case
     ):
-    filing = make_filing()
-    filing.clear_filing_data()
-    filing.clear_operations()
+    f = make_filing()
+    f.clear_filing_data()
+    f.clear_operations()
     with test_case.assertRaisesRegex(
         ValueError,
         "Must set either Filing Data, or add at least one "
         "Operation on existing data."
         ):
-        getattr(test_case.client, method)(filing=filing)
+        getattr(test_case.client, method)(filing=f)
 
 
 def _test_submission_delete(method, group, name, test_case):
@@ -1763,12 +1763,12 @@ def _test_submission_validate_filing_obj(
         
         test_case.mock_session.post.return_value = test_case.response
         
-        filing = make_filing()
+        f = make_filing()
         result = getattr(test_case.client, method)(
-            filing=filing, validate=True
+            filing=f, validate=True
             )
         
-        data = filing.build()
+        data = f.build()
         
         test_case.assertEqual(result, test_case.response)
         test_case.mock_session.post.assert_called_once_with(
@@ -1776,7 +1776,7 @@ def _test_submission_validate_filing_obj(
             json=data, headers={"Accept": "application/json"}
             )
         
-        validator.assert_called_once_with(test_case.client, filing.schema_url)
+        validator.assert_called_once_with(test_case.client, f.schema_url)
         validator.validate.assert_called_once_with(data)
 
 
@@ -1811,15 +1811,15 @@ def _test_submission_validate_filing_obj_with_schema_url(
         
         test_case.mock_session.post.return_value = test_case.response
         
-        filing = make_filing()
+        f = make_filing()
         schema_url = "Schema URL"
         result = getattr(test_case.client, method)(
-            filing=filing,
+            filing=f,
             validate=True,
             schema_url=schema_url
             )
         
-        data = filing.build()
+        data = f.build()
         
         test_case.assertEqual(result, test_case.response)
         test_case.mock_session.post.assert_called_once_with(
@@ -1888,7 +1888,10 @@ class _TestAPI:
     # ASYNC REQUEST METHODS
     
     @no_duplicates
-    def test_get_async_request_status(self):
+    @patch("finra.base_client.validate_url")
+    def test_get_async_request_status(self, validate_url):
+        validate_url.return_value = "check status link"
+        
         self.mock_session.get.return_value = self.response
         
         result = self.client.get_async_request_status("check status link")
@@ -1898,9 +1901,15 @@ class _TestAPI:
             "check status link", params=None,
             headers={"Accept": "application/json"}
             )
+        validate_url.assert_called_once_with(
+            "check status link", base_client._CHECK_STATUS_WHITELIST
+            )
         
     @no_duplicates
-    def test_get_async_result(self):
+    @patch("finra.base_client.validate_url")
+    def test_get_async_result(self, validate_url):
+        validate_url.return_value = "result link"
+        
         self.client._resource_session = self.mock_cls()
         self.client._resource_session.get.return_value = self.response
         
@@ -1909,6 +1918,13 @@ class _TestAPI:
         self.assertEqual(result, self.response)
         self.client._resource_session.get.assert_called_once_with(
             "result link", params=None, headers=None
+            )
+        validate_url.assert_called_once_with(
+            "result link", (
+                base_client._QA_RESULT_WHITELIST
+                if self.client.test_environment
+                else base_client._PROD_RESULT_WHITELIST
+                )
             )
     
     
@@ -1963,19 +1979,19 @@ class _TestAPI:
         
     # Test for logging error in _log_wrapper, using get_datasets
     @no_duplicates
-    @patch("logging.error")
-    def test_logging_error(self, logging_error):
+    def test_logging_error(self):
         class TestLoggingError(Exception):
             pass
         
         self.mock_session.get.side_effect = TestLoggingError()
         
-        with self.assertRaises(TestLoggingError):
-            self.client.get_datasets()
-        
-        logging_error.assert_called_once_with(
-            "%s: %s", ANY, "GET", exc_info=True
-            )
+        with patch.object(base_client.get_logger(), "error") as mock_error:
+            with self.assertRaises(TestLoggingError):
+                self.client.get_datasets()
+            
+            mock_error.assert_called_once_with(
+                "%s: %s", ANY, "GET", exc_info=True
+                )
         
     # Test for non-debug logging branches, no requests counted
     @no_duplicates
@@ -4789,6 +4805,7 @@ class _SubmissionSupport:
                 "requestID", filing={}
                 )
 
+
 def _set_submission_support_methods():
     updatable = (
         "form_br_submission", "form_u4_submission", "form_u5_submission",
@@ -4798,16 +4815,13 @@ def _set_submission_support_methods():
         set_meth(_SubmissionSupport, f"test_{method}_get",
                  _test_submission_get, method, group, name)
         
-        set_meth(_SubmissionSupport,
-                 f"test_{method}_get_with_version_2",
+        set_meth(_SubmissionSupport, f"test_{method}_get_with_version_2",
                  _test_submission_get_with_version_2, method, group, name)
         
-        set_meth(_SubmissionSupport,
-                 f"test_{method}_no_filing_no_request_id",
+        set_meth(_SubmissionSupport, f"test_{method}_no_filing_no_request_id",
                  _test_submission_no_filing_no_request_id, method)
         
-        set_meth(_SubmissionSupport,
-                 f"test_{method}_post_filing_obj",
+        set_meth(_SubmissionSupport, f"test_{method}_post_filing_obj",
                  _test_submission_post_filing_obj, method, group, name,
                  make_filing)
         
@@ -5160,11 +5174,8 @@ class _TestClientBase:
         cls.mock_register_redactions_from_response = \
             cls.patch_register_redactions_from_response.start()
         
-    @classmethod
-    def tearDownClass(cls):
-        cls.patch_register_redactions_from_response.stop()
-        cls.patch_register_redactions.stop()
-        super().tearDownClass()
+        cls.addClassCleanup(cls.patch_register_redactions.stop)
+        cls.addClassCleanup(cls.patch_register_redactions_from_response.stop)
         
     def setUp(self):
         super().setUp()
@@ -5255,7 +5266,12 @@ class TestClient(
         
     @no_duplicates
     @patch("httpx.Client")
-    def test_get_async_result_no_resource_session(self, httpx_client):
+    @patch("finra.base_client.validate_url")
+    def test_get_async_result_no_resource_session(
+        self, validate_url, httpx_client
+        ):
+        validate_url.return_value = "result link"
+        
         httpx_client.return_value = httpx_client
         httpx_client.get.return_value = self.response
         
@@ -5264,6 +5280,13 @@ class TestClient(
         self.assertEqual(result, self.response)
         httpx_client.get.assert_called_once_with(
             "result link", params=None, headers=None
+            )
+        validate_url.assert_called_once_with(
+            "result link", (
+                base_client._QA_RESULT_WHITELIST
+                if self.client.test_environment
+                else base_client._PROD_RESULT_WHITELIST
+                )
             )
         
     @no_duplicates
@@ -5344,7 +5367,12 @@ class TestAsyncClient(
         
     @no_duplicates
     @patch("httpx.AsyncClient", new_callable=Mock)
-    def test_get_async_result_no_resource_session(self, httpx_client):
+    @patch("finra.base_client.validate_url")
+    def test_get_async_result_no_resource_session(
+        self, validate_url, httpx_client
+        ):
+        validate_url.return_value = "result link"
+        
         httpx_client.return_value = httpx_client
         
         mock = AsyncMock()
@@ -5357,6 +5385,13 @@ class TestAsyncClient(
         self.assertEqual(result, self.response)
         httpx_client.get.assert_called_once_with(
             "result link", params=None, headers=None
+            )
+        validate_url.assert_called_once_with(
+            "result link", (
+                base_client._QA_RESULT_WHITELIST
+                if self.client.test_environment
+                else base_client._PROD_RESULT_WHITELIST
+                )
             )
         
     @no_duplicates

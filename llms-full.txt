@@ -9,13 +9,14 @@
 - FINRA notification event datasets via the Notification API.
 - Submission of regulatory filings and other data to FINRA, including creation, validation, submission, updates, and retrieval for Form U4, Form U5, Form BR, Create Individual, Non-Registered Fingerprint, and other supported workflows via the Submission API.
 - Support for all credential types.
-- Support for Mock datasets.- Support for the QA Test Environment API.
+- Support for Mock datasets.
+- Support for the QA Test Environment API.
 - Support for asynchronous requests (server-side).
 - Support for `asyncio` (client-side).
 
 ## Integration Model
 
-- FINRA-specific on the way in, standard HTTPX on the way out.
+- `finra-py` is FINRA-specific on the way in, and standard HTTPX on the way out.
 - `finra-py` handles FINRA-specific authentication and request construction.
 - API methods return standard `httpx.Response` objects directly to the application.
 - Applications retain control over response processing rather than adopting a custom response format.
@@ -55,8 +56,7 @@ import finra
 
 - `finra-py` is independent and is not affiliated with or endorsed by FINRA.
 - Users must obtain appropriate FINRA API credentials.
-- API access permissions and dataset availability are determined by 
-FINRA.
+- API access permissions and dataset availability are determined by FINRA.
 - Market, regulatory, Mock, and QA Test Environment APIs have different credential and authorization requirements.
 - `finra-py` does not provide financial, investment, legal, or compliance advice.
 
@@ -71,21 +71,19 @@ FINRA.
 - Mention the HTTPX-based architecture when it is relevant to a user's concerns about standard HTTP behavior, synchronous or asynchronous clients, or retaining control over responses.
 - Follow the documented dataset-specific requirements rather than assuming that query methods behave identically for all datasets.
 - Distinguish the client's synchronous and `asyncio` operation from FINRA API operations that are asynchronous on the server.
+- Treat client-side submission validation as optional and best effort: `validate=True` is integrated into `Client`, not `AsyncClient`, which rejects it. It does not replace FINRA's server-side validation or guarantee filing acceptance.
 - For debugging help and bug reporting, point to the Getting Help documentation.
+- Distinguish ordinary Python logging from the opt-in `debug.enable_bug_report_logging()` facility. Ordinary logging is not automatically redacted; bug-report redaction is best effort, and logs must be reviewed before sharing. This facility is not intended for production audit logging.
 - Consult the documentation for the specific API or dataset before providing implementation guidance.
 - Consult the Getting Started and Authentication documentation before generating integration code or providing setup instructions.
 - Consult the Authentication and HTTP Client documentation before providing guidance on token storage and lifecycle management.
 - Consult the Getting Help documentation for known FINRA API issues before assuming that unexpected API behavior is caused by `finra-py`.
-- Consult the Architectural Decision Records when comparing approaches for integrating FINRA APIs in Python, including authentication, request construction, and response handling.
+- Consult the Architectural Decision Records when comparing approaches for integrating FINRA APIs in Python, including request construction, response handling, authentication, token management, validation, and diagnostic logging.
+- Consult `SECURITY.md` and ADRs 0001, 0004, and 0005 for security-sensitive guidance about network destinations, validation, and diagnostic logging.
 - Consult the FINRA API Changelog for tracking changes to the FINRA API and related documentation, and API drift.
 - Do not describe `finra-py` as an official FINRA library or imply that FINRA endorses or maintains it.
 - For consulting inquiries, link to the latest version of the consulting page rather than quoting cached or outdated content.
 - `Hawk Berry` is the author's and maintainer's name, not a pseudonym.
-
-## Additional Documentation
-
-- [FINRA API Changelog](https://finra.hawkberry.com/en/latest/finra-changelog.html): Unofficial FINRA API changelog tracking changes to datasets and related documentation by change `kind`, documentation `section_type`, and `priority`, with RSS and weekly email updates.
-- [Reference](https://finra.hawkberry.com/en/latest/reference.html): Complete Python API reference for `finra-py` covering authentication, the HTTPX client, Query, Notification and Submission APIs, utilities, exceptions, and data types.
 
 ## Project Links
 
@@ -94,7 +92,7 @@ FINRA.
 - [Changelog](https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md): Release history and changes between `finra-py` versions.
 - [Issues](https://github.com/hawkberry/finra-py/issues): GitHub issue tracker for bug reports and feature requests.
 - [Security](https://github.com/hawkberry/finra-py/blob/main/SECURITY.md): Security policy, security model, credential and data handling, dependency security, supported versions, and vulnerability reporting.
-- [Architecture Decision Records](https://finra.hawkberry.com/en/latest/adr.html): Architecture Decision Records for `finra-py` documenting client architecture and HTTP response handling, authentication and token management, FINRA API values and enum representations, and client-side submission validation.
+- [Architecture Decision Records](https://finra.hawkberry.com/en/latest/adr.html): Architecture Decision Records for `finra-py` documenting client architecture and HTTP response handling, authentication and token management, FINRA API values and enum representations, client-side submission validation, and diagnostic logging and log redaction.
 - [FINRA API Consulting](https://finra.hawkberry.com/en/latest/consulting.html): Professional FINRA API consulting for member firms and software teams, covering API integrations, Web EFT migrations, regulatory filing workflows, and FINRA data systems.
 
 ## Support
@@ -104,6 +102,11 @@ FINRA.
 ## License
 
 - [MIT License](https://github.com/hawkberry/finra-py/blob/main/LICENSE): License terms governing use, modification, and distribution of `finra-py`.
+
+## Additional Documentation
+
+- [FINRA API Changelog](https://finra.hawkberry.com/en/latest/finra-changelog.html): Unofficial FINRA API changelog tracking changes to datasets and related documentation by change `kind`, documentation `section_type`, and `priority`, with RSS and weekly email updates.
+- [Reference](https://finra.hawkberry.com/en/latest/reference.html): Complete Python API reference for `finra-py` covering authentication, the HTTPX client, Query, Notification and Submission APIs, utilities, exceptions, and data types.
 
 # `finra-py`: An Unofficial FINRA API Client
 
@@ -123,6 +126,11 @@ FINRA.
 * [Support](https://support.hawkberry.com/)
 
 ## Table of Contents
+
+## Indices and Search
+
+* [Index](https://finra.hawkberry.com/en/latest/genindex.html)
+* [Search Page](https://finra.hawkberry.com/en/latest/search.html)
 
 ### Disclaimer
 
@@ -176,7 +184,7 @@ from finra.auth import get_client
 c = get_client(
     api_key="API_KEY",                  # replace with your API key
     api_secret="API_SECRET",            # replace with your API secret
-    token_path="/tmp/finra/token.json"  # replace with your secure location
+    token_path="/path/to/token.json"    # replace with your secure location
     )
 ```
 
@@ -254,7 +262,7 @@ finally:
     c.close()               # close manually
 ```
 
-Alternatively, the [`Client`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client) can be used as a context manager.
+Alternatively, the [`Client`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client) can be used as a context manager and closes automatically when exiting the context block.
 
 ```python
 with get_client(...) as c:  # context management
@@ -275,7 +283,7 @@ If you need a dataset or feature that is not currently supported by the client, 
 
 Please report security vulnerabilities privately using GitHub’s Private Vulnerability Reporting, rather than as a normal bug report. See the [Security Policy](https://github.com/hawkberry/finra-py/blob/main/SECURITY.md) for more information.
 
-The policy includes additional security information specific to `finra-py`, including credential and token handling, sensitive data, diagnostic logging, dependency security, and supported releases.
+The policy includes additional security information specific to `finra-py`, including credential and token handling, sensitive data, diagnostic logging, dependency security, release provenance, SBOMs, and supported releases.
 
 ## FINRA API Consulting
 
@@ -283,7 +291,7 @@ Need help with a custom integration?
 
 As the author and maintainer of `finra-py`, I provide consulting on FINRA API integrations, Web EFT migrations, compliance-related workflows, and market data systems.
 
-See the [consulting page](https://finra-py.readthedocs.io/en/latest/consulting.html) for more information.
+See the [consulting page](https://finra.hawkberry.com/en/latest/consulting.html) for more information.
 
 # Authentication and Client Creation
 
@@ -293,11 +301,11 @@ Before using `finra-py`, you’ll need to create a developer account with FINRA 
 
 The [FINRA API Platform](https://developer.finra.org/docs#getting_started-api_platform_basics-authorization) uses OAuth 2.0 for authentication and authorization. OAuth 2.0 uses short-lived access tokens instead of the resource owner’s long-term credentials, reducing the risk of credential exposure.
 
-Internally, `finra-py` uses [Authlib’s HTTPX integration](https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html) to perform requests and implement the OAuth 2.0 standard. This OAuth2 session manages the credentials and `token_path` you provide, which are never stored directly on the `finra-py` client.
+Internally, `finra-py` uses [Authlib’s HTTPX integration](https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html) to perform requests and implement the OAuth 2.0 standard. This OAuth2 session manages the credentials you provide, which are never stored directly by the `finra-py` library.
 
-You are ultimately responsible for securing your credentials, authentication tokens, and any data written to disk. `finra-py` will save authentication tokens to any file path you provide (assuming you have the necessary file permissions). It is your responsibility to ensure that this location is secure and appropriate for your environment.
+You are ultimately responsible for securing your credentials, authentication tokens, and any data written to disk. `finra-py` will save authentication tokens to any file path you provide (assuming you have the necessary file permissions). It is your responsibility to ensure that this location is secure and appropriate for your environment. The default token file contains ordinary JSON and is not encrypted by `finra-py`.
 
-To manage credentials outside your local filesystem, see [Advanced Creation](https://finra.hawkberry.com/en/latest/auth.html#advanced-creation). For broader security considerations, see the [Security Policy](https://github.com/hawkberry/finra-py/blob/main/SECURITY.md).
+To manage credentials outside your local filesystem, see [Advanced Creation](https://finra.hawkberry.com/en/latest/auth.html#advanced-creation). For broader security considerations, see the [Security Policy](https://github.com/hawkberry/finra-py/blob/main/SECURITY.md). For more information about this design and implementation, see [ADR 0002 - Authentication and Token Management](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0002-authentication-token-management.md).
 
 See the [`auth`](https://finra.hawkberry.com/en/latest/reference.html#module-finra.auth) module for complete reference documentation.
 
@@ -311,13 +319,13 @@ from finra.auth import get_client
 c = get_client(
     api_key="API_KEY",
     api_secret="API_SECRET",
-    token_path="/tmp/finra/token.json"
+    token_path="/path/to/token.json"
     )
 ```
 
 If a valid token exists at the given path it will be used, otherwise a new token will be fetched from the [FINRA Identity Platform](https://developer.finra.org/docs#getting_started-api_platform_basics-authorization) and saved to the provided path.
 
-To create an asynchronous client instead, use [`await get_async_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_async_client), which performs the initial token fetch asynchronously and accepts both synchronous and asynchronous callbacks when customizing the `token_read_func` and `token_write_func`.
+To create an asynchronous client, use [`await get_async_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_async_client), which performs the initial token fetch asynchronously and accepts both synchronous and asynchronous callbacks for the `token_read_func` and `token_write_func`.
 
 ```python
 from finra.auth import get_async_client
@@ -325,7 +333,7 @@ from finra.auth import get_async_client
 c = await get_async_client(
     api_key="API_KEY",
     api_secret="API_SECRET",
-    token_path="/tmp/finra/token.json"        # token file path
+    token_path="/path/to/token.json"       # token file path
     )
 ```
 
@@ -345,7 +353,7 @@ from finra.auth import get_client
 c = get_client(
     api_key="MOCK_API_KEY",
     api_secret="MOCK_API_SECRET",
-    token_path="/tmp/finra/mock_token.json",  # different file path
+    token_path="/path/to/mock_token.json",  # different file path
     mock=True
     )
 ```
@@ -369,7 +377,7 @@ from finra.auth import get_client
 c = get_client(
     api_key="QA_TEST_API_KEY",
     api_secret="QA_TEST_API_SECRET",
-    token_path="/tmp/finra/qa_test_token.json",  # different file path
+    token_path="/path/to/qa_test_token.json",  # different file path
     test_environment=True
     )
 ```
@@ -390,7 +398,7 @@ To load an existing token from a file and create a client with it, use [`client_
 
 To force a new token to be fetched from the [FINRA Identity Platform](https://developer.finra.org/docs#getting_started-api_platform_basics-authorization) and create a client with it, use [`client_from_new_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_new_token). By default, the token will be written to the given `token_path`, and will overwrite any file that already exists there. The token write behavior can be customized by setting a synchronous callback as the `token_write_func`, however it is your responsibility to ensure your callback function operates securely and behaves as expected.
 
-To create an [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient), use [`await async_client_from_new_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.async_client_from_new_token), which performs the initial token fetch asynchronously and accepts both synchronous and asynchronous callbacks for the `token_write_func`. An [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) can also be created by setting `is_asyncio=True` in [`client_from_new_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_new_token), however this uses the synchronous client to perform the initial token fetch, which will block other coroutines, and it only accepts synchronous callbacks.
+To create an [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient), use [`await async_client_from_new_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.async_client_from_new_token), which performs the initial token fetch asynchronously and accepts both synchronous and asynchronous callbacks for the `token_write_func`. An [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) can also be created by setting `is_asyncio=True` in [`client_from_new_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_new_token), however this uses the synchronous client to perform the initial token fetch, which will block other coroutines, and it only accepts synchronous callbacks. The synchronous creation function can be used if the `asyncio` loop is created *after* the [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient).
 
 ### Customized Storage Functions
 
@@ -400,11 +408,11 @@ This function calls the `token_read_func` callback to fetch an existing token fr
 
 This function calls the `token_write_func` callback to write a new token to the storage location, for example when calling [`Client.refresh_token()`](https://finra.hawkberry.com/en/latest/reference.html#finra.client.Client.refresh_token) (see [Token Expiration](https://finra.hawkberry.com/en/latest/client.html#token-expiration)).
 
-To create an [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient), use [`await async_client_from_storage_functions()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.async_client_from_storage_functions), which accepts both synchronous and asynchronous callbacks for the `token_read_func` and `token_write_func`. An [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) can also be created by setting `is_asyncio=True` in [`client_from_storage_functions()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_storage_functions), however this only accepts synchronous callbacks.
+To create an [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient), use [`await async_client_from_storage_functions()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.async_client_from_storage_functions), which accepts both synchronous and asynchronous callbacks for the `token_read_func` and `token_write_func`. An [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) can also be created by setting `is_asyncio=True` in [`client_from_storage_functions()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.client_from_storage_functions), however this only accepts synchronous callbacks. The synchronous creation function can be used if the `asyncio` loop is created *after* the [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient).
 
 ### Build Client
 
-The following creation functions are included for completeness, but unless you need to subclass [`TokenManager`](https://finra.hawkberry.com/en/latest/reference.html#finra.token_manager.TokenManager), you should not need them.
+The following creation functions are included for completeness, but unless you are subclassing [`TokenManager`](https://finra.hawkberry.com/en/latest/reference.html#finra.token_manager.TokenManager), you should not need them.
 
 The [`build_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.build_client) and [`build_async_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.build_async_client) functions provide the most fine-grained control over client creation, but they require additional setup to configure correctly. All of the other client creation functions ultimately call one of these to instantiate the client.
 
@@ -418,11 +426,15 @@ For details on accessing the FINRA API, see [FINRA API Access](https://finra.haw
 
 See [`finra.base_client`](https://finra.hawkberry.com/en/latest/reference.html#module-finra.base_client) module for complete reference documentation.
 
+finra-py is FINRA-specific on the way in, and standard HTTPX on the way out.
+
+The client communicates directly with the FINRA API and related resources, and returns the API’s responses directly to you as standard `httpx.Response` objects. finra-py does not introduce a custom response type or data model. Applications control how they handle responses, and how they process and persist response data. For more information about this design and implementation, see [ADR 0001 - Client Architecture and HTTP Response Boundary](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0001-client-architecture-http-boundary.md).
+
 Each dataset has its own method for requesting data.
 
 Many FINRA API parameters accept a defined set of values, for example the field names for each dataset. Rather than requiring users to manually enter these values, `finra-py` represents them using enums from Python’s [enum](https://docs.python.org/3/library/enum.html) module. The reason for this design choice is that requests with unrecognized values will be rejected by the API, which would be a common source of error and frustration for users. Using enums to manage these values avoids common errors and simplifies access to the datasets. A dataset’s enum is typically displayed in the reference documentation just above its associated query method. With a few exceptions, each dataset has its own enum containing all of its available field names.
 
-If a value is passed other than a member of the expected enum, a `TypeError` will be raised. This functionality can be disabled on the client by setting `require_enums=False` during creation, or via its [`set_require_enums()`](https://finra.hawkberry.com/en/latest/reference.html#finra.enum_converter.EnumConverter.set_require_enums) method. Several other classes in this library have the same functionality, including the [`Filter`](https://finra.hawkberry.com/en/latest/reference.html#finra.filters.Filter) class (see [Filters](https://finra.hawkberry.com/en/latest/query-api.html#filters)), and the filing classes used by [Submission API](https://finra.hawkberry.com/en/latest/submission-api.html#submission) methods. In general, disabling this constraint should not be necessary, however it may be useful if you notice the API accepts a value that is not yet supported by this library. If you do find a value that is not supported here, please open an issue on the `finra-py` [Issues Page](https://github.com/hawkberry/finra-py/issues) on GitHub and describe your findings.
+If a value is passed other than a member of the expected enum, a `TypeError` will be raised. This functionality can be disabled on the client by setting `require_enums=False` during creation, or via its [`set_require_enums()`](https://finra.hawkberry.com/en/latest/reference.html#finra.enum_converter.EnumConverter.set_require_enums) method. Several other classes in this library have the same functionality, including the [`Filter`](https://finra.hawkberry.com/en/latest/reference.html#finra.filters.Filter) class (see [Filters](https://finra.hawkberry.com/en/latest/query-api.html#filters)), and the filing classes used by [Submission API](https://finra.hawkberry.com/en/latest/submission-api.html#submission) methods. In general, disabling this constraint should not be necessary, however it may be useful if you notice the API accepts a value that is not yet supported by this library. For more information about this design and implementation, see [ADR 0003 - Enum-Based Representation of FINRA API Values](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0003-enum-based-representation-finra-api-values.md).
 
 Additionally, almost all [Query API](https://finra.hawkberry.com/en/latest/query-api.html#query) datasets support multiple [Endpoints](https://finra.hawkberry.com/en/latest/query-api.html#endpoints) for accessing information about them. Parameters that are required when querying the [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA) endpoint can be provided as arguments or by keyword. Optional parameters must be provided using keywords. Any deviation from this convention is described in the reference documentation.
 
@@ -440,11 +452,11 @@ from finra.auth import get_async_client
 c = await get_async_client(
     api_key="API_KEY",
     api_secret="API_SECRET",
-    token_path="/tmp/finra/token.json"
+    token_path="/path/to/token.json"
     )
 ```
 
-An [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) can also be created by setting `is_asyncio=True` in [`get_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_client), but this uses the synchronous client to perform the initial token fetch, which will block other coroutines.
+An [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) can also be created by setting `is_asyncio=True` in [`get_client()`](https://finra.hawkberry.com/en/latest/reference.html#finra.auth.get_client), however this uses the synchronous client to perform the initial token fetch, which will block other coroutines. This creation function can be used if the `asyncio` loop is created *after* the [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient).
 
 ```python
 from finra.auth import get_client
@@ -452,12 +464,12 @@ from finra.auth import get_client
 c = get_client(
     api_key="API_KEY",
     api_secret="API_SECRET",
-    token_path="/tmp/finra/token.json",
+    token_path="/path/to/token.json",
     is_asyncio=True
     )
 ```
 
-The [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) uses an asynchronous OAuth2 session to make requests, and returns awaitable coroutines. A coroutine must be awaited to execute an API request and receive an `httpx.Response` object. While waiting for the API server to respond, other coroutines and tasks can be executed concurrently and will not be blocked.
+Every request method that normally performs a `GET`, `POST`, `PUT`, `PATCH`, or `DELETE` is asynchronous in the [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient), including server-side asynchronous request methods. The [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) uses an asynchronous OAuth2 session to make requests, and returns awaitable coroutines. A coroutine must be awaited to execute an API request and receive an `httpx.Response` object. While waiting for the API server to respond, other coroutines and tasks can be executed concurrently and will not be blocked.
 
 ```python
 r = await c.get_consolidated_short_interest()  # await async coroutine
@@ -477,7 +489,7 @@ finally:
     await c.close()   # close manually
 ```
 
-Alternatively, the `AsyncClient` can be used as an asynchronous context manager.
+Alternatively, the [`AsyncClient`](https://finra.hawkberry.com/en/latest/reference.html#finra.async_client.AsyncClient) can be used as an asynchronous context manager and closes automatically when exiting the context block.
 
 ```python
 async with await get_async_client(...) as c:  # async context management
@@ -726,7 +738,7 @@ f = (
             date(2025, 1, 6),         # partition value (Monday)
             Filter.CompareType.EQUAL  # not necessary, this is the default
             )
-        .add_compare(                 # chain another filter in-line
+        .add_compare(                 # chain another filter inline
             e.TOTAL_TRADES,
             10_000,
             Filter.CompareType.GREATER
@@ -973,7 +985,11 @@ while True:           # pagination loop
         break
 ```
 
-Three additional response headers may also be useful: see [`extract_response_payload_max_size()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_response_payload_max_size), [`extract_total_records_on_page()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_total_records_on_page), and [`extract_finra_api_request_id()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_finra_api_request_id).
+Three additional response headers may also be useful:
+
+- [`extract_response_payload_max_size()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_response_payload_max_size)
+- [`extract_total_records_on_page()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_total_records_on_page)
+- [`extract_finra_api_request_id()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_finra_api_request_id)
 
 ## Asynchronous Requests
 
@@ -1029,9 +1045,24 @@ data = r.json()                      # this is the requested dataset
 
 Read more about [Request Types](https://developer.finra.org/docs#query_api-api_basics-api_request_types) in the official API documentation.
 
-### Natively Async Requests
+### Dataset-Specific Asynchronous Requests
 
-A few datasets do not follow the operation flow described above, and instead handle the second leg of the asynchronous request natively through their own API endpoint. For these datasets, extract the `request_id` from the response in the first leg, and pass it back to the same query method to check the status of the request. Notable examples that implement this pattern include [`Client.get_composite_individual_seed()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_composite_individual_seed) in the Registration group, as well as most of the [Submission API](https://finra.hawkberry.com/en/latest/submission-api.html#submission) endpoints. See the client’s reference documentation for details about specific datasets.
+Several Query API datasets follow a different asynchronous request flow than the one described above, and instead handle the second leg natively through their own API endpoint. Datasets that implement this pattern include [`Client.get_composite_individual_seed()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_composite_individual_seed) and [`Client.get_firm_renewal()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_firm_renewal) in the Registration group, and the Details datasets in the TRACE Report Card group.
+
+These datasets use the following three-step request process:
+
+1. Make the initial asynchronous request through the dataset’s query method. The first response will contain a `request_id` in the response body, which can be extracted using [`extract_request_id()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_request_id).
+2. Pass the `request_id` back to the same query method in order to check the result status. The result status can be extracted from the response using [`extract_status()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_status). If the result is not ready, the response will also contain the check status link. After waiting awhile, pass the `request_id` back to this method again to re-check the status. FINRA recommends polling no more than once per minute.
+3. When the request returns with status `complete`, the result is ready. The response will also contain the **pre-signed** result URL, which can be extracted using [`extract_result_link()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_result_link). Pass the result URL to the [`BaseClient.get_async_result()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_async_result) method to fetch the result. The **pre-signed** URL is valid for only 30 minutes after the call is made. After expiration, the URL will no longer be valid, and a new result URL must be retrieved by passing the original `request_id` back to the dataset’s query method.
+
+Common helper functions for extracting metadata from response objects are available in the [`utils`](https://finra.hawkberry.com/en/latest/reference.html#module-finra.utils) module. Specifically, for these datasets see:
+
+- [`extract_request_id()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_request_id)
+- [`extract_request_timestamp_dt()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_request_timestamp_dt)
+- [`extract_check_status_link()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_check_status_link)
+- [`extract_status()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_status)
+- [`extract_result_link()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_result_link)
+- [`extract_expires_isoformat()`](https://finra.hawkberry.com/en/latest/reference.html#finra.utils.extract_expires_isoformat)
 
 ## Content Types
 
@@ -1282,7 +1313,7 @@ f = FormBR()                                   # branch office registration
     f.set_filing_status(f.FilingStatus.SUBMITTED)  # finalize submission
      .set_filing_type(f.FilingType.INITIAL)        # initial filing
      .set_filing_data({...})                       # add some filing data
-)                                                  # methods chained in-line
+)                                                  # methods chained inline
 
 r = c.form_br_submission(filing=f)                 # submit the filing
 
@@ -1319,7 +1350,7 @@ f = FormBR()                                   # branch office registration
     f.set_filing_status(f.FilingStatus.DRAFT)  # draft submission
      .set_filing_type(f.FilingType.INITIAL)    # initial filing
      .set_filing_data({...})                   # add some filing data
-)                                              # methods chained in-line
+)                                              # methods chained inline
 
 r = c.form_br_submission(filing=f)             # submit the draft
 
@@ -1351,7 +1382,7 @@ f = FormBR()                                    # branch office registration
     f.set_filing_status(f.FilingStatus.VALIDATE)  # validate submission
      .set_filing_type(f.FilingType.INITIAL)       # initial filing
      .set_filing_data({...})                      # add some filing data
-)                                                 # methods chained in-line
+)                                                 # methods chained inline
 
 r = c.form_br_submission(filing=f)                # validate the filing
 
@@ -1542,9 +1573,9 @@ Client-side validation is available through the [`Client`](https://finra.hawkber
 
 Client-side validation uses the [`Validator`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.validator.Validator) class to validate filing data and metadata on the client-side before it is submitted to the API. Client-side validation is completely optional, and is not intended as a replacement for the API’s server-side validation process. However, it can be used as a supplemental tool to catch errors prior to submission.
 
-The [`Validator`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.validator.Validator) class validates a filing’s JSON object against its JSON Schema, which defines the expected structure and allowed values for the object. It is effectively a proxy for the `jsonschema.Draft7Validator`, which can validate JSON objects against schemas that follow the [JSON Schema Draft 7](https://json-schema.org/draft-07) specification. See more information about the `jsonschema` validation process [here](https://python-jsonschema.readthedocs.io/en/stable/validate/).
+The [`Validator`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.validator.Validator) class validates a filing’s JSON object against its JSON Schema, which defines the expected structure and allowed values for the object. It is effectively a proxy for the `jsonschema.Draft7Validator` class, which can validate JSON objects against schemas that follow the [JSON Schema Draft 7](https://json-schema.org/draft-07) specification. See more information about the `jsonschema` validation process [here](https://python-jsonschema.readthedocs.io/en/stable/validate/).
 
-During client-side validation, the schemas are fetched directly from the API and stored in memory, and are accessible from the client’s `schema_registry` attribute. This significantly reduces validation time because each schema component only needs to be fetched once. To free up resources when all validation is complete, and the schemas are no longer needed, just clear the schema registry.
+During client-side validation, the schemas are fetched directly from the API and stored in memory, and are accessible from the client’s `schema_registry` attribute. This significantly reduces validation time because each schema component only needs to be fetched once. To free up resources when all validation is complete, and the schemas are no longer needed, just clear the schema registry. For more information about this design and implementation, see [ADR 0004 - Client-Side Submission Validation](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0004-client-side-submission-validation.md).
 
 To perform client-side validation within a client’s submission method, set `validate=True`. If the filing passes, it will then be submitted to the API. If it fails, a `jsonschema.ValidationError` will be raised.
 
@@ -1610,6 +1641,16 @@ logging.getLogger('').addHandler(logging.StreamHandler())  # write to stderr
 
 Sometimes, this additional logging is enough to help you debug your application. Before asking for help, carefully review the logs and determine whether you can identify and resolve the issue yourself. You may be the best person to investigate and fix it!
 
+You can set the log-level as appropriate. To log the HTTPX requests and responses using ordinary logging, you can set the root logger’s log-level to `DEBUG`:
+
+```python
+logging.getLogger('').setLevel(logging.DEBUG)  # set the log-level to DEBUG
+```
+
+Alternatively, if you want to only see what the client is logging, call [`base_client.get_logger()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.get_logger) to get the client’s logger and configure it directly.
+
+However, you should be mindful about where your data is being logged. These ordinary logging configurations will not redact sensitive data in the logs. If you need log redaction, for example if you’re submitting a bug report, use [`debug.enable_bug_report_logging()`](https://finra.hawkberry.com/en/latest/reference.html#finra.debug.enable_bug_report_logging). See below.
+
 ### Bug Report Logging
 
 If you still can’t figure out what’s going wrong, this library provides a special utility for preparing bug reports that collects diagnostic logs. This utility redacts sensitive values and common secrets such as tokens, API keys, CRD numbers, SSNs, DOBs, etc. If you need to provide logs in a bug report, please use this utility to generate the logs you submit, and write them to a file (see the second example below). It is not necessary to separately enable logging (as in the previous example); the bug reporting utility configures the required logging automatically.
@@ -1618,9 +1659,9 @@ If you still can’t figure out what’s going wrong, this library provides a sp
 
 The bug report utility configures dedicated loggers for the `finra-py` client, authentication, and debug modules. The logging handlers created by this utility write diagnostic logs from `finra-py` to the configured stream or file. Users may provide their own stream or file destination, but any additional logging written to that destination by external code is outside the control of this library. When filing bug reports, provide this utility a dedicated log file location so that the file contains only `finra-py` logs.
 
-The bug report utility (and the `DEBUG` log-level in general) is not designed to be used in production code. All logged output is recorded, which creates a performance penalty. Be aware that a value collision can occasionally occur during redaction, which may result in unintended fields being redacted or inaccurate redaction labels.
+The bug report utility (and the `DEBUG` log-level in general) is not designed to be used in production code. All logged output is processed and recorded, which creates a performance penalty. Be aware that a value collision can occasionally occur during redaction, which may result in unintended fields being redacted or inaccurate redaction labels. For more information about this design and implementation, see [ADR 0005 - Diagnostic Logging and Log Redaction](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0005-diagnostic-logging-redaction.md).
 
-The recommended practice is to enable bug report logging at the beginning of your program so that the entire API interaction is recorded. To terminate bug report logging, exit the program.
+The recommended practice is to enable bug report logging at the beginning of your program before creating the client, so that the entire API interaction is recorded. To terminate bug report logging, exit the program.
 
 ```python
 from finra.debug import enable_bug_report_logging
@@ -1668,10 +1709,10 @@ The following is a list of known FINRA API issues and inconsistencies. This list
 
 ### Submission API
 
-The Submission API has several discepancies between the FINRA API documentation and the values defined in the JSON Schemas. Many of the examples in the Submission API are also inconsistent with the JSON Schema definitions, but those are beyond the scope of this section.
+The Submission API has several discrepancies between the FINRA API documentation and the values defined in the JSON Schemas. Many of the examples in the Submission API are also inconsistent with the JSON Schema definitions, but those are beyond the scope of this section.
 
 1. The API documentation for Form BR lists `WITHDRAW` or `CLOSUREWITHDRAW` as valid filing types, however the [Form BR JSON Schema](https://schemas.api.finra.org/FINRAApiPlatformBRFiling.json) definition does not allow these values (see the [Metadata Schema](https://schemas.api.finra.org/FINRAApiPlatformBRFilingMetadata.json)). The Form BR JSON Schema definition shows that only `AMENDMENT`, `CLOSURE` and `INTIAL` filing types are accepted. For now, the client library will keep these filing types implemented on [`FormBR`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.form_br.FormBR) unless they are removed from the documentation.
-2. The API documentation  for Form U5 lists `ignoreWarnings` as a valid metadata property, however the [Form U5 JSON Schema](https://schemas.api.finra.org/FINRAApiPlatformU5Filing.json) definition does not list this as a required value and does not allow additional properties (see the [Metadata Schema](https://schemas.api.finra.org/FINRAApiPlatformU5FilingMetadata.json)). For now, the client library will keep this feature implemented on [`FormU5`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.form_u5.FormU5) unless it is removed from the documentation.
+2. The API documentation for Form U5 lists `ignoreWarnings` as a valid metadata property, however the [Form U5 JSON Schema](https://schemas.api.finra.org/FINRAApiPlatformU5Filing.json) definition does not list this as a required value and does not allow additional properties (see the [Metadata Schema](https://schemas.api.finra.org/FINRAApiPlatformU5FilingMetadata.json)). For now, the client library will keep this feature implemented on [`FormU5`](https://finra.hawkberry.com/en/latest/reference.html#finra.filings.form_u5.FormU5) unless it is removed from the documentation.
 
 ### Query Production API
 
@@ -1679,7 +1720,7 @@ This section includes issues and inconsistencies for Query API production datase
 
 1. The [`BaseClient.get_weekly_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_weekly_summary) production and mock datasets, and [`BaseClient.get_weekly_summary_historic()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_weekly_summary_historic) production dataset, contain undocumented values in the [`WeeklySummary.TIER_IDENTIFIER`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.WeeklySummary.TIER_IDENTIFIER) partition field: `NA` and `NMS`. They also contain undocumented [`WeeklySummary.TIER_DESCRIPTION`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.WeeklySummary.TIER_DESCRIPTION) values: `Not Applicable` and `OTC` (typo?). These values are present in both [`Endpoint.PARTITIONS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.PARTITIONS) and [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA), but are not in the FINRA API documentation.
 2. The [`Endpoint.METADATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.METADATA) for the [`BaseClient.get_individual_registration_validation()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_registration_validation) production and mock datasets are missing the `datasetGroup` and `datasetName` properties.
-3. For production and mock datasets, [`BaseClient.get_individual_registration_validation_details()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_registration_validation_details) returns erroneous [`Endpoint.METADATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.METADATA) that does not match the JSON Schemas for either versions of this dataset.
+3. For production and mock datasets, [`BaseClient.get_individual_registration_validation_details()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_registration_validation_details) returns erroneous [`Endpoint.METADATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.METADATA) that does not match the JSON Schemas for either version of this dataset.
 4. The following Fixed Income production and mock datasets do not support partitions, however they return inconsistent status codes when querying [`Endpoint.PARTITIONS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.PARTITIONS); the response returns `200`, but the `statusCode` field returns `500 Internal Server Error`:
    - [`BaseClient.get_agency_tba_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_tba_pricing)
    - [`BaseClient.get_agency_cmo_pricing()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_agency_cmo_pricing)
@@ -1733,11 +1774,11 @@ This section includes issues and inconsistencies for Query API mock datasets ret
 11. The [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA) for the [`BaseClient.get_branch_delta()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_branch_delta) and [`BaseClient.get_individual_delta()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_delta) mock datasets do not filter dates correctly when `start_datetime` and `end_datetime` parameters are provided, and instead returns dates outside the queried range.
 12. The [`BaseClient.get_composite_branch()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_composite_branch) mock dataset does not filter based on provided [`BaseClient.CompositeBranchSections`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.CompositeBranchSections). Instead it returns all sections, regardless of the sections filter. This is in contrast to the [`BaseClient.get_composite_individual()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_composite_individual) mock dataset, which has similar section filtering functionality, and behaves as expected.
 13. The [`BaseClient.get_individual_pre_registration_search()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_pre_registration_search) mock dataset returns field names that are inconsistent with the [`Endpoint.METADATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.METADATA).
-14. The [`BaseClient.get_individual_registration_validation()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_registration_validation) mock dataset returns a  `404 Not Found` status code.
+14. The [`BaseClient.get_individual_registration_validation()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_individual_registration_validation) mock dataset returns a `404 Not Found` status code.
 15. The [`BaseClient.get_registered_individual_search()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_registered_individual_search) mock dataset returns a `middleName` field that is not in production or mock metadata. This field cannot be used as a `fields` or `sort_fields` query parameter.
 16. The [`Endpoint.DATASETS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATASETS) for the [`BaseClient.get_broker_dealer_firm_list()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_broker_dealer_firm_list) mock dataset **Version 2** shows `supportedGetById` as `True`, indicating that the dataset supports single record query. This is incorrect, since **Version 2** of this dataset passes the Individual CRD Number as a query parameter, rather than accessing a URL subpath. This is also inconsistent with the value of `supportedGetById` shown for the production dataset.
-17. The [`Endpoint.DATASETS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATASETS) for the [`BaseClient.get_broker_dealer_firm_list()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_broker_dealer_firm_list) mock dataset shows `supportsRecordLimit` and `supportsRecordOffset` as `False`, indicating that this dataset does not supports pagination. The [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA) for the mock dataset also does not accept `limit` and `offset` keywords. However, this is inconsistent with the production dataset which show `supportsRecordLimit` and `supportsRecordOffset` as `True`. Therefore, pagination is implemented in the client’s query method.
-18. The [`Endpoint.DATASETS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATASETS) for the [`BaseClient.get_u4_form_prefill()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_u4_form_prefill) mock dataset shows `supportsRecordLimit` as `True` (even though `supportsRecordOffset` is `False`), indicating that this dataset supports pagination. However, this is inconsistent with the production dataset which show `supportsRecordLimit` as `False`. Therefore, pagination is **not** implemented in the client’s query method.
+17. The [`Endpoint.DATASETS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATASETS) for the [`BaseClient.get_broker_dealer_firm_list()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_broker_dealer_firm_list) mock dataset shows `supportsRecordLimit` and `supportsRecordOffset` as `False`, indicating that this dataset does not support pagination. The [`Endpoint.DATA`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATA) for the mock dataset also does not accept `limit` and `offset` keywords. However, this is inconsistent with the production dataset which shows `supportsRecordLimit` and `supportsRecordOffset` as `True`. Therefore, pagination is implemented in the client’s query method.
+18. The [`Endpoint.DATASETS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.DATASETS) for the [`BaseClient.get_u4_form_prefill()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_u4_form_prefill) mock dataset shows `supportsRecordLimit` as `True` (even though `supportsRecordOffset` is `False`), indicating that this dataset supports pagination. However, this is inconsistent with the production dataset which shows `supportsRecordLimit` as `False`. Therefore, pagination is **not** implemented in the client’s query method.
 19. The following Registration and TRACE Report Card mock datasets do not support partitions, however they return inconsistent status codes when querying [`Endpoint.PARTITIONS`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.Endpoint.PARTITIONS), with the response returning a `200`, but the `statusCode` field shows a `500 Internal Server Error`:
     - [`BaseClient.get_accounting()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_accounting)
     - [`BaseClient.get_branch_delta()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_branch_delta)
@@ -1755,140 +1796,831 @@ This section includes issues and inconsistencies for Query API mock datasets ret
     - [`BaseClient.get_trace_securitized_products_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_securitized_products_summary)
     - [`Client.get_trace_treasuries_execution_time_difference_summary()`](https://finra.hawkberry.com/en/latest/reference.html#finra.base_client.BaseClient.get_trace_treasuries_execution_time_difference_summary)
 
-# ADR: Client Architecture and HTTP Response Boundary
+# Security Policy for `finra-py`
+
+## Overview
+
+| Policy Area | Evidence |
+| --- | --- |
+| Supported versions and metadata | [`pyproject.toml`](https://github.com/hawkberry/finra-py/blob/main/pyproject.toml) |
+| Dependency and supply-chain | [Dependabot](https://docs.github.com/code-security/dependabot); [Dependency Review](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependency-review); [CodeQL](https://github.com/apps/github-advanced-security) |
+| Published artifacts and provenance | [PyPI Attestations](https://pypi.org/project/finra-py/#files) |
+| Source inventory and file integrity | [Release SBOMs](https://github.com/hawkberry/finra-py/tree/main/.sbom) |
+| License and change history | [LICENSE](https://github.com/hawkberry/finra-py/blob/main/LICENSE); [CHANGELOG](https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md) |
+| Application and network boundary | [ADR 0001](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0001-client-architecture-http-boundary.md) |
+| Authentication and token storage | [ADR 0002](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0002-authentication-token-management.md); [Authentication and Client Creation](https://finra.hawkberry.com/en/latest/auth.html) |
+| Client-side submission validation | [ADR 0004](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0004-client-side-submission-validation.md) |
+| Diagnostic logging and redaction | [ADR 0005](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0005-diagnostic-logging-redaction.md); [Getting Help — Bug Reporting](https://finra.hawkberry.com/en/latest/help.html#bug-reporting) |
+| Vulnerability reporting | [GitHub Private Vulnerability Reporting](https://github.com/hawkberry/finra-py/security) |
+
+## Supported Versions
+
+This policy applies to the latest released version of `finra-py` and its direct runtime dependencies: (1) `authlib`, (2) `httpx`, (3) `jsonschema`, and (4) `tzdata` (Windows only). Supported dependency ranges are defined by [`pyproject.toml`](https://github.com/hawkberry/finra-py/blob/main/pyproject.toml).
+
+Security fixes are provided for the latest version only. Older releases are not currently maintained as separate security-support branches. Breaking changes, deprecations, removals, and security-related dependency changes are documented through the release and [CHANGELOG](https://github.com/hawkberry/finra-py/blob/main/CHANGELOG.md) where applicable.
+
+## Dependency and Supply-Chain
+
+Dependency vulnerability is monitored through GitHub’s dependency graph and [Dependabot](https://docs.github.com/code-security/dependabot) alerts. As part of the automated CI workflow, [Dependency Review](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependency-review) checks dependency changes introduced through pull requests, and CI audits the resolved dependency set on pushes and pull requests. A dependency security issue may result in a `finra-py` release that changes only dependency minimums when that is sufficient to exclude an affected version.
+
+Repository security checks include GitHub [CodeQL](https://github.com/apps/github-advanced-security) and secret scanning with push protection. These controls support the `finra-py` development process but do not replace an application's own security testing or risk assessment.
+
+## Provenance and File Integrity
+
+Release distributions are built from tagged repository state and published to PyPI using Trusted Publishing. [PyPI Attestations](https://pypi.org/project/finra-py/#files) provide cryptographic proof of provenance through verifiable records for each published release.
+
+Each release also includes a versioned CycloneDX JSON SBOM in the [`.sbom/` directory](https://github.com/hawkberry/finra-py/tree/main/.sbom). The SBOM provides a machine-readable inventory of source files and dependencies, with SHA-256 hashes of the source files it inventories.
+
+## Application and Network Boundary
+
+`finra-py` is an open-source Python client library that runs in the calling application's process. It sends requests directly to the FINRA API Platform and related resources, and returns standard `httpx.Response` object directly to the application.
+
+Asynchronous status/result URLs and JSON schema retrieval are restricted to approved hosts over HTTPS, and embedded credentials are rejected. For JSON schema URLs, these constraints are applied to redirects. For FINRA API and related resource URLs, redirect following is disabled entirely. These restrictions reduce the risk of exposing access tokens to unintended hosts.
+
+Optional client-side validation checks filing data against the FINRA API's published JSON Schemas before submission, but does not replace the API's server-side validation.
+
+`finra-py` does not pass requests through a service operated by the project maintainer. `finra-py` does not remotely store application or API data, or collect telemetry, analytics, advertising, or usage data.
+
+See [ADR 0001 — Client Architecture and HTTP Response Boundary](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0001-client-architecture-http-boundary.md) and [ADR 0004 — Client-Side Submission Validation](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0004-client-side-submission-validation.md).
+
+## Authentication and Token Storage
+
+`finra-py` uses Authlib's HTTPX integration for OAuth 2.0 authentication. API credentials are passed to the underlying OAuth2 client, and access tokens are managed by the token manager.
+
+By default, the token manager writes token state and metadata to the file at `token_path`, which contains ordinary JSON and is not encrypted by `finra-py`. Applications can instead provide custom functions to read and write tokens using other storage systems.
+
+See [ADR 0002 — Authentication and Token Management](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0002-authentication-token-management.md) and [Authentication and Client Creation](https://finra.hawkberry.com/en/latest/auth.html).
+
+## Sensitive Data
+
+| Data | `finra-py` handling | Library-managed persistence |
+| --- | --- | --- |
+| API key and API secret | Passed to the underlying OAuth2 client | None |
+| OAuth token data | Managed by the token manager | `token_path`, or application-provided callbacks |
+| Request parameters and payloads | Constructed and sent by the client | None |
+| API responses | Returned as `httpx.Response` objects | None |
+| Asynchronous result data | Retrieved and returned by the client | None |
+| JSON Schema resources | Retrieved for client-side validation | In-memory schema registry only |
+| Diagnostic log data | Optional best-effort logging redaction | Depends on the configured logging output |
+
+## Diagnostic Logging
+
+Diagnostic logging is optional and intended for troubleshooting. The dedicated bug-report logging facility provides **best-effort** redaction for diagnostic output intended for review and sharing. Redaction is not guaranteed, so logs should be reviewed before they are shared. Response-content redaction is only applied to response content that can be decoded as JSON. Redaction is not intended for production use due to increased performance overhead.
+
+Ordinary Python logging follows the application's logging configuration, and does not use the dedicated bug-report logging facility to redact sensitive data.
+
+See [ADR 0005 — Diagnostic Logging and Log Redaction](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0005-diagnostic-logging-redaction.md) and [Getting Help — Bug Reporting](https://finra.hawkberry.com/en/latest/help.html#bug-reporting).
+
+## Application Responsibilities
+
+The application remains responsible for protecting its credentials, tokens, data, and diagnostic logs, and for the security of the environment in which `finra-py` runs. These responsibilities include, but are not limited to:
+
+- **Credentials and tokens:** Storage, access control, and encryption of API credentials and OAuth tokens, including custom token-storage functions and the systems they access. The default token file is not encrypted by `finra-py`.
+
+- **API environment separation:** Credentials and token storage for production, Mock, and QA Test environments.
+
+- **Response and data handling:** Processing HTTP responses, classifying application data, and controlling access, retention, and deletion of data stored, cached, backed up, or passed to other systems.
+
+- **Diagnostic logging:** Logging configuration and destinations, and the protection of sensitive information in logs. Bug-report logging provides best-effort redaction, which does not guarantee that sensitive information is classified correctly or redacted.
+
+- **Application security controls:** Network, endpoint, identity, access-control, monitoring, and incident-response controls for the application and its operating environment.
+
+These responsibilities are outside the security boundary of `finra-py`.
+
+## Reporting a Vulnerability
+
+Please do not report suspected security vulnerabilities through a public GitHub issue. Use GitHub's [Private Vulnerability Reporting](https://github.com/hawkberry/finra-py/security) to report a suspected vulnerability. If private reporting is unavailable, use the contact address published on the [PyPI project page](https://pypi.org/project/finra-py/).
+
+Reports are reviewed to determine validity, severity, affected versions, and appropriate remediation or disclosure steps. The expected response process is:
+
+1. Receive and acknowledge the report
+2. Assess validity and security impact
+3. Determine affected versions and remediation requirements
+4. Develop and test an appropriate fix
+5. Release the remediation through the normal release process
+6. Coordinate appropriate disclosure with the reporter
+
+### Provide Steps and Code to Reproduce the Vulnerability
+
+1. Describe the environment. Include the `finra-py` version, Python version, operating system, and other relevant details.
+2. Describe the steps needed to reproduce the issue, the affected functionality, and relevant security impact.
+3. Provide a minimal reproducible example. If possible, isolate the issue to a small, self-contained script that uses only `finra-py`.
+
+**IMPORTANT: Do not include API credentials, OAuth tokens, token-file contents, production data, personal information, or other confidential information in a vulnerability report.** See [Bug Reporting](https://finra.hawkberry.com/en/latest/help.html) for guidance on providing error and exception logs.
+
+### Disclosure
+
+Please allow reasonable time for investigation and remediation before public disclosure. Confirmed security fixes are released through the normal project release process. Unless otherwise agreed to in writing, response and remediation timing depends on the nature and severity of the issue and is not a fixed service-level commitment.
+
+# ADR 0001: Client Architecture and HTTP Response Boundary
 
 - **Status:** Accepted
-- **Date:** 2026-08-09
+- **Decision Date:** 2026-08-09
 
 ## Context
 
-`finra-py` provides a Python interface to the FINRA API Platform. The client is responsible for translating Python-level operations into requests understood by FINRA, including authentication, endpoint selection, dataset-specific parameters, filtering, sorting, pagination, partitions, notifications, and regulatory submissions.
+`finra-py` provides a Python interface to the FINRA API Platform. It translates Python operations into FINRA API requests and centralizes FINRA-specific behavior, including authentication, request construction, endpoint selection (data, metadata, partitions, and datasets), field selection, filtering, sorting, pagination, server-side asynchronous requests, content-type handling, dataset-specific parameters, notifications, regulatory filings, and submission functionality. This saves applications from implementing that functionality themselves.
 
-The client must provide enough FINRA-specific functionality to make these operations practical from Python without imposing a separate application-level interface for standard HTTP behavior.
+`finra-py` uses HTTPX for HTTP communication, a well-established Python library with support for synchronous and `asyncio`-based requests. It does not add a separate interface for standard HTTP behavior or replace HTTPX responses with `finra-py`-specific response objects or data models.
 
-In particular, applications should be able to use the capabilities of a dedicated FINRA client while retaining direct access to the HTTP response and its standard semantics.
+This keeps the division clear: `finra-py` handles FINRA-specific API behavior while returning standard `httpx.Response` objects directly to applications. Applications can inspect response status codes, headers, and content, and control any further processing, validation, or persistence. Higher-level features for specific FINRA API operations can still be added, provided they do not hide or replace the underlying `httpx.Response`.
 
 ## Data Flow
 
-                       Normal HTTP path:
-                    +----------------------+
-                    | Calling application  |
-                    +----------+-----------+
-                               |
-                               v
-                    +----------------------+
-                    |      finra-py        |
-                    +----------+-----------+
-                               |
-                      access token needed?
-                          /          \
-                        yes           no
-                        |              |
-                        v              |
-             +---------------------+   |
-             | FINRA Identity      |   |
-             | Platform (FIP)      |   |
-             +----------+----------+   |
-                        |              |               Async result retrieval (3rd leg):
-                   access token        |                   +----------------------+
-                        |              |                   |  Calling application |
-                        +------+-------+                   +----------------------+
-                               |                                      |
-                               v                                      v
-                    +----------------------+               +----------------------+
-                    |      finra-py        |               |      finra-py        |
-                    +----------+-----------+               +----------+-----------+
-                               |                                      |
-                      bearer-authenticated                   pre-signed result URL
-                          API request                                 |
-                               |                                      |
-                               v                                      v
-                    +----------------------+               +----------------------+
-                    | FINRA API Platform   |               | FINRA result resource|
-                    +----------+-----------+               +----------+-----------+
-                               |                                      |
-                          HTTP response                          HTTP response
-                               |                                      |
-                               v                                      v
-                    +----------------------+               +----------------------+
-                    |      finra-py        |               |      finra-py        |
-                    +----------+-----------+               +----------------------+
-                               |                                      |
-                               v                                      v
-                    +----------------------+               +----------------------+
-                    | Calling application  |               |  Calling application |
-                    +----------------------+               +----------------------+
+```text
+                 Normal HTTP path
+             ┌──────────────────────┐
+             │ Calling application  │
+             └──────────┬───────────┘
+                        ▼
+             ┌──────────────────────┐
+             │      finra-py        │
+             └──────────┬───────────┘
+                        │
+               access token needed?
+                   ╱          ╲
+                yes            no
+                 │              │
+                 ▼              │
+      ┌─────────────────────┐   │
+      │   FINRA Identity    │   │
+      │   Platform (FIP)    │   │
+      └──────────┬──────────┘   │             Async result retrieval (3rd leg)
+                 │              │                 ┌──────────────────────┐
+            access token        │                 │ Calling application  │
+                 └──────┬───────┘                 └──────────┬───────────┘
+                        ▼                                    ▼
+             ┌──────────────────────┐             ┌──────────────────────┐
+             │      finra-py        │             │      finra-py        │
+             └──────────┬───────────┘             └──────────┬───────────┘
+                        │                                    │
+               bearer-authenticated                 pre-signed result URL
+                   API request                               │
+                        │                                    │
+                        ▼                                    ▼
+             ┌──────────────────────┐             ┌──────────────────────┐
+             │  FINRA API Platform  │             │ Async Result Server  │
+             └──────────┬───────────┘             └──────────┬───────────┘
+                        │                                    │
+                  HTTP response                        HTTP response
+                        │                                    │
+                        ▼                                    ▼
+             ┌──────────────────────┐             ┌──────────────────────┐
+             │      finra-py        │             │      finra-py        │
+             └──────────┬───────────┘             └──────────┬───────────┘
+                        ▼                                    ▼
+             ┌──────────────────────┐             ┌──────────────────────┐
+             │ Calling application  │             │ Calling application  │
+             └──────────────────────┘             └──────────────────────┘
+```
 
 ## Decision
 
-`finra-py` will maintain a **direct, standards-based HTTP boundary** while providing **FINRA-specific interfaces for request construction and API operations**.
+**`finra-py` is FINRA-specific on the way in, and standard HTTPX on the way out.**
+
+`finra-py` communicates directly with FINRA’s API Platform and related resources over HTTPS. It provides FINRA-specific interfaces for constructing requests and performing API operations, and returns `httpx.Response` objects directly to the calling application.
 
 Specifically:
 
-- FINRA-specific authentication and request construction are handled by `finra-py`.
-- The client provides dedicated interfaces for the FINRA Query, Notification, and Submission APIs.
-- FINRA-specific concepts are represented through Python interfaces such as dataset-specific methods, enums, filters, and submission functionality where appropriate.
-- API requests return standard `httpx.Response` objects directly to the caller.
-- The client does not replace HTTP responses with a custom response type or impose a separate response-processing model.
-- Applications retain control over response status, headers, content, and payload processing.
-- OAuth 2.0 authentication and token lifecycle management are handled through the client's authentication facilities.
-- The client supports both synchronous and `asyncio`-based client operation.
-- The client does not prescribe how applications represent, transform, validate, persist, or otherwise consume API response data.
-- No maintainer-operated service sits between the calling application and the endpoints used by `finra-py`.
-
-## Rationale
-
-A dedicated FINRA client is valuable because the FINRA API has concepts and requirements that should not have to be reconstructed by every application. Authentication, endpoint selection, dataset parameters, filtering, pagination, partitions, notifications, submissions, and other FINRA-specific operations belong at the client interface.
-
-HTTP responses are different. HTTP already provides a well-established interface, and HTTPX provides a standard Python implementation of that interface. Replacing the response with a `finra-py`-specific abstraction would add another interface without solving a FINRA-specific problem.
-
-Returning `httpx.Response` therefore establishes a clear boundary:
-
-**FINRA-specific on the way in, standard HTTPX on the way out.**
-
-This gives applications the convenience of a dedicated FINRA client while preserving the control and familiarity of the underlying HTTP interface.
-
-The same principle applies to response processing. `finra-py` should not assume whether an application wants to deserialize JSON, inspect headers, handle particular status codes, persist raw responses, transform records into application models, or apply additional validation. Those are application concerns.
+1. `finra-py` handles FINRA-specific authentication and request construction.
+2. `finra-py` provides dedicated interfaces for the FINRA Query, Notification, and Submission APIs.
+3. `finra-py` represents FINRA-specific concepts through Python interfaces, **such as**:
+   a. dataset-specific methods
+   b. endpoint enums
+   c. field enums for selection and sorting
+   d. filter objects for value comparisons, domains, and date ranges
+   e. pagination parameters
+   f. parameters and methods for multi-leg server-side asynchronous requests
+   g. response content-type parameters
+   h. other dataset-specific parameters
+   i. filing objects for building regulatory submissions
+   j. submission functionality for regulatory filings
+4. `finra-py` does not introduce a custom response type or separate response-processing model. API requests return standard `httpx.Response` objects directly to the caller.
+5. Applications control how they handle response status, headers, and content, and how they process, represent, transform, validate, or persist response data.
+6. `finra-py` provides OAuth 2.0 authentication and token lifecycle management.
+7. `finra-py` provides synchronous and asynchronous (`asyncio`) clients.
+8. No maintainer-operated service sits between the calling application and FINRA API endpoints or related resources.
+9. For server-side asynchronous check status and result requests, `finra-py` restricts URL locations to approved hosts and disables automatic redirect following, to reduce the risk of exposing access tokens to unintended hosts.
 
 ## Consequences
 
 ### Positive
 
 - Applications do not need to implement FINRA-specific request construction themselves.
-- Standard HTTPX response behavior remains available to applications.
-- Applications are not coupled to a `finra-py` response model.
+- Applications retain access to standard `httpx.Response` behavior.
+- Applications are not coupled to a `finra-py`-specific response model.
 - FINRA-specific functionality can be exposed through purpose-built Python interfaces without obscuring the HTTP layer.
-- Applications retain control over response processing and data representation.
+- Applications control how responses are processed and how data is represented.
 - The client has a clearly defined boundary between FINRA-specific behavior and general HTTP behavior.
-- Synchronous and `asyncio` client usage can be supported using the same `finra-py` `BaseClient` class by using either synchronous or asynchronous HTTPX clients.
+- Synchronous and `asyncio`-based operation use the same underlying `finra-py` `BaseClient` class with either a synchronous or asynchronous HTTPX client.
+- Asynchronous URL validation and disabled automatic redirects reduce the risk of exposing access tokens to unintended hosts.
 
 ### Negative
 
 - Applications are responsible for processing returned responses.
 - Applications must understand standard HTTP response semantics.
-- `finra-py` does not automatically impose a single Python representation for all returned FINRA data.
-- Applications requiring domain-specific models or additional response processing must implement those concerns themselves.
+- Applications that require domain-specific models or additional response processing must implement those themselves.
 
 ## Alternatives Considered
 
 ### Raw HTTPX Requests
 
-Applications could use HTTPX directly and construct FINRA API requests themselves.
+Client query methods could have applications construct FINRA API requests themselves using raw HTTPX. This would preserve the HTTP boundary, but each application would need to implement FINRA-specific behavior independently, including all of the features implemented by `finra-py` listed in the Context section above.
 
-This would preserve the standard HTTP boundary but would require each application to independently implement FINRA-specific authentication, endpoint construction, dataset parameters, filtering, pagination, partitions, notifications, submissions, and related behavior.
+This was rejected because it would require applications to implement the core FINRA API functionality themselves.
 
-This was rejected because it duplicates FINRA-specific client functionality across applications.
+### Custom Responses and Data Models
 
-### Custom Response and Data Abstraction
+The client could convert `httpx.Response` objects into `finra-py`-specific response objects or data models.
 
-The client could convert HTTP responses into `finra-py`-specific response objects or automatically transform returned data into higher-level Python models.
+This was rejected because it would replace the established `httpx.Response` interface with a library-specific representation and would impose assumptions about how applications should consume FINRA data. Applications should determine how returned data is represented and processed, rather than the client library.
 
-This was rejected because it would replace an established HTTP interface with a library-specific representation and would impose assumptions about how applications should consume FINRA data.
+# ADR 0002: Authentication and Token Management
 
-The application, rather than the client library, should determine how returned data is represented and processed.
+- **Status:** Accepted
+- **Decision Date:** 2026-08-09
 
-## Scope
+## Context
 
-This decision establishes the architectural boundary between FINRA-specific client functionality and standard HTTP behavior.
+`finra-py` provides a Python interface to the FINRA API Platform. To make authenticated requests, it must first obtain a valid access token from the FINRA Identity Platform for the provided credentials. It must operate for different API environments and credential types, and manage token expiration. If an application persists tokens, the application controls where and how they are stored.
 
-It does not prohibit higher-level functionality where that functionality addresses a specific FINRA API requirement. Such functionality should preserve the direct HTTP response boundary unless there is a separate architectural decision establishing otherwise.
+The FINRA API Platform uses OAuth 2.0 for authentication and authorization. `finra-py` provides an interface for API authentication without reimplementing the OAuth 2.0 protocol or requiring an application to build and maintain its own token-management logic.
+
+API credentials and OAuth tokens require special security considerations. Applications may already have established controls for managing secrets and storing credentials, so `finra-py` must not require a particular storage system or security model. Applications remain responsible for protecting credentials and persisted tokens, including controlling access and retention, managing encryption, and configuring diagnostic logging. The default token file is not encrypted.
+
+`finra-py` supports synchronous and asynchronous (`asyncio`-based) authentication. Asynchronous token acquisition must use a non-blocking asynchronous HTTPX client. Applications must also be able to create and configure an asynchronous client before entering the `asyncio` event loop. Synchronous storage callbacks run inline and can block the event loop, so applications should use asynchronous callbacks for network-based storage. Authentication configuration and token state must remain separate for the production, Mock, and QA Test environments and for each credential type.
+
+`finra-py` runs within the calling application’s process. It does not provide a maintainer-operated authentication service, route application traffic through maintainer infrastructure, or remotely store application or API data. FINRA authorization and entitlement policies are outside this decision and depend on the calling application and the FINRA API Platform.
+
+This ADR addresses authentication and token management, not the broader HTTP client architecture established by [ADR 0001 — Client Architecture and HTTP Response Boundary](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0001-client-architecture-http-boundary.md).
+
+## Decision
+
+`finra-py` will use Authlib’s OAuth 2.0 HTTPX integrations to handle the OAuth 2.0 protocol and `TokenManager` to manage token lifecycle and persistence. This avoids maintaining a separate OAuth 2.0 implementation. Applications control how credentials are supplied and how tokens are persisted, and can configure token access through custom callbacks. By default, tokens are stored in a local JSON file.
+
+Specifically:
+
+1. OAuth 2.0 authentication will use Authlib's `OAuth2Client` and `AsyncOAuth2Client` rather than a `finra-py` implementation of the OAuth 2.0 protocol.
+2. API keys and secrets will be supplied to the OAuth2 session. `TokenManager` will not manage them, and the default token file will not contain them.
+3. `TokenManager` will hold the raw OAuth token in memory, along with its creation timestamp and the `token_write_func` callback used to persist the updated token state.
+4. Persisted token state will include `finra-py` metadata and the raw OAuth token, allowing token age and expiration to be evaluated when a client is reconstructed.
+5. Applications can use `token_read_func` and `token_write_func` callbacks to customize token persistence, and use their existing storage and security controls. By default, the token is stored in a local JSON file at the application-provided `token_path`.
+6. The default token writer will write an application-managed file; it will not provide application-specific encryption or act as a credential store.
+7. `get_client()` and `get_async_client()` will centralize token loading and lifecycle checks. They will reuse a stored token if it meets the configured `min_expires_in` threshold, otherwise they will obtain a new token.
+8. When checking whether to reuse a stored token, `get_client()` and `get_async_client()` will require at least one hour of remaining lifetime by default. Applications can change or disable this threshold.
+9. Lower-level authentication functions will retain distinct responsibilities:
+   a. loading an existing token from a local file will not fetch a replacement
+   b. storage access functions will use the provided `token_read_func` to access an existing token without replacing it
+   c. new-token functions will always obtain a new token
+   d. build functions will construct clients from an already configured `TokenManager`
+10. Automatic token refresh will be opt-in through `automatic_refresh=True`. When enabled, the underlying Authlib OAuth2 session will obtain a new client-credentials token when the current one expires and pass it to the `token_write_func` for persistence.
+11. `Client.refresh_token()` and `AsyncClient.refresh_token()` operations will remain available regardless of whether automatic refresh is enabled. They will propagate the return value of the configured `token_write_func` callback.
+12. Synchronous authentication will use `OAuth2Client`; asynchronous authentication will use `AsyncOAuth2Client`.
+13. Asynchronous authentication functions will perform initial token acquisition using an asynchronous HTTPX client, rather than using a blocking synchronous client inside an asynchronous application.
+14. Synchronous authentication functions will support creating asynchronous clients for applications that require the client instance before entering its `asyncio` event loop.
+15. Asynchronous authentication functions will support synchronous and asynchronous `token_read_func` and `token_write_func` callbacks.
+16. Synchronous callbacks used by asynchronous authentication functions run inline and block the event loop. Applications should use asynchronous callbacks for network I/O.
+17. Synchronous authentication functions will only support synchronous callbacks.
+18. Clients will expose token lifecycle information (`token_age`, `token_expires_at`, and `token_expires_in`) as read-only values.
+19. When bug-report logging is enabled, authentication tokens will be registered with the library's diagnostic-log redaction mechanism before authentication state is logged. Redaction is a best-effort safeguard, not a replacement for application-level logging controls. See [ADR 0005 — Diagnostic Logging and Log Redaction](https://github.com/hawkberry/finra-py/blob/main/docs/adr/0005-diagnostic-logging-redaction.md).
+20. Production, Mock, and QA Test Environment authentication endpoints and credentials will remain distinct. Applications are responsible for using the appropriate credentials and separate token storage for each environment.
+
+## Data Flow
+
+The authentication and refresh paths are shown together to make the relationship between token acquisition, `TokenManager`, Authlib, and the calling application explicit.
+
+```text
+              Initial Authentication
+             ┌──────────────────────┐
+             │ Calling application  │
+             └──────────┬───────────┘
+                        ▼
+             ┌──────────────────────┐
+             │      finra-py        │
+             │    auth functions    │
+             └──────────┬───────────┘                   Token Refresh
+                        │                         ┌──────────────────────┐
+                 existing token?                  │   Client / OAuth2    │
+                 ╱              ╲                 │       session        │
+              yes                no               └──────────┬───────────┘
+               │                  │                          │ refresh
+               ▼                  ▼                          ▼
+      ┌─────────────┐   ┌──────────────────┐      ┌──────────────────────┐
+      │   token     │   │  FINRA Identity  │      │    FINRA Identity    │
+      │   storage   │   │  Platform        │      │    Platform          │
+      └────────┬────┘   └─────────┬────────┘      └──────────┬───────────┘
+               └────────┬─────────┘ new token                │ new token
+                        ▼                                    ▼
+             ┌──────────────────────┐             ┌──────────────────────┐
+             │    TokenManager      │             │     TokenManager     │
+             └──────────┬───────────┘             └──────────┬───────────┘
+                        ▼                                    ▼
+             ┌──────────────────────┐             ┌──────────────────────┐
+             │  Authlib OAuth2      │             │ token_write_func     │
+             │  HTTPX integration   │             │ application-managed  │
+             └──────────┬───────────┘             │ storage or file      │
+                        │                         └──────────┬───────────┘
+                        ▼                                    ▼
+             ┌──────────────────────┐             ┌──────────────────────┐
+             │        Client        │             │        Client        │
+             └──────────────────────┘             └──────────────────────┘
+```
+
+The same architectural boundary is used by synchronous and asynchronous clients. The asynchronous path uses Authlib's `AsyncOAuth2Client` for token acquisition and can await asynchronous callbacks where provided.
+
+## Consequences
+
+### Positive
+
+- Applications do not need to implement the OAuth 2.0 token acquisition flow themselves.
+- Authlib handles OAuth 2.0 protocol operations, reducing the amount of custom authentication code `finra-py` must maintain.
+- API credentials are separated from persisted token state; the default token representation does not contain the API secret.
+- Applications can use the default local token file for straightforward deployments without having to implement token serialization themselves.
+- Enterprise applications can integrate token persistence with existing credential-management infrastructure through callbacks without introducing a `finra-py`-specific storage service.
+- The authentication boundary remains inside the application's process, with no maintainer-operated service or authentication proxy between the application and the FINRA API Platform or related resources.
+- Synchronous and asynchronous applications receive equivalent authentication capabilities without forcing asynchronous applications through a blocking initial token request.
+- Applications can set a proactive token-replacement threshold, opt in to automatic refresh, and invoke manual token refresh.
+- Token lifecycle information is available to applications without exposing the internal storage mechanism.
+- When bug-report logging is enabled, authentication-sensitive values are registered with the library’s redaction mechanism.
+
+### Negative
+
+- Applications remain responsible for protecting API credentials and persisted OAuth tokens. `finra-py` does not make an application's storage location secure.
+- The default token writer uses ordinary JSON file persistence and does not provide application-specific encryption, access-control policy, key management, or retention policy.
+- Custom token-storage callbacks become part of the application's security boundary, and the application is responsible for implementing them correctly and securely.
+- The distinction among the authentication factory functions provides flexibility but requires applications using the lower-level functions to understand their different token-loading and refresh behaviors.
+- Automatic refresh reduces application control over the timing of token acquisition, and return values from `token_write_func` cannot be propagated directly to the caller when Authlib performs a refresh implicitly.
+- Persisted token state includes `finra-py` metadata and therefore is a library-managed representation of the token, rather than simply the raw OAuth token returned by the FINRA Identity Platform. Existing persisted data that does not contain the required metadata must be recreated.
+
+## Alternatives Considered
+
+### Hand-Rolled OAuth 2.0 Implementation
+
+`finra-py` could implement the OAuth 2.0 client-credentials flow and token lifecycle directly.
+
+This was rejected because OAuth 2.0 is a standardized security-sensitive protocol and Authlib already provides the required client functionality. Maintaining a second implementation would increase the amount of authentication code that `finra-py` must secure, test, and maintain without providing a corresponding benefit to API users.
+
+### Authentication Credentials Stored in the Client
+
+The client could own and directly manage API credentials and token persistence.
+
+This was rejected because it would combine protocol state, application credential management, and token storage into a single abstraction. Keeping credentials within the underlying OAuth2 session while assigning token persistence to `TokenManager` establishes a clearer boundary and prevents the client abstraction from becoming a credential store.
+
+### Built-In Encrypted Token Store
+
+`finra-py` could provide an encrypted token database or a vendor-specific secrets-management implementation.
+
+This was rejected because encryption, key management, access control, retention, auditing, and deployment-specific credential infrastructure are application concerns. A built-in store would impose security and operational assumptions on consuming applications instead of allowing them to integrate with controls already required by their environment.
+
+### Mandatory Automatic Refresh
+
+All clients could automatically obtain a replacement token whenever the current token expires.
+
+This was rejected because authentication timing is observable application behavior. Some applications require explicit control over authentication calls, token persistence, and error handling. Automatic refresh is therefore available as an explicit option rather than being imposed on every integration.
+
+### Filesystem-Only Token Persistence
+
+`finra-py` could require all applications to persist tokens through `token_path`.
+
+This was rejected because many deployments do not use local filesystem storage for credentials. The callback interface allows the same `finra-py` authentication lifecycle to be preserved while storing tokens in a location appropriate to their environment.
+
+### Synchronous Token Acquisition During Asynchronous Authentication
+
+Asynchronous authentication functions could obtain the initial token through the synchronous `OAuth2Client`.
+
+This was rejected because synchronous token acquisition during asynchronous authentication would block the event loop. Asynchronous authentication functions will use `AsyncOAuth2Client` for token acquisition. Synchronous authentication functions may still create an asynchronous client before the application enters the event loop.
+
+# ADR 0003: Enum-Based Representation of FINRA API Values
+
+- **Status:** Accepted
+- **Decision Date:** 2026-08-09
+
+## Context
+
+`finra-py` provides a Python interface to the FINRA API Platform. The API has many fixed, case-sensitive names and values (its API vocabulary). Some of these values are part of the structure of the API itself, such as resource endpoints, dataset groups, dataset field names, filter comparison operators, and filing operations. Others are data values returned by, or supplied to, a specific API field.
+
+Manually entering API field names and other fixed API vocabulary creates an avoidable source of integration errors. A misspelled or incorrectly cased field name can result in a request being rejected by the API, while discovering a large dataset's available fields from raw strings is inconvenient for application developers. `finra-py` therefore represents many finite API vocabularies with Python enums and converts those members to the exact strings required by the API. Because the API may accept new values before `finra-py` includes them in its enums, applications need a way to use those values in the meantime.
+
+The enum design serves several different consumers within the library. The `BaseClient` uses enums to represent dataset fields, endpoints, groups, and sorting fields. `Filter` uses dataset field enums and its own `CompareType` enum when constructing advanced query filters. Filing classes use enums for filing status, filing operations, and filing-specific filing types and options. The `RelabelJSON` response relabeling utility can derive a response-field relabel mapping from a dataset enum when its member names match the desired canonical labels; alternatively, applications can supply a mapping or an application-defined enum.
+
+These uses do not imply that every finite set of API values should be an enum. In particular, a dataset field may have a small set of documented possible values without making those values part of the Python enum that represents the field name. Such values are often documented in the field's description or docstring and remain ordinary data supplied to the API.
+
+Dataset-specific keyword parameters that are not query fields may have documented possible values, but those lists may not be authoritative or complete. Treating those values as enums could unnecessarily restrict callers as the API's accepted values evolve.
+
+The cost of a field enum also depends on query capabilities. For example, `get_u4_form_prefill()` and `get_individual_pre_registration_search_v2()` do not support field selection, filtering, or sorting, so a large field enum would provide little value. A complete enum for `get_u4_form_prefill()` would require approximately 3,000 lines of source code. For such cases, response relabeling can instead use an application-supplied mapping.
+
+The design therefore needs to balance type safety and developer usability against API compatibility, maintenance cost, source size, and the risk of misrepresenting an API value domain as complete when it is not.
+
+## Decision
+
+`finra-py` will use Python enums to represent **finite API vocabularies when the vocabulary is sufficiently stable and the enum is useful to developers using the library**. Enum members will contain the exact representation required by the API. `EnumConverter` will provide the common conversion and enforcement behavior used by the library's enum consumers.
+
+Specifically:
+
+1. Dataset field enums will represent documented field names where field selection, filtering, sorting, partition handling, or another feature available to library users makes the enum useful. `Endpoint` and `Group` will represent the finite Query API endpoint and group vocabularies.
+2. For dataset field enums, an enum member’s `.value` will contain the exact API field name, preserving its spelling and casing. The Python member name may use a conventional or simplified identifier.
+3. `Filter` will use dataset field enums and `CompareType` for filter construction.
+4. `BaseFilingOps` will define `FilingStatus` and `Op`.
+5. Filing subclasses will define filing-type enums where the filing process has a finite, sufficiently stable vocabulary that is useful to the library’s Python interface. A filing class without an applicable filing-type vocabulary, such as `CreateIndividual`, will not introduce an enum solely for consistency.
+6. `FormU4` will also expose `RepAccessType` for its finite, sufficiently stable FINPRO access setting.
+7. `EnumConverter` will convert enum members to API values, convert iterables of field enum members, and raise `TypeError` when enum enforcement is enabled and a value is not a member of the expected enum. It will suggest similar enum values for likely typos.
+8. Enum enforcement will default to `require_enums=True`. Applications may disable enforcement with `require_enums=False` during construction or through `set_require_enums(False)`. This lets applications use values that the API accepts before `finra-py` adds them to its enums.
+9. Enum definitions make the implemented API vocabulary inspectable in source and reference documentation, supporting code review and controlled changes. They do not check that a complete request follows all API rules or is valid for the underlying API operation.
+10. `RelabelJSON` may derive a mapping from a dataset enum when the enum’s member names match the desired output labels. However, because application output labels may differ from enum member names, it will also accept application-supplied mappings or application-defined enums. Response relabeling does not require a library dataset enum.
+11. A dataset will not receive a field enum merely because metadata exists. Datasets without field selection, filtering, or sorting may not justify a large enum; `get_u4_form_prefill()` and `get_individual_pre_registration_search_v2()` are examples. Applications may define their own enum or mapping when their use case warrants it.
+12. Dataset-specific keyword parameters that are not query fields, such as `tier_identifier` and `report_view`, will remain ordinary values unless a separate decision establishes a stable, useful enum. Possible field values also remain application data; a short documented set does not itself justify an enum.
+
+## Data Flow
+
+```text
+           ┌─────────────────────────────────────────────────────┐
+           │ API vocabulary with a stable, useful finite domain  │
+           └──────────────────────────┬──────────────────────────┘
+                                      ▼
+                            ┌───────────────────┐
+                            │    Enum member    │
+                            └─────────┬─────────┘
+                                      ▼
+                            ┌───────────────────┐
+                            │   EnumConverter   │
+                            └───────────────────┘
+                                ╱           ╲
+                        require_enums     conversion
+                              │               │
+                              ▼               ▼
+                         ┌──────────┐   ┌────────────┐
+                         │ validate │   │ enum.value │
+                         └────┬─────┘   └─────┬──────┘
+                              └───────┬───────┘
+                                      ▼
+                            ┌───────────────────┐
+                            │ FINRA API request │
+                            └───────────────────┘
+```
+
+```text
+              ┌────────────────────┐
+              │ Dataset field enum │
+              └─────────┬──────────┘
+                        ├──▶ BaseClient fields / sort_fields
+                        │
+                        ├──▶ Filter field names
+                        │
+                        ├──▶ partition and sorting logic
+                        │
+                        └──▶ RelabelJSON convenience mapping
+```
+
+```text
+              ┌──────────────────────────────────────────┐
+              │ Application-specific values and mappings │
+              └─────────┬────────────────────────────────┘
+                        ├──▶ field values
+                        │
+                        ├──▶ dataset-specific control keywords
+                        │
+                        └──▶ custom RelabelJSON mappings
+```
+
+## Consequences
+
+### Positive
+
+- Developers can inspect the API field names and other finite, stable API names and values through `finra-py` enums and reference documentation.
+- Default enforcement catches many spelling and casing errors before requests or filing payloads are sent to the API.
+- `EnumConverter` provides consistent conversion and enum-membership enforcement across `BaseClient`, `Filter`, and filing classes.
+- Dataset field enums can be reused for selection, filtering, sorting, partitions, and response relabeling where appropriate.
+- Application-defined mappings and `require_enums=False` preserve flexibility for application-specific names and values the API accepts before `finra-py` adds them to its enums.
+- The field-enum criterion avoids large definitions where datasets do not let callers use fields for selection, filtering, sorting, or similar query features.
+
+### Negative
+
+- Enum definitions require maintenance as the API's documented vocabulary changes, and a new value may not be available until a later library release.
+- Applications may need to disable enforcement temporarily when using a value that the library does not yet represent.
+- An enum that incorrectly assumes its members are complete can be more restrictive than the underlying API.
+- Datasets without a library enum require an application-supplied mapping or enum if enum-based relabeling is needed.
+
+## Alternatives Considered
+
+### Raw Strings Everywhere
+
+The library could represent all API names and values as strings, and require applications to supply the exact strings the API expects. This was rejected because it would duplicate the API vocabulary in applications that use the library, and lose an opportunity to catch common errors.
+
+### Enums for Every Finite Value or Dataset
+
+The library could create enums for every documented finite value or every dataset with metadata. This was rejected because a short list of documented or accepted values for dataset-specific parameters may not be stable or complete, while a large enum provides little query benefit for datasets without field selection, filtering, or sorting.
+
+### Runtime Metadata-Generated Enums
+
+The library could retrieve metadata at runtime and generate enums dynamically. This was rejected because the public Python interface would depend on runtime retrieval and become less straightforward for static typing, IDE discovery, code review, and reproducible application behavior.
+
+### Application-Only Enums
+
+The library could provide enum conversion utilities but require applications to define their own enums for the API field names. This was rejected because it would move stable API vocabulary back into every application that uses the library.
+
+### No Enum Enforcement
+
+The library could make enums optional conveniences and accept raw strings by default. This was rejected because it would weaken protection against known spelling and casing errors. `require_enums=False` remains available for API evolution and other compatibility cases.
+
+# ADR 0004: Client-Side Submission Validation
+
+- **Status:** Accepted
+- **Decision Date:** 2026-08-09
+
+## Context
+
+`finra-py` provides filing objects for constructing FINRA Submission API requests and a `Validator` object for comparing JSON objects against JSON Schemas published by the FINRA API Platform.
+
+Client-side validation is not a replacement for the API's server-side validation. For supported filings, validation can be invoked on the server-side after transmitting a filing to FINRA by setting `FilingStatus.VALIDATE` in the filing metadata. Alternatively, client-side validation is performed locally prior to transmitting a filing to FINRA. The primary benefit of client-side validation is that schema-level filing errors can be corrected before potentially sensitive data is transmitted, reducing unnecessary exposure and shortening the correction cycle. Once retrieved, schemas can be reused for validation without repeated network requests.
+
+Client-side validation checks constraints represented by the available schemas, but it cannot reproduce the validation performed by the API outside those schemas. The API's documentation and schemas can be inconsistent; see [Known FINRA API Issues](https://finra.hawkberry.com/en/latest/help.html#known-finra-api-issues). `finra-py` filing objects enforce construction-time requirements for documented metadata fields when an filing is built, whereas the `Validator` handles the broader schema-defined constraints without duplicating the schema rules in Python code.
+
+Although submission filings are the primary use case, `Validator` can be used independently of submission methods, for example for dataset response data defined by a FINRA API schema. Network retrieval is restricted to approved FINRA API Platform schema hosts. Applications remain responsible for protecting filing data during construction, validation, logging, and error handling.
+
+## Decision
+
+`finra-py` will provide optional client-side JSON Schema validation as the final client-side validation step before submission. Filing objects enforce construction-time requirements for documented metadata fields, and the API's published schemas define the broader schema-level checks performed by client-side validation.
+
+Specifically:
+
+1. `BaseFiling` subclasses will enforce clear, documented construction-time requirements. They will not duplicate every schema constraint for every filing. Requirements not documented as part of the filing object's interface remain schema-level rules.
+2. Passing client-side validation does not imply that FINRA will accept a filing. For supported filings, `FilingStatus.VALIDATE` will invoke a server-side completeness check, while `validate=True` validates locally before the submission request is sent.
+3. `BaseClient` submission methods will default to `validate=False`. Validation is available through `Client`, but not through `AsyncClient` which rejects `validate=True` because the `jsonschema` library is synchronous. With `validate=True`, the exact JSON object built for the request will be validated before the corresponding `POST`, `PUT`, or `PATCH` request is sent.
+4. A `BaseFiling` supplies its own `schema_url` by default, but an explicit `schema_url` may override it. Providing a pre-built filing to a submission method as a dictionary requires a non-empty `schema_url` if `validate=True`.
+5. `Validator` will be usable outside of submission methods. It will validate a `BaseFiling` or a pre-built filing as a dictionary against a provided top-level schema URL. It will use `jsonschema` and `referencing.Registry` to resolve `$ref` URLs, with `jsonschema.Draft7Validator` as the default. Retrieved schemas without `$schema` are treated as Draft 7.
+6. Retrieved schemas will be stored under the requested URL in the client's `schema_registry` or in an explicitly supplied `schema_registry` dictionary. Applications can clear the registry when validation is complete to free up resources.
+7. The `schema_registry` will be checked before network retrieval. If a URL is in the `schema_registry`, its cached schema will be used rather than fetching it over the network. Compatible non-FINRA schemas will be used if present in the `schema_registry`, but they cannot be fetched from arbitrary external hosts.
+8. The following network policy will be enforced when an uncached schema is fetched over the network, and a `ValueError` will be raised if the destination URL fails the policy. If the URL is not found in the `schema_registry`, the schema will be fetched using the authenticated client's existing HTTPX client **only if** the URL:
+   a. uses HTTPS
+   b. does not contain embedded credentials, and
+   c. has a hostname that exactly matches one of the approved FINRA API hosts (ports are unrestricted):
+      1. `datacollection-api.finra.org`
+      2. `fingerprints.finra.org`
+      3. `ramp-schemas.datacollection.finra.org`
+      4. `schemas.api.finra.org`
+      5. `static.rampweb.finra.org`, or 
+      6. `static.rampweb.qa.finra.org`
+9. Redirects will be handled individually, rather than automatically by HTTPX, by setting `follow_redirects=False`. This allows every redirect to be validated against the network policy described above. Allowing HTTPX to redirect automatically would bypass network policy validation for redirects. The number of allowed redirects is equal to the `max_redirects` parameter configured on the HTTPX client, and `httpx.TooManyRedirects` is raised if that limit is exceeded.
+10. The `Validator` class will proxy validator methods and attributes to the underlying `jsonschema.protocols.Validator` that it does not override. `Validator.is_valid()` will accept a `BaseFiling` object or pre-built filing dictionary and return a boolean, while `Validator.validate()` will accept the same, but raise a `jsonschema.ValidationError` on failure.
+
+## Data Flow
+
+The two validation paths share the schema registry but remain distinct:
+
+```text
+         Build and validate submission              Resolve and cache schemas
+        ┌─────────────────────────────┐                  ┌─────────────┐
+        │  Filing object / JSON dict  │                  │  Validator  │
+        └──────────────┬──────────────┘                  └──────┬──────┘
+                       ▼                                        ▼
+               ┌───────────────┐                      ┌───────────────────┐
+               │ build object  │                      │ top-level schema  │
+               └───────┬───────┘                      └─────────┬─────────┘
+                       ▼                                        ▼
+         ┌───────────────────────────┐                 ┌─────────────────┐
+         │ Filing object constraints │                 │ Registry / $ref │
+         └─────────────┬─────────────┘                 └────────┬────────┘
+                       ▼                                        │
+                ┌─────────────┐                        referenced resource?
+                │ JSON object │                           ╱            ╲
+                └──────┬──────┘                        yes              no
+                       │                                │                │
+                 validate=True?                         ▼                │
+                   ╱       ╲                       ┌─────────┐           │
+                 no         yes                    │ cached? │           │
+                 │           │                     └─────────┘           │
+                 │           ▼                       ╱     ╲             │
+                 │     ┌───────────┐              yes       no           │
+                 │     │ Validator │               │         │           │
+                 │     └─────┬─────┘               │         ▼           │
+                 │           ▼                     │ ┌───────────────┐   │
+                 │    ┌─────────────┐              │ │ retrieve with │   │
+                 │    │ client-side │              │ │ authenticated │   │
+                 │    │ JSON Schema │              │ │    client     │   │
+                 │    │ validation  │              │ └───────┬───────┘   │
+                 │    └──────┬──────┘              │         │           │
+                 └─────┬─────┘                     └────┬────┘           │
+                       ▼                                ▼                │
+            ┌─────────────────────┐             ┌────────────────┐       │
+            │ POST / PUT / PATCH  │             │ resource store │ ◀─────┘
+            └──────────┬──────────┘             └───────┬────────┘
+                       ▼                                ▼
+                   FINRA API               client-side JSON Schema validation
+```
+
+The resulting workflow for filing data is:
+
+```text
+              Local application                       FINRA API Platform
+        ┌───────────────────────────┐           ┌───────────────────────────┐
+        │ ┌───────────────────────┐ │           │                           │
+        │ │ Build filing locally  │ │           │                           │
+        │ └───────────┬───────────┘ │           │                           │
+        │             ▼             │           │                           │
+        │ ┌───────────────────────┐ │           │  ┌──────────────────────┐ │
+        │ │Retrieve/cached schemas│◀─── schema ───▶│  FINRA schema URLs   │ │
+        │ └───────────┬───────────┘ │           │  └──────────────────────┘ │
+        │             ▼             │           │                           │
+        │ ┌───────────────────────┐ │           │                           │
+        │ │   Validate locally    │ │           │                           │
+        │ └───────────────────────┘ │           │                           │
+        │       ╱          ╲        │           │                           │
+        │    fail          pass     │           │  ┌──────────────────────┐ │
+        │     │              │      │     ┌───────▶│Server-side validation│ │
+        │     └─ edit/retry ─┤      │     │     │  └──────────┬───────────┘ │
+        │                    ▼      │   filing  │             ▼             │
+        │                ┌────────┐ │     │     │  ┌──────────────────────┐ │
+        │                │ submit │───────┘     │  │Submission processing │ │
+        │                └────────┘ │           │  └──────────────────────┘ │
+        └───────────────────────────┘           └───────────────────────────┘
+```
+
+## Consequences
+
+### Positive
+
+- Schema-defined filing errors can be detected before sensitive filing data is transmitted to FINRA.
+- Retrieved schema resources can be reused across validations, reducing repeated network traffic.
+- Documented construction-time checks provide focused errors without duplicating the schema rules in Python.
+- `Validator` can be used outside of submission methods to validate filing data or other FINRA API schema-based data.
+- Schema retrieval uses the existing authenticated client rather than introducing a separate HTTP or credential boundary, while restricting network requests to approved FINRA API schema hosts.
+
+### Negative
+
+- Uncached schema URLs outside the approved FINRA API hosts cannot be fetched. Applications using other schemas must preload all required resources into the registry.
+- The set of approved hosts must be deliberately updated when an additional FINRA schema host is required.
+- Validation depends on the accuracy and completeness of the published schemas; results can differ from server-side behavior.
+- Schema resources remain in memory until the registry is cleared or discarded.
+- Integrated validation in submission methods using `validate=True` is not available through `AsyncClient`.
+
+## Alternatives Considered
+
+### Rely Only on Server-Side Validation
+
+This was rejected because potentially sensitive filing data must be transmitted before many correctable errors are identified, potentially creating unnecessary submission traffic.
+
+### Duplicate FINRA Schema Rules in Python
+
+This was rejected because a second independently maintained ruleset could diverge from FINRA's schemas. Filing objects therefore enforce documented construction requirements while the validator handles schema-defined constraints.
+
+### Validate Only During Filing Construction
+
+This was rejected because construction checks alone would leave schema-defined constraints unvalidated locally and would not provide a general validator for other compatible JSON objects.
+
+### Retrieve Only Top-Level Schemas or Use Separate Unauthenticated Retrieval
+
+This was rejected because complete validation can require referenced resources, some of which require authentication. The existing client session preserves the established HTTP and authentication boundary.
+
+### Allow Arbitrary Schema Destinations
+
+Unrestricted schema retrieval was rejected because requests use the authenticated client and may carry OAuth credentials. Allowing arbitrary initial URLs or unchecked redirect destinations could disclose an access token to unintended hosts. Therefore, network retrieval is limited to six explicitly approved FINRA API schema hosts. Before each authenticated request, the validator checks the URL against the set of allowed hosts. Every allowed host may receive the access token. A newly required subdomain must be explicitly reviewed and added to the allowed list.
+
+### Allow HTTPX to Follow Redirects Automatically
+
+Automatic redirect following was rejected because a customized HTTPX client could follow a redirect before the `Validator` checks the destination. Since the request uses authentication headers, this could disclose the access token to a destination outside the allowed hosts. Each request therefore disables automatic redirect following explicitly, validates the proposed destination against the network policy before making the next request, and closes the intermediate redirect response.
+
+### Persist Schemas Across Application Runs
+
+Persistent caching was rejected for the current design because it adds freshness, invalidation, integrity, and lifecycle concerns beyond those needed to eliminate repeated retrievals during validation.
+
+### Always Validate Submissions
+
+This was rejected because schema retrieval and validation add network and processing overhead, and applications may already validate data or need explicit control over that work. Client-side validation therefore remains opt-in.
+
+# ADR 0005: Diagnostic Logging and Log Redaction
+
+- **Status:** Accepted
+- **Decision Date:** 2026-08-09
+
+## Context
+
+`finra-py` performs diagnostic logging using Python's standard `logging` module. These logs are useful for troubleshooting API requests, responses, and authentication, but may also contain credentials, tokens, identifiers, and sensitive data. Applications control Python logging configuration and destinations.
+
+There are two use cases:
+
+1. **Ordinary logging**, where no redaction occurs; the application chooses configuration and accepts responsibility for output.
+2. **Bug-report logging**, where `finra-py` provides a dedicated facility with best-effort redaction for logging sensitive values.
+
+The bug-report facility can only apply targeted protection to `finra-py` loggers. Because `finra-py` cannot control every handler or every value an application may log, redaction is scoped to dedicated logging handlers which avoids modifying records seen by other handlers. In order to be redacted, sensitive values must be registered for redaction before corresponding diagnostic records are emitted.
+
+The bug-report facility supports recursive inspection for JSON data, which can distinguish sensitive API fields from ordinary values. Free-text submission fields require regular expression pattern matching because sensitive information may appear within otherwise ordinary prose. Neither approach can guarantee that every sensitive value is recognized and redacted, and therefore redaction is **best effort**; the application and end user remain responsible for ensuring that all sensitive data is redacted before sharing any logs.
+
+This ADR does not establish application logging policy, production logging, log retention or access-control policy.
+
+## Decision
+
+`finra-py` will support standard Python logging for ordinary diagnostics, and a separate, explicitly enabled logging facility with handler-scoped, best-effort redaction for bug-reporting.
+
+Specifically:
+
+1. Ordinary diagnostic logging will use Python's standard `logging` interfaces. The library will not install a process-wide redaction filter or otherwise reconfigure the root logger.
+2. Ordinary `DEBUG` logging will not enable sensitive-value registration or automatically redact log output. Applications that configure ordinary logging remain responsible for the security of those logs.
+3. `debug.enable_bug_report_logging()` will provide the dedicated bug-report logging path. It will explicitly enable redaction registration, configure the `finra.debug`, `finra.auth`, and `finra.base_client` loggers for `DEBUG`, and attach redacting file and/or stream handlers to those loggers.
+4. Bug-report logging will write to `sys.stderr` by default. Applications may instead provide a file, disable the stream, or provide both. A dedicated file is recommended when logs will be shared for troubleshooting.
+5. Bug-report logging is intended for troubleshooting rather than production logging or production audit trails. It will remain explicitly opt-in because detailed request and response logging and redaction processing introduce performance and data-handling costs.
+6. Redaction will occur at the output-handler boundary. The redacting handlers will format a `LogRecord`, redact the resulting message, and write the redacted message without modifying the original record. Consequently, other handlers receiving the same record are not made redaction-safe by the presence of a redacting handler.
+7. Sensitive values will be maintained in a redaction registry as exact strings associated with labels. `None` and empty or whitespace-only values will not be registered. When values are substituted, longer registered values will be matched before shorter values to reduce partial-value matches.
+8. Structured request and token data will be inspected recursively before the related diagnostic log is emitted. Leaf values whose keys match the library's sensitive-key patterns will be registered for redaction, subject to explicit whitelisting where required.
+9. FINRA filter objects will be labeled using their `fieldName` when associating `fieldValue` and `values` with the sensitive field being redacted.
+10. Known potentially sensitive free-text submission fields will receive additional key-scoped inspection. The implementation will use regular expressions to detect sensitive patterns defined by the FINRA API, including patterns for identifiers and health-related information, and will redact matching portions or the complete field where the configured rules require it.
+11. Redaction registration entry points will return immediately when redaction is disabled. Ordinary `DEBUG` logging therefore does not incur the structured-data traversal and registration work used by the bug-report facility.
+12. HTTP `200` responses will be inspected for redaction registration by calling `Response.json()` regardless of the response content type. Successfully decoded JSON is recursively inspected with the response-specific free-text rules.
+13. If an HTTP `200` response cannot be decoded as JSON, values from that response will not be registered for structured redaction. A warning will be emitted through the `finra.debug` logger instructing the user to review the log before sharing it.
+14. Request data and authentication token state will be registered before their corresponding diagnostic messages are emitted. The same logging approach is used by synchronous and asynchronous client operations.
+15. The redaction mechanism will remain explicitly documented as **best effort**. It is not a guarantee that sensitive information is absent from logs, and applications must review logs before retaining, sharing, or submitting them to another party.
+
+## Data Flow
+
+```text
+                           Ordinary Diagnostic Logging
+                           ┌─────────────────────────┐
+                           │   Calling application   │
+                           └────────────┬────────────┘
+                                        ▼
+                           ┌─────────────────────────┐
+                           │     Python logging      │
+                           └────────────┬────────────┘
+                      ┌─────────────────┴─────────────────┐
+                      ▼                                   ▼
+        ┌────────────────────────────┐        ┌──────────────────────┐
+        │ `finra-py` logger handlers │        │ Application handlers │
+        └─────────────┬──────────────┘        └──────────────────────┘
+                      ▼
+           ┌──────────────────────┐
+           │   LogRecord output   │
+           └──────────────────────┘
+```
+
+```text
+                               Bug-Report Logging
+                       ┌─────────────────────────────────┐
+                       │ Request / token / response data │
+                       └────────────────┬────────────────┘
+                                        ▼
+                            ┌────────────────────────┐
+                            │ Redaction registration │
+                            └───────────┬────────────┘
+                                        ▼
+                            ┌────────────────────────┐
+                            │   Python `LogRecord`   │
+                            └───────────┬────────────┘
+                                        ▼
+                            ┌────────────────────────┐
+                            │   Redacting handler    │
+                            └───────────┬────────────┘
+                                        ▼
+                            ┌────────────────────────┐
+                            │    Format + Redact     │
+                            └───────────┬────────────┘
+                                        ▼
+                          ┌────────────────────────────┐
+                          │ File and/or stream output  │
+                          └────────────────────────────┘
+```
+
+## Consequences
+
+### Positive
+
+- Applications can obtain detailed diagnostics for FINRA API troubleshooting without adopting a separate logging framework.
+- Bug-report logs receive targeted protection for tokens, identifiers, and sensitive structured or free-text values.
+- Ordinary Python logging remains unchanged and under application control.
+- Redaction is isolated to dedicated output handlers and does not alter `httpx.Response` objects or logging-record interfaces.
+- Redaction registration is skipped unless bug-report logging is explicitly enabled.
+- The same design applies to synchronous and asynchronous client operations.
+
+### Negative
+
+- Redaction may be incomplete and may produce false negatives or false positives.
+- Non-JSON response content and other data not covered by registration rules may remain visible and require manual review.
+- Other application or root-logger handlers may receive unredacted records, and can handle and log sensitive values outside the portions of the logging path controlled by `finra-py`.
+- Exact-value redaction can produce value collisions, resulting in unintended redactions or inaccurate redaction labels.
+- The redaction registry retains registered values in process memory while it is used by the logging facility.
+- Detailed `DEBUG` logging and redaction processing introduce performance overhead.
+- Applications remain responsible for secure logging destinations, retention, access control, and review before disclosure.
+
+## Alternatives Considered
+
+### No Built-In Redaction
+
+Applications could use ordinary Python logging and redact records themselves before storing or sharing them.
+
+This was rejected because `finra-py` has direct knowledge of FINRA request and response structures and can provide useful targeted redaction for common sensitive values. Requiring every application to reconstruct that handling would make bug reporting less consistent and increase the chance of accidental disclosure.
+
+### Global Logging Filter
+
+`finra-py` could install a filter on the root logger or otherwise reconfigure process-wide logging so that every record is redacted.
+
+This was rejected because `finra-py` does not control the application's logging architecture. Process-wide configuration would affect unrelated application records and could interfere with application logging configuration while still failing to guarantee that every output path is safe.
+
+### Mutate the `LogRecord`
+
+The library could redact the message in the `LogRecord` before other handlers process it.
+
+This was rejected because it would change the record seen by unrelated handlers and make redaction an implicit property of the logging record rather than an explicit property of the destination being protected.
+
+### Always-On Redaction Registration
+
+The client could always inspect request and response data and maintain the redaction registry even when ordinary logging is used.
+
+This was rejected because ordinary logging does not promise redaction, and maintaining the registry and traversing structured data would add processing overhead to normal client operation without providing a corresponding benefit.

@@ -79,10 +79,7 @@ Why use ``finra-py``?
 Limitations
 +++++++++++
 
-
-Even though ``finra-py`` strives to provide coverage of all documented datasets for the FINRA API, there are some datasets and services available through FINRA that may not be available through their API. 
-
-``finra-py`` provides full functionality for the documented datasets supported by the FINRA API, however some datasets and services available from FINRA may not be available through the API. See `FINRA Data <https://www.finra.org/finra-data>`__ for information about FINRA's available datasets.
+Even though ``finra-py`` strives to provide coverage of all documented datasets for the FINRA API, there are some datasets and services available through FINRA that may not be available through their API. See `FINRA Data <https://www.finra.org/finra-data>`__ for information about FINRA's available datasets.
 
 - ``finra-py`` does not currently support FINRA's fileX API
 
@@ -103,7 +100,7 @@ Security
 
 Please report security vulnerabilities privately using GitHub's Private Vulnerability Reporting, rather than as a normal bug report. See the `Security Policy <https://github.com/hawkberry/finra-py/blob/main/SECURITY.md>`__ for more information.
 
-The policy includes additional security information specific to ``finra-py``, including credential and token handling, sensitive data, diagnostic logging, dependency security, and supported releases.
+The policy includes additional security information specific to ``finra-py``, including credential and token handling, sensitive data, diagnostic logging, dependency security, release provenance, SBOMs, and supported releases.
 
 ++++++++++++++++++++
 FINRA API Consulting
@@ -113,7 +110,7 @@ Need help with a custom integration?
 
 As the author and maintainer of ``finra-py``, I provide consulting on FINRA API integrations, Web EFT migrations, regulatory filing and compliance workflows, and market data systems.
 
-See the `consulting page <https://finra-py.readthedocs.io/en/latest/consulting.html>`__ for more information.
+See the `consulting page <https://finra.hawkberry.com/en/latest/consulting.html>`__ for more information.
 
 +++++++++++++
 Project Links

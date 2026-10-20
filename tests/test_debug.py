@@ -104,6 +104,11 @@ class TestLogRedactor(unittest.TestCase):
     def test_spaces_only_string_label_not_stored(self):
         self.redactor.register('  ', 'LABEL')
         self.assertFalse('LABEL' in self.redactor.label_counts)
+        
+    @no_duplicates
+    def test_redact_string_not_in_repl(self):
+        msg = self.redactor.redact('not registered')
+        self.assertEqual(msg, 'not registered')
 
 
 ##############################################################################
@@ -113,8 +118,24 @@ class _TestRegisterRedactions:
     def setUp(self):
         self.logger = logging.getLogger('test')
         
-        # New redactor for each test
-        log_redactor._LOG_REDACTOR = log_redactor._LogRedactor()
+        # New redactor for each test, requires patch for module singleton
+        self.redactor = log_redactor._LogRedactor()
+        patchers = [
+            patch("finra.debug._LOG_REDACTOR", new=self.redactor),
+            patch("finra.log_redactor._LOG_REDACTOR", new=self.redactor),
+            ]
+        for p in patchers:
+            obj = p.start()
+            self.assertIs(obj, self.redactor)
+            self.addCleanup(p.stop)
+        
+    @no_duplicates
+    @patch('finra.log_redactor._register_redactions', new_callable=Mock)
+    @patch('finra.log_redactor._LOG_REDACTOR', new_callable=Mock)
+    def test_disabled(self, redactor, register_redactions):
+        redactor.enabled = False
+        log_redactor.register_redactions("redaction")
+        register_redactions.assert_not_called()
         
     @no_duplicates
     @patch('finra.log_redactor._LOG_REDACTOR', new_callable=Mock)
@@ -127,7 +148,7 @@ class _TestRegisterRedactions:
     @patch('finra.log_redactor._LOG_REDACTOR', new_callable=Mock)
     def test_empty_string(self, redactor):
         redactor.register = Mock()
-        log_redactor.register_redactions('')
+        log_redactor.register_redactions("")
         redactor.register.assert_not_called()
         
     @no_duplicates
@@ -147,10 +168,12 @@ class _TestRegisterRedactions:
     @no_duplicates
     def test_dict(self):
         log_redactor.register_redactions(
-            {'BadValue': '100001'}, bad_patterns=['bAd'] # case-insensitive
+            {'BadValue': '100001'},
+            bad_patterns=['bAd'] # case-insensitive
             )
         log_redactor.register_redactions(
-            {'OtherBadValue': '200002'}, bad_patterns=['bad']
+            {'OtherBadValue': '200002'},
+            bad_patterns=['bad']
             )
         
         self.logger.info('Bad Value: 100001')
@@ -164,11 +187,12 @@ class _TestRegisterRedactions:
         
     @no_duplicates
     def test_list_of_dict(self):
-        log_redactor.register_redactions([
-            {'GoodValue': '900009'},
-            {'BadValue': '100001'},
-            {'OtherBadValue': '200002'},
-            ],
+        log_redactor.register_redactions(
+            [
+                {'GoodValue': '900009'},
+                {'BadValue': '100001'},
+                {'OtherBadValue': '200002'},
+                ],
             bad_patterns=['bad']
             )
         
@@ -185,11 +209,12 @@ class _TestRegisterRedactions:
         
     @no_duplicates
     def test_compare(self):
-        log_redactor.register_redactions([
-            {'fieldName': 'GoodValue', 'fieldValue': '900009'},
-            {'fieldName': 'BadValue', 'fieldValue': '100001'},
-            {'fieldName': 'OtherBadValue', 'fieldValue': '200002'},
-            ],
+        log_redactor.register_redactions(
+            [
+                {'fieldName': 'GoodValue', 'fieldValue': '900009'},
+                {'fieldName': 'BadValue', 'fieldValue': '100001'},
+                {'fieldName': 'OtherBadValue', 'fieldValue': '200002'},
+                ],
             bad_patterns=['bad']
             )
         
@@ -206,11 +231,12 @@ class _TestRegisterRedactions:
         
     @no_duplicates
     def test_whitelist(self):
-        log_redactor.register_redactions([
-            {'GoodValue': '900009'},
-            {'BadValue': '100001'},
-            {'OtherBadValue': '200002'},
-            ],
+        log_redactor.register_redactions(
+            [
+                {'GoodValue': '900009'},
+                {'BadValue': '100001'},
+                {'OtherBadValue': '200002'},
+                ],
             bad_patterns=['bad'],
             whitelist=['OtherBadValue']
             )
@@ -228,11 +254,12 @@ class _TestRegisterRedactions:
         
     @no_duplicates
     def test_whitelist_case_sensitive(self):
-        log_redactor.register_redactions([
-            {'GoodValue': '900009'},
-            {'BadValue': '100001'},
-            {'OtherBadValue': '200002'},
-            ],
+        log_redactor.register_redactions(
+            [
+                {'GoodValue': '900009'},
+                {'BadValue': '100001'},
+                {'OtherBadValue': '200002'},
+                ],
             bad_patterns=['bad'],
             whitelist=['OtHeRbAdVaLuE'] # case-sensitive, fails to whitelist
             )
@@ -249,43 +276,126 @@ class _TestRegisterRedactions:
             )
         
     @no_duplicates
-    @patch('finra.log_redactor.register_redactions', new_callable=Mock)
-    def test_register_from_request_success(self, register_redactions):
-        r = httpx.Response(200, content=b'{"success": 1}')
-        log_redactor.register_redactions_from_response(r)
-        register_redactions.assert_called_with({'success': 1})
+    def test_warn_on(self):
+        log_redactor._register_redactions(
+            [
+                {'warnOnField': 'SSN #123-45-6789 and DOB 7/20/68.'},
+                {'whiteListed': 'Another social security number: 234-56-7890'},
+                ],
+            key_path=None,
+            bad_patterns=[],
+            whitelist=['whiteListed'],
+            warn_on=['warnonfield', 'whitelisted'] # must be lowercase
+            ) # test inner function: _register_redactions
+        
+        self.logger.info('123-45-6789 DOB 7/20/68')
+        self.logger.info('Another SSN: 123-45-6789.')
+        self.logger.info('White Listed SSN: 234-56-7890.')
+        
+        self.assertRegex(
+            self.file.getvalue(),
+            r"\[.*\] <REDACTED 0-warnOnField-1> <REDACTED 0-warnOnField-2>\n" +
+            r"\[.*\] Another SSN: <REDACTED 0-warnOnField-1>.\n" +
+            r"\[.*\] White Listed SSN: 234-56-7890.\n"
+            )
         
     @no_duplicates
-    @patch('finra.log_redactor.register_redactions', new_callable=Mock)
-    def test_register_from_request_not_ok(self, register_redactions):
+    def test_warn_on_health_info_avoid_redacted(self):
+        log_redactor._register_redactions(
+            [
+                {'warnOnField': 'An exact statement about some Disease.'},
+                {'whiteListed': 'A whitelisted field about a Disease.'},
+                ],
+            key_path=None,
+            bad_patterns=[],
+            whitelist=['whiteListed'],
+            warn_on=['warnonfield', 'whitelisted'] # must be lowercase
+            ) # test inner function: _register_redactions
+        
+        self.logger.info('An exact statement about some Disease.')
+        self.logger.info('A whitelisted field about a Disease.')
+        self.logger.info('A completely different Disease statement.')
+        
+        self.assertRegex(
+            self.file.getvalue(),
+            r"\[.*\] <REDACTED 0-warnOnField>\n" +
+            r"\[.*\] A whitelisted field about a Disease.\n" +
+            r"\[.*\] A completely different Disease statement.\n"
+            )
+        
+    @no_duplicates
+    @patch('finra.log_redactor._register_redactions', new_callable=Mock)
+    def test_register_response_success(self, register_redactions):
+        r = httpx.Response(200, content=b'{"success": 1}')
+        log_redactor.register_redactions_from_response(r)
+        register_redactions.assert_called_with(
+            {'success': 1}, None, log_redactor._BAD_PATTERNS,
+            log_redactor._WHITELIST, log_redactor._WARN_ON
+            )
+        
+    @no_duplicates
+    @patch('finra.log_redactor._register_redactions', new_callable=Mock)
+    def test_register_response_redactor_disabled(self, register_redactions):
+        r = Mock()
+        r.status_code = 200
+        r.json = Mock()
+        
+        self.redactor.enabled = False
+        log_redactor.register_redactions_from_response(r)
+        
+        register_redactions.assert_not_called()
+        r.json.assert_not_called()
+        
+    @no_duplicates
+    @patch('finra.log_redactor._register_redactions', new_callable=Mock)
+    def test_register_response_not_ok(self, register_redactions):
         r = httpx.Response(403, content=b'{"success": 1}')
         log_redactor.register_redactions_from_response(r)
+        
         register_redactions.assert_not_called()
         
     @no_duplicates
-    @patch('finra.log_redactor.register_redactions', new_callable=Mock)
-    def test_register_unparseable_json(self, register_redactions):
+    @patch('finra.log_redactor.logging.getLogger', new_callable=Mock)
+    @patch('finra.log_redactor._register_redactions', new_callable=Mock)
+    def test_register_unparseable_json(self, register_redactions, getLogger):
+        logger = Mock()
+        getLogger.return_value = logger
+        
         class _MockResponse(httpx.Response):
             def json(self):
                 raise json.decoder.JSONDecodeError('decode error', '', 0)
         
-        r = _MockResponse(200, content=b'{"success": 1}')
+        r = _MockResponse(200, content=b'unparsable')
         log_redactor.register_redactions_from_response(r)
+        
         register_redactions.assert_not_called()
+        getLogger.assert_called_once_with("finra.debug")
+        logger.warning.assert_called_once_with(
+            "Response.json() could not decode the content as JSON, so the "
+            "response could not be registered for redaction. Review the "
+            "log before sharing."
+            )
 
 
 class TestRegisterRedactionsStream(_TestRegisterRedactions, unittest.TestCase):
     def setUp(self):
-        super().setUp()
+        _TestRegisterRedactions.setUp(self)
+        unittest.TestCase.setUp(self)
+        
         self.file = io.StringIO()
+        
+        self.assertFalse(log_redactor._LOG_REDACTOR.enabled)
         debug._enable_bug_report_logging(
             stream=self.file, loggers=[self.logger]
             )
+        self.assertTrue(log_redactor._LOG_REDACTOR.enabled)
 
 
 class TestRegisterRedactionsFile(_TestRegisterRedactions, unittest.TestCase):
     def setUp(self):
-        super().setUp()
+        _TestRegisterRedactions.setUp(self)
+        unittest.TestCase.setUp(self)
+        
         self.tmpdir = tempfile.TemporaryDirectory()
         path = Path(self.tmpdir.name, 'test_log_file.log')
         
@@ -295,9 +405,12 @@ class TestRegisterRedactionsFile(_TestRegisterRedactions, unittest.TestCase):
                 return path.read_text()
         
         self.file = ReadFile()
+        
+        self.assertFalse(log_redactor._LOG_REDACTOR.enabled)
         debug._enable_bug_report_logging(
             filename=path, stream=None, loggers=[self.logger]
             )
+        self.assertTrue(log_redactor._LOG_REDACTOR.enabled)
         
     def tearDown(self):
         for h in self.logger.handlers:

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "finra-py"
-version = "1.3.0"
+version = "1.3.1"
 authors = [
 	{name = "Hawk Berry", email = "finra@hawkberry.com"},
 	]
@@ -56,6 +56,7 @@ source = [
 	]
 
 [tool.coverage.report]
+fail_under = 100
 exclude_lines = [
 	"pragma: no cover",
 	"raise NotImplementedError",
@@ -68,10 +69,6 @@ branch = true
 license_url = "https://github.com/hawkberry/finra-py/blob/main/LICENSE"
 pypi_url = "https://pypi.org/project/finra-py/"
 rss_url = "https://raw.githubusercontent.com/hawkberry/finra-py/main/finra-changelog.rss"
-
-[[tool.mypy.overrides]]
-module = "referencing"
-ignore_errors = true
 
 [tool.setuptools.packages.find]
 where = ["."]

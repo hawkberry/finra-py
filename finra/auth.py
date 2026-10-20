@@ -21,23 +21,23 @@ __all__ = [
     "client_from_token_file",
     "client_from_new_token",
     "client_from_storage_functions",
+    "build_client",
     "get_async_client",
     "async_client_from_new_token",
     "async_client_from_storage_functions",
     "build_async_client",
-    "build_client",
     ]
 
 
 ##############################################################################
 # CONFIG
 
-#: FINRA Identify Platform production OAuth 2.0 authentication URL
+#: FINRA Identity Platform production OAuth 2.0 authentication URL
 _PROD_TOKEN_ENDPOINT = (
     "https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token"
     )
 
-#: FINRA Identify Platform QA Test Environment OAuth 2.0 authentication URL
+#: FINRA Identity Platform QA Test Environment OAuth 2.0 authentication URL
 _TEST_TOKEN_ENDPOINT = (
     "https://ews-qaint.fip.qa.finra.org/fip/rest/ews/oauth2/access_token"
     )
@@ -129,7 +129,7 @@ def _add_auth_params_docs(func: Callable, *params: str) -> None:
 :param min_expires_in: If the token is loaded from a file, but has less than
     this time remaining (in seconds), proactively fetch a new token and replace
     it. Assists in managing :ref:`token_expiration`. If set to ``None``, never
-    proactively delete the token.
+    proactively fetch the token.
 """)
         elif p == "kwds":
             _params.append("""
@@ -158,9 +158,7 @@ def _add_auth_params_docs(func: Callable, *params: str) -> None:
 # UTILS
 
 # Constructor for default token read function
-def __token_reader(
-    token_path: str | Path
-    ) -> Callable[[], TokenType]:
+def __token_reader(token_path: str | Path) -> Callable[[], TokenType]:
     
     def token_read_func() -> TokenType:
         get_logger().info("Reading token from file %s", token_path)
@@ -171,9 +169,7 @@ def __token_reader(
 
 
 # Constructor for default token write function
-def __token_writer(
-    token_path: str | Path
-    ) -> Callable[..., Any]:
+def __token_writer(token_path: str | Path) -> Callable[..., Any]:
     
     Path(token_path).parent.mkdir(parents=True, exist_ok=True)
     
@@ -205,10 +201,15 @@ def build_client(
     **kwds
     ) -> Client:
     """
-    Build a :py:class:`Client <finra.client.Client>` with an
-    `OAuth2Client
+    Build a :py:class:`Client <finra.client.Client>` with an `OAuth2Client
     <https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html>`__
-    session and :py:class:`TokenManager <finra.token_manager.TokenManager>`
+    session and a configured
+    :py:class:`TokenManager <finra.token_manager.TokenManager>`.
+    
+    All other creation functions ultimately call this function to instantiate
+    the :py:class:`Client <finra.client.Client>`. Keyword arguments for this
+    function can be passed through any of the other synchronous client creation
+    functions.
     """
     if test_environment:
         token_endpoint = _TEST_TOKEN_ENDPOINT
@@ -270,10 +271,14 @@ def build_async_client(
     ) -> AsyncClient:
     """
     Build an :py:class:`AsyncClient <finra.async_client.AsyncClient>` with an
-    `AsyncOAuth2Client
-    <https://docs.authlib.org/en/stable/oauth2/client/http/httpx.html#
-    async-oauth-2-0>`__
-    session and :py:class:`TokenManager <finra.token_manager.TokenManager>`
+    `AsyncOAuth2Client <https://docs.authlib.org/en/stable/
+    oauth2/client/http/httpx.html#async-oauth-2-0>`__ session and a configured
+    :py:class:`TokenManager <finra.token_manager.TokenManager>`.
+    
+    All other creation functions ultimately call this function to instantiate
+    the :py:class:`AsyncClient <finra.async_client.AsyncClient>`. Keyword
+    arguments for this function can be passed through any of the other client
+    creation functions.
     """
     async def update_token(token: TokenType, *args, **kwds) -> Any:
         out = token_manager.update_token(token, *args, **kwds)

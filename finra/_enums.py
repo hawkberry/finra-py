@@ -844,8 +844,7 @@ class AgencyTBAPricing(Enum):
     #: String: The settlement period code for the TBA security
     SETTLEMENT_CODE = "settlementCode"
     
-    #: String: The agency code identifying the issuing agency (e.g., GNMA,
-    #: FNMA, FHLMC)
+    #: String: The agency code identifying the issuing agency
     AGENCY_CODE = "agencyCode"
     
     #: String: The coupon rate code for the TBA security
@@ -874,8 +873,7 @@ class AgencyCMOPricing(Enum):
     #: String: The pricing table name from the IDC workbook
     PRICING_TABLE_NAME = "pricingTableName"
     
-    #: String: The agency code identifying the issuing agency (e.g., GNMA,
-    #: FNMA, FHLMC)
+    #: String: The agency code identifying the issuing agency
     AGENCY_CODE = "agencyCode"
     
     #: String: The vintage year code for the CMO tranche
@@ -964,8 +962,7 @@ class AgencyMBSTradingActivity(Enum):
     #: Format: yyyy-MM-dd
     REPORT_DATE = "reportDate"
     
-    #: String: The agency code identifying the issuing agency (e.g., GNMA,
-    #: FNMA, FHLMC)
+    #: String: The agency code identifying the issuing agency
     AGENCY_CODE = "agencyCode"
     
     #: String: The trading activity category code
@@ -997,11 +994,10 @@ class AgencyMBSARMHybridPricing(Enum):
     #: String: The pricing table name from the IDC workbook
     PRICING_TABLE_NAME = "pricingTableName"
     
-    #: String: The agency code identifying the issuing agency (e.g., GNMA,
-    #: FNMA, FHLMC)
+    #: String: The agency code identifying the issuing agency
     AGENCY_CODE = "agencyCode"
     
-    #: String: The fixed rate period code for the adjustable rate MBS security
+    #: String: The fixed-rate period code for the adjustable rate MBS security
     FIXED_RATE_PERIOD_CODE = "fixedRatePeriodCode"
     
     #: String: The pricing category code (e.g., price, yield, spread)
@@ -1027,8 +1023,7 @@ class AgencyMBSPricing(Enum):
     #: String: The pricing table name from the IDC workbook
     PRICING_TABLE_NAME = "pricingTableName"
     
-    #: String: The agency code identifying the issuing agency (e.g., GNMA,
-    #: FNMA, FHLMC)
+    #: String: The agency code identifying the issuing agency
     AGENCY_CODE = "agencyCode"
     
     #: String: The coupon rate code for the MBS security
@@ -1058,7 +1053,7 @@ class CollateralizedObligationsPricing(Enum):
     #: String: The pricing table name from the IDC workbook
     PRICING_TABLE_NAME = "pricingTableName"
     
-    #: String: The CBO/CDO/CLO product type code (e.g., CBO, CDO, CLO)
+    #: String: The product type code (e.g., CBO, CDO, CLO)
     PRODUCT_CODE = "productCode"
     
     #: String: The vintage year code for the tranche

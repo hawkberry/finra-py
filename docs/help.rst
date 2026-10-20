@@ -30,6 +30,16 @@ This client library performs diagnostic logging of its activity using Python's `
   
 Sometimes, this additional logging is enough to help you debug your application. Before asking for help, carefully review the logs and determine whether you can identify and resolve the issue yourself. You may be the best person to investigate and fix it!
 
+You can set the log-level as appropriate. To log the HTTPX requests and responses using ordinary logging, you can set the root logger's log-level to ``DEBUG``:
+
+.. code-block:: python
+
+  logging.getLogger('').setLevel(logging.DEBUG)  # set the log-level to DEBUG
+  
+Alternatively, if you want to only see what the client is logging, call :py:func:`base_client.get_logger() <finra.base_client.get_logger>` to get the client's logger and configure it directly.
+
+However, you should be mindful about where your data is being logged. These ordinary logging configurations will not redact sensitive data in the logs. If you need log redaction, for example if you're submitting a bug report, use :py:func:`debug.enable_bug_report_logging() <finra.debug.enable_bug_report_logging>`. See below.
+
 ------------------
 Bug Report Logging
 ------------------
@@ -40,9 +50,9 @@ If you still can't figure out what's going wrong, this library provides a specia
 
 The bug report utility configures dedicated loggers for the ``finra-py`` client, authentication, and debug modules. The logging handlers created by this utility write diagnostic logs from ``finra-py`` to the configured stream or file. Users may provide their own stream or file destination, but any additional logging written to that destination by external code is outside the control of this library. When filing bug reports, provide this utility a dedicated log file location so that the file contains only ``finra-py`` logs.
 
-The bug report utility (and the ``DEBUG`` log-level in general) is not designed to be used in production code. All logged output is recorded, which creates a performance penalty. Be aware that a value collision can occasionally occur during redaction, which may result in unintended fields being redacted or inaccurate redaction labels.
+The bug report utility (and the ``DEBUG`` log-level in general) is not designed to be used in production code. All logged output is processed and recorded, which creates a performance penalty. Be aware that a value collision can occasionally occur during redaction, which may result in unintended fields being redacted or inaccurate redaction labels. For more information about this design and implementation, see `ADR 0005 - Diagnostic Logging and Log Redaction <https://github.com/hawkberry/finra-py/blob/main/docs/adr/0005-diagnostic-logging-redaction.md>`__.
 
-The recommended practice is to enable bug report logging at the beginning of your program so that the entire API interaction is recorded. To terminate bug report logging, exit the program.
+The recommended practice is to enable bug report logging at the beginning of your program before creating the client, so that the entire API interaction is recorded. To terminate bug report logging, exit the program.
 
 .. code-block:: python
 
@@ -98,11 +108,11 @@ The following is a list of known FINRA API issues and inconsistencies. This list
 Submission API
 --------------
 
-The Submission API has several discepancies between the FINRA API documentation and the values defined in the JSON Schemas. Many of the examples in the Submission API are also inconsistent with the JSON Schema definitions, but those are beyond the scope of this section.
+The Submission API has several discrepancies between the FINRA API documentation and the values defined in the JSON Schemas. Many of the examples in the Submission API are also inconsistent with the JSON Schema definitions, but those are beyond the scope of this section.
 
 #. The API documentation for Form BR lists ``WITHDRAW`` or ``CLOSUREWITHDRAW`` as valid filing types, however the `Form BR JSON Schema <https://schemas.api.finra.org/FINRAApiPlatformBRFiling.json>`__ definition does not allow these values (see the `Metadata Schema <https://schemas.api.finra.org/FINRAApiPlatformBRFilingMetadata.json>`__). The Form BR JSON Schema definition shows that only ``AMENDMENT``, ``CLOSURE`` and ``INTIAL`` filing types are accepted. For now, the client library will keep these filing types implemented on :py:class:`FormBR <finra.filings.form_br.FormBR>` unless they are removed from the documentation.
    
-#. The API documentation  for Form U5 lists ``ignoreWarnings`` as a valid metadata property, however the `Form U5 JSON Schema <https://schemas.api.finra.org/FINRAApiPlatformU5Filing.json>`__ definition does not list this as a required value and does not allow additional properties (see the `Metadata Schema <https://schemas.api.finra.org/FINRAApiPlatformU5FilingMetadata.json>`__). For now, the client library will keep this feature implemented on :py:class:`FormU5 <finra.filings.form_u5.FormU5>` unless it is removed from the documentation.
+#. The API documentation for Form U5 lists ``ignoreWarnings`` as a valid metadata property, however the `Form U5 JSON Schema <https://schemas.api.finra.org/FINRAApiPlatformU5Filing.json>`__ definition does not list this as a required value and does not allow additional properties (see the `Metadata Schema <https://schemas.api.finra.org/FINRAApiPlatformU5FilingMetadata.json>`__). For now, the client library will keep this feature implemented on :py:class:`FormU5 <finra.filings.form_u5.FormU5>` unless it is removed from the documentation.
    
 --------------------
 Query Production API
@@ -114,7 +124,7 @@ This section includes issues and inconsistencies for Query API production datase
    
 #. The :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>` for the :py:meth:`BaseClient.get_individual_registration_validation() <finra.base_client.BaseClient.get_individual_registration_validation>` production and mock datasets are missing the ``datasetGroup`` and ``datasetName`` properties.
    
-#. For production and mock datasets, :py:meth:`BaseClient.get_individual_registration_validation_details() <finra.base_client.BaseClient.get_individual_registration_validation_details>` returns erroneous :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>` that does not match the JSON Schemas for either versions of this dataset.
+#. For production and mock datasets, :py:meth:`BaseClient.get_individual_registration_validation_details() <finra.base_client.BaseClient.get_individual_registration_validation_details>` returns erroneous :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>` that does not match the JSON Schemas for either version of this dataset.
    
 #. The following Fixed Income production and mock datasets do not support partitions, however they return inconsistent status codes when querying :py:attr:`Endpoint.PARTITIONS <finra.base_client.BaseClient.Endpoint.PARTITIONS>`; the response returns ``200``, but the ``statusCode`` field returns ``500 Internal Server Error``:
    
@@ -189,15 +199,15 @@ This section includes issues and inconsistencies for Query API mock datasets ret
    
 #. The :py:meth:`BaseClient.get_individual_pre_registration_search() <finra.base_client.BaseClient.get_individual_pre_registration_search>` mock dataset returns field names that are inconsistent with the :py:attr:`Endpoint.METADATA <finra.base_client.BaseClient.Endpoint.METADATA>`.
    
-#. The :py:meth:`BaseClient.get_individual_registration_validation() <finra.base_client.BaseClient.get_individual_registration_validation>` mock dataset returns a  ``404 Not Found`` status code.
+#. The :py:meth:`BaseClient.get_individual_registration_validation() <finra.base_client.BaseClient.get_individual_registration_validation>` mock dataset returns a ``404 Not Found`` status code.
    
 #. The :py:meth:`BaseClient.get_registered_individual_search() <finra.base_client.BaseClient.get_registered_individual_search>` mock dataset returns a ``middleName`` field that is not in production or mock metadata. This field cannot be used as a ``fields`` or ``sort_fields`` query parameter.
    
 #. The :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` for the :py:meth:`BaseClient.get_broker_dealer_firm_list() <finra.base_client.BaseClient.get_broker_dealer_firm_list>` mock dataset **Version 2** shows ``supportedGetById`` as ``True``, indicating that the dataset supports single record query. This is incorrect, since **Version 2** of this dataset passes the Individual CRD Number as a query parameter, rather than accessing a URL subpath. This is also inconsistent with the value of ``supportedGetById`` shown for the production dataset.
    
-#. The :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` for the :py:meth:`BaseClient.get_broker_dealer_firm_list() <finra.base_client.BaseClient.get_broker_dealer_firm_list>` mock dataset shows ``supportsRecordLimit`` and ``supportsRecordOffset`` as ``False``, indicating that this dataset does not supports pagination. The :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>` for the mock dataset also does not accept ``limit`` and ``offset`` keywords. However, this is inconsistent with the production dataset which show ``supportsRecordLimit`` and ``supportsRecordOffset`` as ``True``. Therefore, pagination is implemented in the client's query method.
+#. The :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` for the :py:meth:`BaseClient.get_broker_dealer_firm_list() <finra.base_client.BaseClient.get_broker_dealer_firm_list>` mock dataset shows ``supportsRecordLimit`` and ``supportsRecordOffset`` as ``False``, indicating that this dataset does not support pagination. The :py:attr:`Endpoint.DATA <finra.base_client.BaseClient.Endpoint.DATA>` for the mock dataset also does not accept ``limit`` and ``offset`` keywords. However, this is inconsistent with the production dataset which shows ``supportsRecordLimit`` and ``supportsRecordOffset`` as ``True``. Therefore, pagination is implemented in the client's query method.
    
-#. The :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` for the :py:meth:`BaseClient.get_u4_form_prefill() <finra.base_client.BaseClient.get_u4_form_prefill>` mock dataset shows ``supportsRecordLimit`` as ``True`` (even though ``supportsRecordOffset`` is ``False``), indicating that this dataset supports pagination. However, this is inconsistent with the production dataset which show ``supportsRecordLimit`` as ``False``. Therefore, pagination is **not** implemented in the client's query method.
+#. The :py:attr:`Endpoint.DATASETS <finra.base_client.BaseClient.Endpoint.DATASETS>` for the :py:meth:`BaseClient.get_u4_form_prefill() <finra.base_client.BaseClient.get_u4_form_prefill>` mock dataset shows ``supportsRecordLimit`` as ``True`` (even though ``supportsRecordOffset`` is ``False``), indicating that this dataset supports pagination. However, this is inconsistent with the production dataset which shows ``supportsRecordLimit`` as ``False``. Therefore, pagination is **not** implemented in the client's query method.
    
 #. The following Registration and TRACE Report Card mock datasets do not support partitions, however they return inconsistent status codes when querying :py:attr:`Endpoint.PARTITIONS <finra.base_client.BaseClient.Endpoint.PARTITIONS>`, with the response returning a ``200``, but the ``statusCode`` field shows a ``500 Internal Server Error``:
    

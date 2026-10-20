@@ -225,8 +225,7 @@ def extract_location(response: Response) -> Optional[str]:
 def _extract_response_field(response: Response | dict[str, Any], field: str
                             ) -> Optional[Any]:
     if isinstance(response, Response):
-        _response: dict[str, Any] = response.json()
-        return _response.get(field)
+        return response.json().get(field)
     return response.get(field)
 
 
@@ -269,9 +268,9 @@ def extract_expires(
     ``httpx.Response`` object, or from the JSON data returned by
     ``httpx.Response.json()``, if it exists.
     
-    The ``expires`` field must have the format ``%Y-%m-%d %H:%M:%S %Z``. This is
-    typically the case with non-native asynchronous request flows that check their
-    status using :py:meth:`BaseClient.get_async_request_status()
+    The ``expires`` field must have the format ``%Y-%m-%d %H:%M:%S %Z``. This
+    is typically the case with non-native asynchronous request flows that check
+    their status using :py:meth:`BaseClient.get_async_request_status()
     <finra.base_client.BaseClient.get_async_request_status>`.
     
     The returned value is the timezone-aware UTC expiration datetime of the
@@ -299,9 +298,9 @@ def extract_expires_isoformat(
     ``httpx.Response`` object, or from the JSON data returned by
     ``httpx.Response.json()``, if it exists.
     
-    The ``expires`` field must be in ISO format. This is typically the case with
-    asynchronous request flows that check their status natively within their
-    original request method.
+    The ``expires`` field must be in ISO format. This is typically the case
+    with asynchronous request flows that check their status natively within
+    their original request method.
     
     The returned value is the timezone-aware UTC expiration datetime of the
     *pre-signed* URL. After the URL expires, the URL will no longer be valid.
@@ -368,8 +367,8 @@ def extract_request_timestamp(
     ``httpx.Response`` object, or from the JSON data returned by
     ``httpx.Response.json()``, if it exists.
     
-    The value is the ISO datetime string when the API request was created, returned
-    as a string.
+    The value is the ISO datetime string when the API request was created,
+    returned as a string.
     
     :param response:
     :type response: :py:class:`httpx.Response`
@@ -386,8 +385,8 @@ def extract_request_timestamp_dt(
     ``httpx.Response`` object, or from the JSON data returned by
     ``httpx.Response.json()``, if it exists.
     
-    The value is the ISO datetime when the API request was created, returned as a
-    ``datetime.datetime`` object.
+    The value is the ISO datetime when the API request was created, returned as
+    a ``datetime.datetime`` object.
     
     :param response:
     :type response: :py:class:`httpx.Response`
@@ -410,11 +409,6 @@ def extract_error_messages(
     :param response:
     :type response: :py:class:`httpx.Response`
     :return: Error messages
-    
-    .. note::
-        This functionality is only documented for
-        :py:meth:`BaseClient.get_composite_individual_seed()
-        <finra.base_client.BaseClient.get_composite_individual_seed>`.
     """
     return _extract_response_field(response, "errorMessages")
 

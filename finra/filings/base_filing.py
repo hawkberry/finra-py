@@ -143,6 +143,7 @@ class BaseFiling(EnumConverter, ABC):
     def build(self) -> FilingDictType:
         if self._metadata._filingStatus is None:
             raise ValueError("Must set filing status")
+        
         return {"filing": build_json_object(self)}
 
 

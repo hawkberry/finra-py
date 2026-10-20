@@ -22,7 +22,7 @@ class TestCreateIndividual(unittest.TestCase):
             "Create Individual only supports 'submitted' filing status"
             ):
             self.filing.build()
-        
+    
     
     #######################################################################
     # FILING DATA
@@ -38,7 +38,7 @@ class TestCreateIndividual(unittest.TestCase):
         self.filing.clear_filing_data()
         with self.assertRaisesRegex(ValueError, "Must set filing data"):
             self.filing.build()
-    
+        
     @no_duplicates
     def test_set_filing_data_none(self):
         self.filing.set_filing_data({'data': '1'})
