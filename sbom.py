@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -30,6 +31,7 @@ def version_tuple(version: str) -> tuple[int, ...]:
             ) from exc
 
 
+# The pyproject.toml version
 def get_project_version(root: Path) -> tuple[int, ...]:
     with (root / "pyproject.toml").open("rb") as file:
         project = tomllib.load(file)["project"]
@@ -42,6 +44,7 @@ def get_project_version(root: Path) -> tuple[int, ...]:
     return version_tuple(version)
 
 
+# Highest published GitHub tag
 def get_highest_release_version() -> tuple[int, ...]:
     tags = run_git(
         "tag",
@@ -72,6 +75,7 @@ def generate_sbom(
         ) as file:
         temporary = Path(file.name)
     
+    # Run syft to create the SBOM
     try:
         environment = os.environ.copy()
         environment.update({
@@ -99,11 +103,30 @@ def generate_sbom(
             check=True
             )
         
+        # Validate created file
+        if not temporary.is_file() or temporary.stat().st_size == 0:
+            raise RuntimeError(f"Syft produced an empty SBOM: {temporary}")
+        
+        try:
+            with temporary.open(encoding="utf-8") as file:
+                sbom = json.load(file)
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            raise RuntimeError(
+                f"Syft did not produce valid JSON: {temporary}"
+                ) from exc
+        
+        if not isinstance(sbom, dict) or sbom.get("bomFormat") != "CycloneDX":
+            raise RuntimeError(
+                f"Syft output is not a CycloneDX JSON SBOM: {temporary}"
+                )
+        
+        # Replace into ./sbom directory
         temporary.replace(target)
-    
+        
     finally:
         temporary.unlink(missing_ok=True)
     
+    # Add to commit
     subprocess.run(
         ["git", "add", str(target)],
         cwd=root,
@@ -116,9 +139,10 @@ def generate_sbom(
 def main() -> int:
     root = Path(run_git("rev-parse", "--show-toplevel"))
     
+    # Only run SBOM routine if the pyproject.toml version is higher than the
+    # highest published GitHub tag
     current_version = get_project_version(root)
     highest_release = get_highest_release_version()
-    
     if current_version <= highest_release:
         return 0
     
