@@ -100,7 +100,10 @@ def generate_sbom(
                 ],
             cwd=root,
             env=environment,
-            check=True
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            text=True
             )
         
         # Validate created file
@@ -123,6 +126,12 @@ def generate_sbom(
         # Replace into ./sbom directory
         temporary.replace(target)
         
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(
+            f"Syft exited with status {exc.returncode}.\n"
+            f"Syft stderr:\n{exc.stderr}"
+            ) from exc
+    
     finally:
         temporary.unlink(missing_ok=True)
     
