@@ -5,6 +5,47 @@
     <link>https://finra.hawkberry.com/en/latest/finra-changelog.html</link>
     <description>Unofficial changelog for the FINRA API and documentation.</description>
     <item>
+      <title>MEDIUM — Link added</title>
+      <description>priority=MEDIUM &lt;br /&gt;kind=link_added &lt;br /&gt;section_type=non_dataset &lt;br /&gt;Path: Getting Started &gt; API Platform Basics &gt; QA Test Environment &lt;br /&gt;Text: https://finpro-qaint.qa.finra.org/ &lt;br /&gt;URL: https://finpro-qaint.qa.finra.org/</description>
+      <author>finra-py</author>
+      <pubDate>Thu, 29 Oct 2026 18:12:58 +0000</pubDate>
+      <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#finra-docs-2026-10</link>
+      <guid isPermaLink="false">urn:changelog:ad977b8531ed0559401567038cd275c04efb7a2b7c311814e55a3556b9de99c1</guid>
+      <category domain="priority">MEDIUM</category>
+      <category domain="kind">link_added</category>
+      <category domain="section_type">non_dataset</category>
+    </item>
+    <item>
+      <title>LOW — Section title changed</title>
+      <description>priority=LOW &lt;br /&gt;kind=section_title_changed &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; Registration &gt; Registered Individual Search &gt; Version 1 (Retired) : POST /data/group/{group}/name/{dataset} &lt;br /&gt;Old: Version 1 (Deprecated) : POST /data/group/{group}/name/{dataset} &lt;br /&gt;New: Version 1 (Retired) : POST /data/group/{group}/name/{dataset}</description>
+      <author>finra-py</author>
+      <pubDate>Thu, 29 Oct 2026 18:12:58 +0000</pubDate>
+      <guid isPermaLink="false">urn:changelog:0535f363f993b653791aeeacb5f724b05a55a06a1bde94e4dc23f5b46dadab7d</guid>
+      <category domain="priority">LOW</category>
+      <category domain="kind">section_title_changed</category>
+      <category domain="section_type">dataset_subsection</category>
+    </item>
+    <item>
+      <title>LOW — Text changed</title>
+      <description>priority=LOW &lt;br /&gt;kind=text_changed &lt;br /&gt;section_type=non_dataset &lt;br /&gt;Path: Getting Started &gt; API Platform Basics &gt; QA Test Environment &lt;br /&gt;--- previous &lt;br /&gt;+++ current &lt;br /&gt;@@ -11,2 +11,3 @@ &lt;br /&gt; API Console (QA): https://gateway-qaint.qa.finra.org/app/ &lt;br /&gt; The base resource URL for the test FINRA API Platform is https://api-int.qa.finra.org &lt;br /&gt;+FinPro (QA): https://finpro-qaint.qa.finra.org/</description>
+      <author>finra-py</author>
+      <pubDate>Thu, 29 Oct 2026 18:12:58 +0000</pubDate>
+      <guid isPermaLink="false">urn:changelog:833a8769daa2b8a6b8114707a512e097d4b4ce807bedd5d0b2f28e8155ad8b51</guid>
+      <category domain="priority">LOW</category>
+      <category domain="kind">text_changed</category>
+      <category domain="section_type">non_dataset</category>
+    </item>
+    <item>
+      <title>LOW — Text changed</title>
+      <description>priority=LOW &lt;br /&gt;kind=text_changed &lt;br /&gt;section_type=dataset_subsection &lt;br /&gt;Path: Query API &gt; Registration &gt; Registered Individual Search &gt; Versions Detail &lt;br /&gt;--- previous &lt;br /&gt;+++ current &lt;br /&gt;@@ -1,4 +1,4 @@ &lt;br /&gt; Available Versions: 1 and 2 &lt;br /&gt;-Version 1: Deprecated with Retirement Date: June 30, 2026 &lt;br /&gt;+Version 1: Retired on October 28, 2026. Original Retirement Date: June 30, 2026 &lt;br /&gt; Version 2 Enhancements: Provides enriched individual information instead of just CRD identifiers. Changes are listed below &lt;br /&gt; Response Structure: v1: Returns an object with a single property individualCrdNumbers containing an array of CRD numbers, v2: Returns an array of objects directly</description>
+      <author>finra-py</author>
+      <pubDate>Thu, 29 Oct 2026 18:12:58 +0000</pubDate>
+      <guid isPermaLink="false">urn:changelog:c5a4bc02a39bfb916e2977ae09aa748faee1b5036012f596c06301e1f1b0462b</guid>
+      <category domain="priority">LOW</category>
+      <category domain="kind">text_changed</category>
+      <category domain="section_type">dataset_subsection</category>
+    </item>
+    <item>
       <title>MEDIUM — Table row added</title>
       <description>priority=MEDIUM &lt;br /&gt;kind=table_row_added &lt;br /&gt;section_type=non_dataset &lt;br /&gt;Path: Getting Started &gt; API Platform Basics &gt; Troubleshooting &lt;br /&gt;Table: (no title) &lt;br /&gt;Row: ('429', 'Too Many Requests', 'Indicates there are too many requests coming from the same client within a give amount of time. Please refer to the Platform Usage Limits for more information')</description>
       <author>finra-py</author>

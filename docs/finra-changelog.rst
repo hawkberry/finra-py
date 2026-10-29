@@ -81,6 +81,15 @@ Changelog
 October 2026
 ------------
 
+October 29, 2026
+~~~~~~~~~~~~~~~~
+
+* **MEDIUM — Link added**
+
+  - Path: Getting Started > API Platform Basics > QA Test Environment
+  - Text: https://finpro-qaint.qa.finra.org/
+  - URL: https://finpro-qaint.qa.finra.org/
+
 October 16, 2026
 ~~~~~~~~~~~~~~~~
 
