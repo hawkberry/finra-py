@@ -5,6 +5,17 @@
     <link>https://finra.hawkberry.com/en/latest/finra-changelog.html</link>
     <description>Unofficial changelog for the FINRA API and documentation.</description>
     <item>
+      <title>HIGH — Section added</title>
+      <description>priority=HIGH &lt;br /&gt;kind=section_added &lt;br /&gt;section_type=dataset_group &lt;br /&gt;Path: Query API &gt; FIFC</description>
+      <author>finra-py</author>
+      <pubDate>Mon, 09 Nov 2026 20:00:40 +0000</pubDate>
+      <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#november-09-2026</link>
+      <guid isPermaLink="false">urn:changelog:c7119e6179e9b6f3e9d42b6be025f78186b6156bbd83d4ee9de637297657c582</guid>
+      <category domain="priority">HIGH</category>
+      <category domain="kind">section_added</category>
+      <category domain="section_type">dataset_group</category>
+    </item>
+    <item>
       <title>MEDIUM — Link added</title>
       <description>priority=MEDIUM &lt;br /&gt;kind=link_added &lt;br /&gt;section_type=non_dataset &lt;br /&gt;Path: Getting Started &gt; API Platform Basics &gt; QA Test Environment &lt;br /&gt;Text: https://finpro-qaint.qa.finra.org/ &lt;br /&gt;URL: https://finpro-qaint.qa.finra.org/</description>
       <author>finra-py</author>

@@ -76,6 +76,18 @@ Changelog
 
 .. BEGIN_FINRA_DOCUMENTATION_CHANGES
 
+.. _finra_docs_2026_11:
+
+November 2026
+-------------
+
+November 9, 2026
+~~~~~~~~~~~~~~~~
+
+* **HIGH — Section added**
+
+  - Path: Query API > FIFC
+
 .. _finra_docs_2026_10:
 
 October 2026
