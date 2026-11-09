@@ -88,18 +88,6 @@ November 9, 2026
 
   - Path: Query API > FIFC
 
-* **HIGH — Section added**
-
-  - Path: Query API > FIFC
-
-* **HIGH — Section added**
-
-  - Path: Query API > FIFC
-
-* **HIGH — Section added**
-
-  - Path: Query API > FIFC
-
 .. _finra_docs_2026_10:
 
 October 2026

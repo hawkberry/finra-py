@@ -3804,6 +3804,7 @@ class BaseClient(EnumConverter, ABC):
         Defaults to API Version 2.
         
         API Version 1: Deprecated with Retirement Date: June 30, 2026
+                       Officially retired on October 28, 2026.
         
         See `datasets details <https://developer.finra.org/docs#
         query_api-registration-registered_individual_search>`__.

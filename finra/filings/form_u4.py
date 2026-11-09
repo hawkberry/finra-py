@@ -133,9 +133,7 @@ class FormU4(BaseFilingOps):
     operations will be ignored.
     
     Form U4 submission supports Rep Edit and Rep Signature via FINRPO. If a U4
-    requires Rep Edit or Rep Signature, it must be sent in a draft mode and the
-    final submission must be made via the `FINRA Gateway
-    <https://gateway.finra.org/>`__.
+    requires Rep Edit or Rep Signature, it must be sent in a draft mode.
     
     See :py:meth:`BaseClient.form_u4_submission()
     <finra.base_client.BaseClient.form_u4_submission>`
