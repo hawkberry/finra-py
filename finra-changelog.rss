@@ -8,6 +8,17 @@
       <title>HIGH — Section added</title>
       <description>priority=HIGH &lt;br /&gt;kind=section_added &lt;br /&gt;section_type=dataset_group &lt;br /&gt;Path: Query API &gt; FIFC</description>
       <author>finra-py</author>
+      <pubDate>Mon, 09 Nov 2026 20:03:29 +0000</pubDate>
+      <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#november-09-2026</link>
+      <guid isPermaLink="false">urn:changelog:a36f2f4c5f9c9870bf221c1bda15f5c159237ffc0922482cac1a1ad53f260ac0</guid>
+      <category domain="priority">HIGH</category>
+      <category domain="kind">section_added</category>
+      <category domain="section_type">dataset_group</category>
+    </item>
+    <item>
+      <title>HIGH — Section added</title>
+      <description>priority=HIGH &lt;br /&gt;kind=section_added &lt;br /&gt;section_type=dataset_group &lt;br /&gt;Path: Query API &gt; FIFC</description>
+      <author>finra-py</author>
       <pubDate>Mon, 09 Nov 2026 20:01:31 +0000</pubDate>
       <link>https://finra.hawkberry.com/en/latest/finra-changelog.html#november-09-2026</link>
       <guid isPermaLink="false">urn:changelog:bb805d21237966826a6d3ba4dec5dcb83208df570eeffef35429f5b740b3c479</guid>
