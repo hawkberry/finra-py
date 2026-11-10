@@ -81,6 +81,21 @@ Changelog
 November 2026
 -------------
 
+November 10, 2026
+~~~~~~~~~~~~~~~~~
+
+* **HIGH — Section added**
+
+  - Path: Notification API > FIFC
+* **HIGH — Section added**
+
+  - Path: Query API > FIFC > FIFC Imposter Notifications
+* **HIGH — Link added**
+
+  - Path: Query API > FIFC > FIFC Intelligence
+  - Text: Schema
+  - URL: https://schemas-int.api.qa.finra.org/v1/fifc/fifcIntelligence.json
+
 November 9, 2026
 ~~~~~~~~~~~~~~~~
 
